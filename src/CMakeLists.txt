@@ -5,6 +5,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/libmd5
     ${CMAKE_SOURCE_DIR}/vhdlparser/
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}
     ${CLANG_INCLUDEDIR}
     ${GENERATED_SRC}
 )
@@ -120,6 +121,11 @@ FLEX_TARGET(sqlcode        sqlcode.l        ${GENERATED_SRC}/sqlcode.cpp        
 FLEX_TARGET(configimpl     configimpl.l     ${GENERATED_SRC}/configimpl.cpp     COMPILE_FLAGS "${LEX_FLAGS}")
 
 BISON_TARGET(constexp      constexp.y       ${GENERATED_SRC}/ce_parse.cpp       COMPILE_FLAGS ${YACC_FLAGS})
+
+
+include_directories(${PYTHON_INCLUDE_DIRS})
+LINK_DIRECTORIES(${PYTHON_LIBRARIES})
+
 
 add_library(doxycfg STATIC
     ${GENERATED_SRC}/lang_cfg.h
@@ -241,6 +247,10 @@ add_library(_doxygen STATIC
     xmlgen.cpp
     docbookvisitor.cpp
     docbookgen.cpp
+
+    ../autodoc/utils.cpp
+    ../autodoc/pynode.cpp
+    ../autodoc/pickledocvisitor.cpp
 )
 
 add_executable(doxygen main.cpp)
@@ -276,6 +286,7 @@ target_link_libraries(doxygen
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBS}
     ${CLANG_LIBS}
+    ${PYTHON_LIBRARY}
 )
 
 install(TARGETS doxygen DESTINATION bin)

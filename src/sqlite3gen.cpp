@@ -37,6 +37,7 @@
 #include "groupdef.h"
 #include "pagedef.h"
 #include "dirdef.h"
+#include "autodoc/pickledocvisitor.h"
 
 #include <qdir.h>
 #include <string.h>
@@ -894,6 +895,15 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
   if (md->memberType()==MemberType_EnumValue) return;
   if (md->isHidden()) return;
   //if (md->name().at(0)=='@') return; // anonymous member
+
+  // TODO: is const cast valid here?
+  pickleDocTree(
+      md->getDefFileName(),
+      md->getDefLine(),
+      const_cast<Definition*>(def),
+      const_cast<MemberDef*>(md),
+      md->documentation()
+  );
 
   // group members are only visible in their group
   //if (def->definitionType()!=Definition::TypeGroup && md->getGroupDef()) return;

@@ -10,7 +10,8 @@
 #
 # Documents produced by Doxygen are derivative works derived from the
 # input used in their production; they are not affected by this license.
-
+# -DCMAKE_BUILD_TYPE=Debug -Dbuild_tests=ON -DPYTHON_INCLUDE_DIR=/usr/include/python3.5 -DPYTHON_LIBRARY=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5m.so
+# -DCMAKE_BUILD_TYPE=Debug -Dbuild_tests=ON -DPYTHON_INCLUDE_DIR=/usr/include/python3.5dm -DPYTHON_LIBRARY=/usr/lib/python3.5/config-3.5dm-x86_64-linux-gnu/libpython3.5dm.so
 cmake_minimum_required(VERSION 2.8.12)
 project(doxygen)
 
@@ -20,11 +21,15 @@ option(build_parse     "Parses source code and dumps the dependencies between th
 option(build_xmlparser "Example showing how to parse doxygen's XML output." OFF)
 option(build_search    "Build external search tools (doxysearch and doxyindexer)" OFF)
 option(build_doc       "Build user manual" OFF)
-option(use_sqlite3     "Add support for sqlite3 output [experimental]." OFF)
+option(build_tests     "Build tests" OFF)
+option(build_doxygen_tests     "Build doxygen tests" OFF)
+option(use_sqlite3     "Add support for sqlite3 output [experimental]." ON)
 option(use_libclang    "Add support for libclang parsing." OFF)
 option(win_static      "Link with /MT in stead of /MD on windows" OFF)
-option(english_only    "Only compile in support for the English language" OFF)
+option(english_only    "Only compile in support for the English language" ON)
 option(force_qt4       "Forces doxywizard to build using Qt4 even if Qt5 is installed" OFF)
+
+set (CMAKE_CXX_STANDARD 11)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(TOP "${CMAKE_SOURCE_DIR}")
@@ -80,6 +85,8 @@ else ()
 endif ()
 
 find_program(DOT NAMES dot)
+
+find_package(PythonLibs 3 REQUIRED)
 find_package(PythonInterp REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
@@ -138,21 +145,19 @@ if (win_static)
     endforeach()
 endif()
 
+if (build_tests)
+    enable_testing()
+endif()
 
 add_subdirectory(libmd5)
 add_subdirectory(qtools)
 add_subdirectory(vhdlparser)
 add_subdirectory(src)
+add_subdirectory(autodoc)
 
-if (build_doc)
-    add_subdirectory(examples)
-    add_subdirectory(doc)
-endif ()
-
-add_subdirectory(addon)
-
-enable_testing()
-add_subdirectory(testing)
+if (build_doxygen_tests)
+    add_subdirectory(testing)
+endif()
 
 include(cmake/packaging.cmake) # set CPACK_xxxx properties
 include(CPack)
