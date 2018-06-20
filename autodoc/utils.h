@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef AUTODOC_UTILS_H
+#define AUTODOC_UTILS_H
 
 #include <qcstring.h>
 
@@ -202,4 +202,4 @@ protected:
 //-----------------------------------------------------------------------------
 
 
-#endif // UTILS_H
+#endif // AUTODOC_UTILS_H

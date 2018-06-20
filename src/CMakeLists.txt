@@ -126,6 +126,14 @@ BISON_TARGET(constexp      constexp.y       ${GENERATED_SRC}/ce_parse.cpp       
 include_directories(${PYTHON_INCLUDE_DIRS})
 LINK_DIRECTORIES(${PYTHON_LIBRARIES})
 
+file(GLOB AUTODOC_FILES
+     LIST_DIRECTORIES false
+     "../autodoc/visitor/*.cpp")
+
+list(APPEND AUTODOC_FILES
+     ../autodoc/pynode.cpp
+     ../autodoc/utils.cpp
+)
 
 add_library(doxycfg STATIC
     ${GENERATED_SRC}/lang_cfg.h
@@ -247,10 +255,7 @@ add_library(_doxygen STATIC
     xmlgen.cpp
     docbookvisitor.cpp
     docbookgen.cpp
-
-    ../autodoc/utils.cpp
-    ../autodoc/pynode.cpp
-    ../autodoc/pickledocvisitor.cpp
+    ${AUTODOC_FILES}
 )
 
 add_executable(doxygen main.cpp)

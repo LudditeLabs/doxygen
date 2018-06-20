@@ -317,24 +317,29 @@ PyObject* PyDocutilsTree::create(const QCString &name,
 }
 //-----------------------------------------------------------------------------
 
-void PyDocutilsTree::pushWithName(const QCString &name, PyObject *node)
+void PyDocutilsTree::pushWithName(const QCString &name, PyObject *node,
+                                  bool append)
 {
     // TODO: push node type to list.
     if (node == NULL)
         return;
 
-    addTo(m_current, node);
+    if (append)
+        addTo(m_current, node);
+
     m_current = node;
     m_nodeTypes.push_back(name);
 }
 //-----------------------------------------------------------------------------
 
-void PyDocutilsTree::pop()
+void PyDocutilsTree::pop(PyObject *newParent)
 {
     if (m_current.get() != m_document.get())
     {
-        // TODO: pop node type from list.
-        m_current = getParentOf(m_current);
+        if (newParent)
+            m_current = newParent;
+        else
+            m_current = getParentOf(m_current);
         m_nodeTypes.pop_back();
     }
 }

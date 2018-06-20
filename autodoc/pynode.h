@@ -1,5 +1,5 @@
-#ifndef PYNODE_H
-#define PYNODE_H
+#ifndef AUTODOC_PYNODE_H
+#define AUTODOC_PYNODE_H
 
 #include "Python.h"
 #include "autodoc/utils.h"
@@ -132,9 +132,9 @@ public:
     }
 
     // NOTE: takes ownership!
-    void pushWithName(const QCString &name, PyObject *node);
+    void pushWithName(const QCString &name, PyObject *node, bool append = true);
 
-    void pop();
+    void pop(PyObject *newParent = NULL);
 
     PyObject* createTextNode(const QCString &text);
 
@@ -159,6 +159,8 @@ public:
     PyObject* document() const { return m_document.get(); }
     PyObject* createDocument(PyObject *kwargs = NULL);
 
+    PyObject* takeDocument() { return m_document.take(); }
+
 private:
     PyGlobals *m_globals;
     PyObjectPtr m_document;
@@ -170,4 +172,4 @@ private:
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-#endif // PYNODE_H
+#endif // AUTODOC_PYNODE_H

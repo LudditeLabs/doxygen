@@ -1,5 +1,5 @@
-#ifndef PICKLEDOCVISITOR_H
-#define PICKLEDOCVISITOR_H
+#ifndef AUTODOC_VISITOR_PYDOCVISITOR_H
+#define AUTODOC_VISITOR_PYDOCVISITOR_H
 
 #include <string>
 #include <memory>
@@ -14,25 +14,30 @@ typedef _object PyObject;
 
 class Definition;
 class MemberDef;
+class DocNode;
+
 class PyNode;
 class PyDocutilsTree;
 
 
 void pickleDocTree(const QCString &fileName,
-                          int lineNr,
-                          Definition *scope,
-                          MemberDef *md,
-                          const QCString &text);
+                   int lineNr,
+                   Definition *scope,
+                   MemberDef *md,
+                   const QCString &text);
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
-
-class PickleDocVisitor: public DocVisitor
+/** This visitor builds python tree object. */
+class PyDocVisitor: public DocVisitor
 {
 public:
-    PickleDocVisitor(const QCString &fileName, int lineNumber);
-    ~PickleDocVisitor();
+    PyDocVisitor(const QCString &fileName, int lineNumber);
+    ~PyDocVisitor();
 
     PyObject* document() const;
+    PyObject* takeDocument();
 
     //--------------------------------------
     // visitor functions for leaf nodes
@@ -71,13 +76,13 @@ public:
     void visitPost(DocParamSect *);
     void visitPre(DocParamList *);
     void visitPost(DocParamList *);
+    void visitPre(DocSimpleSect *);
+    void visitPost(DocSimpleSect *);
 
     void visitPre(DocAutoList *);
     void visitPost(DocAutoList *);
     void visitPre(DocAutoListItem *);
     void visitPost(DocAutoListItem *);
-    void visitPre(DocSimpleSect *);
-    void visitPost(DocSimpleSect *);
     void visitPre(DocTitle *);
     void visitPost(DocTitle *);
     void visitPre(DocSimpleList *);
@@ -144,22 +149,22 @@ public:
 
 private:
     std::unique_ptr<PyDocutilsTree> m_tree;
-//    PyObjectPtr m_document;
-//    PyObjectPtr m_parent;
-
-//    PyNode *m_nodes;
+    PyObjectPtr m_fieldList;
 
     QCString m_fileName;
     int m_lineNumber;
     QCString m_textBuf;
 
     int m_paramType;
+
     /**
      * Create text node from content in m_textBuf.
      */
     bool maybeCreateTextNode();
     bool maybeFinishCurrentPara(DocNode *node);
-    bool beforeVisit(DocNode *node);
 };
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-#endif // PICKLEDOCVISITOR_H
+
+#endif // AUTODOC_VISITOR_PYDOCVISITOR_H
