@@ -1,6 +1,7 @@
 #include "Python.h"
 #include "autodoc/visitor/visitor.h"
 #include "docparser.h"
+#include "config.h"
 #include "autodoc/pynode.h"
 
 
@@ -22,7 +23,8 @@ void pickleDocTree(const QCString &fileName,
 
     root->accept(visitor.get());
 
-    PyNode::instance()->pickle(visitor->document(), "test.pkl");
+    QCString path = Config_getString(OUTPUT_DIRECTORY);
+    PyNode::instance()->pickle(visitor->document(), path + "/test.pkl");
 }
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
