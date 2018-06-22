@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include "Python.h"
+#include "autodoc/common/pydocutilstree.h"
 #include "testconfig.h"
-#include "autodoc/utils.h"
+#include "autodoc/common/utils.h"
 #include "autodoc/tests/utils.h"
 
 using namespace testutils;
@@ -94,7 +95,6 @@ static ::testing::AssertionResult runPyTest(const char *path,
 }
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-
 
 TEST(PyTest, run)
 {

@@ -1,11 +1,11 @@
-#ifndef AUTODOC_VISITOR_PYDOCVISITOR_H
-#define AUTODOC_VISITOR_PYDOCVISITOR_H
+#ifndef AUTODOC_COMMON_VISITOR_H
+#define AUTODOC_COMMON_VISITOR_H
 
 #include <string>
 #include <memory>
 #include <qcstring.h>
 #include "docvisitor.h"
-#include "autodoc/utils.h"
+#include "autodoc/common/utils.h"
 
 #ifndef PyObject_HEAD
 struct _object;
@@ -15,8 +15,6 @@ typedef _object PyObject;
 class Definition;
 class MemberDef;
 class DocNode;
-
-class PyNode;
 class PyDocutilsTree;
 
 
@@ -167,4 +165,4 @@ private:
 //-----------------------------------------------------------------------------
 
 
-#endif // AUTODOC_VISITOR_PYDOCVISITOR_H
+#endif // AUTODOC_COMMON_VISITOR_H

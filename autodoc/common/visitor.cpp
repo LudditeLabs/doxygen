@@ -1,8 +1,8 @@
 #include "Python.h"
-#include "autodoc/visitor/visitor.h"
+#include "autodoc/common/visitor.h"
+#include "autodoc/common/pydocutilstree.h"
 #include "docparser.h"
 #include "config.h"
-#include "autodoc/pynode.h"
 
 
 void pickleDocTree(const QCString &fileName,
@@ -24,7 +24,7 @@ void pickleDocTree(const QCString &fileName,
     root->accept(visitor.get());
 
     QCString path = Config_getString(OUTPUT_DIRECTORY);
-    PyNode::instance()->pickle(visitor->document(), path + "/test.pkl");
+    PyGlobals::instance()->pickleToFile(visitor->document(), path + "/test.pkl");
 }
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -111,6 +111,7 @@ void PyDocVisitor::visitPre(DocRoot *node)
         if (PyObject_SetAttrString(doc, "current_source", val.get()) == -1)
         {
             PyErr_Print();
+            PyErr_Clear();
         }
     }
 }

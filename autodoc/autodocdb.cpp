@@ -12,7 +12,7 @@
 #include "configimpl.h"
 #include "searchindex.h"
 #include "store.h"
-#include "autodoc/utils.h"
+#include "autodoc/common/utils.h"
 
 
 int main(int argc, char **argv)

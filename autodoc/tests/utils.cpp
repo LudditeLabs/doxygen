@@ -3,8 +3,8 @@
 #include <memory>
 #include "docparser.h"
 #include "filedef.h"
-#include "autodoc/pynode.h"
-#include "autodoc/visitor/visitor.h"
+#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/visitor.h"
 
 // Partially based on:
 // https://stackoverflow.com/questions/1796510/accessing-a-python-traceback-from-the-c-api

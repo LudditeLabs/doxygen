@@ -126,14 +126,8 @@ BISON_TARGET(constexp      constexp.y       ${GENERATED_SRC}/ce_parse.cpp       
 include_directories(${PYTHON_INCLUDE_DIRS})
 LINK_DIRECTORIES(${PYTHON_LIBRARIES})
 
-file(GLOB AUTODOC_FILES
-     LIST_DIRECTORIES false
-     "../autodoc/visitor/*.cpp")
+file(GLOB AUTODOC_FILES "../autodoc/common/*.cpp")
 
-list(APPEND AUTODOC_FILES
-     ../autodoc/pynode.cpp
-     ../autodoc/utils.cpp
-)
 
 add_library(doxycfg STATIC
     ${GENERATED_SRC}/lang_cfg.h

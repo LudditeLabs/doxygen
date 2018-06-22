@@ -1,5 +1,5 @@
 #include "Python.h"
-#include "autodoc/utils.h"
+#include "autodoc/common/utils.h"
 #include <cstdarg>
 
 
@@ -84,6 +84,7 @@ bool PyClass::ensureCreated()
         {
             m_createError = true;
             PyErr_Print();
+            PyErr_Clear();
             return false;
         }
     }

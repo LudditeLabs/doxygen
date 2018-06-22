@@ -8,7 +8,7 @@
 #include "configimpl.h"
 #include "searchindex.h"
 #include "store.h"
-#include "autodoc/utils.h"
+#include "autodoc/common/utils.h"
 #include "qfileinfo.h"
 #include "testconfig.h"
 
@@ -19,6 +19,7 @@ public:
     void SetUp() override
     {
         m_pyInit.reset(new PyInitHelper);
+        printf("SetUp()\n");
 
         std::stringstream code;
         code << "import sys\n"
@@ -36,6 +37,7 @@ public:
 
     void TearDown() override
     {
+        printf("TearDown()\n");
         // From generateOutput() - doxygen.cpp
         cleanUpDoxygen();
         finializeSearchIndexer();

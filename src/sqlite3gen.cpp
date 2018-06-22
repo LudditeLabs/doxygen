@@ -37,7 +37,7 @@
 #include "groupdef.h"
 #include "pagedef.h"
 #include "dirdef.h"
-#include "autodoc/visitor/visitor.h"
+#include "autodoc/common/visitor.h"
 
 #include <qdir.h>
 #include <string.h>

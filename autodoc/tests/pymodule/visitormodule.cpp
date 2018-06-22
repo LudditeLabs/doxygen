@@ -11,8 +11,8 @@
 
 #include "docparser.h"
 #include "filedef.h"
-#include "autodoc/pynode.h"
-#include "autodoc/visitor/visitor.h"
+#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/visitor.h"
 
 
 class Init
@@ -20,6 +20,7 @@ class Init
 public:
     Init()
     {
+        printf("Init()\n");
         initDoxygen();
         Config::init();
         checkConfiguration();
@@ -28,6 +29,7 @@ public:
 
     ~Init()
     {
+        printf("~Init()\n");
         cleanUpDoxygen();
         finializeSearchIndexer();
         Config::deinit();
