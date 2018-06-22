@@ -9,6 +9,13 @@ typedef _object PyObject;
 #endif
 
 
+bool printPyError(const char *message = nullptr);
+bool checkPyError(const char *message = nullptr);
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
 /**
  * Helper class to init python interpriter on constrution and finalize it
  * on destruction.

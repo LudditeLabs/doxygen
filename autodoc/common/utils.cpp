@@ -1,6 +1,28 @@
 #include "Python.h"
 #include "autodoc/common/utils.h"
-#include <cstdarg>
+#include <iostream>
+
+// For debugging purpose.
+#define TRACE_REF(txt) ((void)0)
+//#define TRACE_REF(txt)  if (m_p) \
+//    std::cerr << txt << " " << m_p->ob_type->tp_name << " " << m_p << std::endl
+
+bool printPyError(const char *message)
+{
+    if (message)
+        std::cerr << "ERROR: " << message << std::endl;
+    PyErr_Print();
+    PyErr_Clear();
+    return false;
+}
+//-----------------------------------------------------------------------------
+
+bool checkPyError(const char *message)
+{
+    return PyErr_Occurred() ? printPyError(message) : true;
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
 PyInitHelper::PyInitHelper()
@@ -20,8 +42,7 @@ PyInitHelper::~PyInitHelper()
 PyObjectPtr::PyObjectPtr(PyObject *p)
 : m_p(p), m_needDecRef(true)
 {
-//    if (m_p)
-//        printf("construct %s %p\n", m_p->ob_type->tp_name, m_p);
+    TRACE_REF("construct");
 }
 //-----------------------------------------------------------------------------
 
@@ -45,7 +66,7 @@ void PyObjectPtr::decRef()
 {
     if (m_needDecRef && m_p)
     {
-//        printf("Py_DECREF %s %p\n", m_p->ob_type->tp_name, m_p);
+        TRACE_REF("Py_DECREF");
         Py_DECREF(m_p);
     }
 }
@@ -54,9 +75,7 @@ void PyObjectPtr::reset(PyObject *other)
 {
     m_p = other;
     m_needDecRef = true;
-
-//    if (m_p)
-//        printf("reset to %s %p\n", m_p->ob_type->tp_name, m_p);
+    TRACE_REF("reset to");
 }
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -83,9 +102,7 @@ bool PyClass::ensureCreated()
         if (!m_object)
         {
             m_createError = true;
-            PyErr_Print();
-            PyErr_Clear();
-            return false;
+            return printPyError();
         }
     }
     return true;

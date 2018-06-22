@@ -23,22 +23,14 @@ PyObject* PyDocutilsTree::create(const QCString &name,
     PyObjectPtr cls = m_globals->nodeClass(name);
 
     if (args != NULL && kwargs != NULL)
-    {
         node = PyObject_Call(cls, args, kwargs);
-    }
 
     // kwargs is NULL and args may be NULL.
     else
-    {
         node = PyObject_CallObject(cls, args);
-    }
 
     if (!node)
-    {
-        PyErr_Print();
-        PyErr_Clear();
-    }
-
+        printPyError();
     return node;
 }
 //-----------------------------------------------------------------------------
@@ -82,13 +74,7 @@ bool PyDocutilsTree::addTo(PyObject *parent, PyObject *node)
 {
     PyObjectPtr meth = PyUnicode_FromString("append");
     PyObjectPtr res = PyObject_CallMethodObjArgs(parent, meth, node, NULL);
-    if (!res)
-    {
-        PyErr_Print();
-        PyErr_Clear();
-        return false;
-    }
-    return true;
+    return res ? true : printPyError();
 }
 //-----------------------------------------------------------------------------
 

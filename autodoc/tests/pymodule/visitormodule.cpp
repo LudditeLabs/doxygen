@@ -20,7 +20,6 @@ class Init
 public:
     Init()
     {
-        printf("Init()\n");
         initDoxygen();
         Config::init();
         checkConfiguration();
@@ -29,7 +28,6 @@ public:
 
     ~Init()
     {
-        printf("~Init()\n");
         cleanUpDoxygen();
         finializeSearchIndexer();
         Config::deinit();

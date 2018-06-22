@@ -19,7 +19,6 @@ public:
     void SetUp() override
     {
         m_pyInit.reset(new PyInitHelper);
-        printf("SetUp()\n");
 
         std::stringstream code;
         code << "import sys\n"
@@ -37,7 +36,6 @@ public:
 
     void TearDown() override
     {
-        printf("TearDown()\n");
         // From generateOutput() - doxygen.cpp
         cleanUpDoxygen();
         finializeSearchIndexer();
@@ -55,7 +53,6 @@ private:
 
 
 GTEST_API_ int main(int argc, char** argv) {
-  std::cout << "Running main() from gmock_main.cc\n";
   testing::InitGoogleMock(&argc, argv);
   ::testing::AddGlobalTestEnvironment(new DoxygenEnv);
   return RUN_ALL_TESTS();

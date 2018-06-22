@@ -24,12 +24,8 @@ public:
     {
         PyObjectPtr cls = m_globals->nodeClass(name);
         PyObject *node = PyObject_CallFunctionObjArgs(cls, args...);
-
-        if (node == NULL)
-        {
-            PyErr_Print();
-            PyErr_Clear();
-        }
+        if (!node)
+            printPyError();
         return node;
     }
 

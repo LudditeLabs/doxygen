@@ -109,10 +109,7 @@ void PyDocVisitor::visitPre(DocRoot *node)
         // Line number (1-based) of `current_source`.
         PyObjectPtr val = PyLong_FromLong(m_lineNumber + 1);
         if (PyObject_SetAttrString(doc, "current_source", val.get()) == -1)
-        {
-            PyErr_Print();
-            PyErr_Clear();
-        }
+            printPyError();
     }
 }
 //-----------------------------------------------------------------------------
