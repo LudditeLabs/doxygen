@@ -3,11 +3,14 @@
 
 #include <qcstring.h>
 #include <gtest/gtest.h>
+#include <string.h>
 
 #ifndef PyObject_HEAD
 struct _object;
 typedef _object PyObject;
 #endif
+
+class PyInitHelper;
 
 namespace testutils {
     /**
@@ -16,6 +19,27 @@ namespace testutils {
      * @returns Google Test assertion result.
      */
     ::testing::AssertionResult getPyError(const char *prefix = nullptr);
+
+
+    class TestingEnv: public ::testing::Environment
+    {
+    public:
+        TestingEnv(const std::string& pytestExpression);
+
+        static TestingEnv* instance();
+
+        void SetUp() override;
+        void TearDown() override;
+
+        const std::string& pytestExpression() const
+        {
+            return m_pytestExpression;
+        }
+
+    private:
+        std::unique_ptr<PyInitHelper> m_pyInit;
+        std::string m_pytestExpression;
+    };
 }
 
 #endif // AUTODOC_TESTS_UTILS_H
