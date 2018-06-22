@@ -179,27 +179,4 @@ protected:
 //-----------------------------------------------------------------------------
 
 
-//class MultiString
-//{
-//public:
-//    MultiString(int count);
-
-//    void add(const QCString &value);
-
-//    bool isMultiValue() const
-//    {
-//        return !m_tuple.ptr().isNull();
-//    }
-
-//    const QCString& str() const { return m_str; }
-//    PyObject* pyTuple() const { return m_tuple.ptr().get(); }
-
-//private:
-//    QCString m_str;
-//    PyTuple m_tuple;
-//};
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
 #endif // AUTODOC_COMMON_UTILS_H
