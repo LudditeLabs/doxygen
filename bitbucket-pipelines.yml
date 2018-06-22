@@ -1,0 +1,17 @@
+image: debian:stretch
+pipelines:
+  default:
+    - step:
+        script:
+          - apt update
+          - apt install -y build-essential cmake flex bison python3.5-dev python3.5-dbg libsqlite3-dev wget git
+          - wget https://bootstrap.pypa.io/get-pip.py
+          - python3.5dm get-pip.py
+          - python3.5dm -m pip install pytest docutils
+          - python3.5m get-pip.py
+          - python3.5m -m pip install pytest docutils
+
+          # test with debug python
+          - cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -Dbuild_tests=ON -DPYTHON_INCLUDE_DIR=/usr/include/python3.5dm -DPYTHON_LIBRARY=/usr/lib/python3.5/config-3.5dm-x86_64-linux-gnu/libpython3.5dm.so .
+          - make
+          - ctest
