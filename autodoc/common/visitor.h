@@ -154,6 +154,7 @@ private:
     QCString m_textBuf;
 
     int m_paramType;
+    bool m_styled;  // Style node sets this flag.
 
     /**
      * Create text node from content in m_textBuf.

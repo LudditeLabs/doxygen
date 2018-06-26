@@ -35,7 +35,8 @@ PyDocVisitor::PyDocVisitor(const QCString &fileName, int lineNumber)
 : DocVisitor(DocVisitor_Other),
   m_tree(new PyDocutilsTree),
   m_fileName(fileName),
-  m_lineNumber(lineNumber)
+  m_lineNumber(lineNumber),
+  m_styled(false)
 {
 }
 //-----------------------------------------------------------------------------
@@ -62,6 +63,13 @@ bool PyDocVisitor::maybeCreateTextNode()
 {
     if (m_textBuf.isEmpty())
         return false;
+
+    // Remove trailing line break because <paragraph> node already assumes that.
+    if (m_tree->currentType() == "paragraph")
+    {
+        if (m_textBuf.at(m_textBuf.size() - 1) == '\n')
+            m_textBuf.remove(m_textBuf.size() - 1, 1);
+    }
 
     PyObjectPtr pynode = m_tree->createTextNode(m_textBuf);
     m_textBuf = QCString();
