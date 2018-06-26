@@ -128,7 +128,7 @@ public:
     const PyObjectPtr& ptr() const { return m_object; }
 
     PyObject* get() const { return m_object.get(); }
-    PyObject* take() const { return m_object.get(); }
+    PyObject* take() { return m_object.take(); }
     void release() { m_object.release(); }
 
     bool isNull() const { return m_object.isNull(); }
