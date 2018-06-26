@@ -39,8 +39,7 @@ static ::testing::AssertionResult do_chdir(const char *path)
 //
 // 'expression' can be used to run tests by keyword expressions:
 // "MyClass and not method"
-static ::testing::AssertionResult runPyTest(const char *path,
-                                            const char *expression = nullptr)
+static ::testing::AssertionResult runPyTest(const char *path)
 {
     PyObjectPtr pytest = PyImport_ImportModule("pytest");
     if (!pytest)
@@ -52,8 +51,9 @@ static ::testing::AssertionResult runPyTest(const char *path,
 
     PyObjectPtr args = Py_BuildValue("[s]", path);
 
-    if (expression)
-        args = Py_BuildValue("[sss]", path, "-k", expression);
+    auto expression = TestingEnv::instance()->pytestExpression();
+    if (!expression.empty())
+        args = Py_BuildValue("[ssss]", path, "-k", expression.data());
     else
         args = Py_BuildValue("[s]", path);
 
