@@ -15,7 +15,11 @@ void PyDocVisitor::visit(DocWord *node)
 void PyDocVisitor::visit(DocWhiteSpace *node)
 {
     printf("visit(DocWhiteSpace)\n");
-    m_textBuf.append(node->chars());
+
+    // Add space only if prev node is not style.
+    if (!m_styled)
+        m_textBuf.append(node->chars());
+   m_styled = false;
 }
 //-----------------------------------------------------------------------------
 
