@@ -65,7 +65,7 @@ void PyDocutilsTree::pop(PyObject *newParent)
 
 PyObject* PyDocutilsTree::createTextNode(const QCString &text)
 {
-    PyObjectPtr str = PyUnicode_FromString(text.data());
+    PyObjectPtr str = PyUnicode_FromStringAndSize(text.data(), text.size());
     return createWithArgs("Text", str.get(), NULL);
 }
 //-----------------------------------------------------------------------------

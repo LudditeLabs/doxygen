@@ -71,7 +71,7 @@ bool PyGlobals::pickleToFile(PyObject *node, const QCString &fileName)
     if (!isValid())
         return false;
 
-    PyObjectPtr n = PyUnicode_FromString(fileName.data());
+    PyObjectPtr n = PyUnicode_FromStringAndSize(fileName.data(), fileName.size());
     PyObjectPtr wb = PyUnicode_FromString("wb");
     PyObjectPtr file = PyObject_CallFunctionObjArgs(m_open, n.get(), wb.get(), NULL);
     if (!file)

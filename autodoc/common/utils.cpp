@@ -108,8 +108,6 @@ bool PyClass::ensureCreated()
     return true;
 }
 //-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
@@ -129,7 +127,7 @@ PyObject* PyTuple::create()
 void PyTuple::add(const QCString &str)
 {
     if (ensureCreated())
-        PyTuple_SetItem(m_object, m_index++, PyUnicode_FromString(str.data()));
+        PyTuple_SetItem(m_object, m_index++, PyUnicode_FromStringAndSize(str.data(), str.size()));
 }
 //-----------------------------------------------------------------------------
 
@@ -159,7 +157,7 @@ void PyDict::setField(const QCString &field, const QCString &value)
 {
     if (ensureCreated())
     {
-        PyObjectPtr val = PyUnicode_FromString(value.data());
+        PyObjectPtr val = PyUnicode_FromStringAndSize(value.data(), value.size());
         PyDict_SetItemString(m_object, field.data(), val.get());
     }
 }
