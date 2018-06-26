@@ -42,17 +42,7 @@ static PyObject* htmlAttribsToDict(const HtmlAttribList &attribs)
     HtmlAttrib *att;
 
     for (li.toFirst(); (att = li.current()); ++li)
-    {
-        if (!att->value.isEmpty())
-            extra.setField(att->name, att->value);
-        // NOTE: we add even empty attrs.
-        else
-        {
-            Py_INCREF(Py_None);
-            extra.setField(att->name, Py_None);
-            Py_DECREF(Py_None);
-        }
-    }
+        extra.setField(att->name, att->value);
 
     return extra.take();
 }
@@ -72,7 +62,7 @@ void PyDocVisitor::visit(DocStyleChange *node)
 
         PyObjectPtr extra = htmlAttribsToDict(node->attribs());
         if (extra)
-            kw.setField("attribs", extra);
+            kw.setField("extra", extra.get());
 
         switch (node->style())
         {
@@ -83,10 +73,11 @@ void PyDocVisitor::visit(DocStyleChange *node)
             tag = "emphasis";
             break;
         case DocStyleChange::Code:
+            // TODO: correct?
             // doxy: computeroutput
-            // TODO: it also could be 'code' block.
+            // TODO: it also could be 'code' block. (?)
             // http://docutils.sourceforge.net/docs/ref/rst/directives.html#code
-            tag = "literal_block";
+            tag = "literal";
             kw.setField("realtag", "code");
             break;
         case DocStyleChange::Subscript:
@@ -126,6 +117,7 @@ void PyDocVisitor::visit(DocStyleChange *node)
     else
     {
         m_tree->pop();
+        m_styled = true;
     }
 }
 //-----------------------------------------------------------------------------
