@@ -120,16 +120,52 @@ class TestInline:
         assert len(node.children) == 0
         assert str(node) == 'words'
 
+    # TODO: move to test_reference.py
+
     # Test: url in text.
     def test_url(self):
         doc = visitor.parse('some text http://example.com')
         assert isinstance(doc, nodes.document)
 
-        node = doc.children[0]
-        assert isinstance(node, nodes.paragraph)
+        para = doc.children[0]
+        assert isinstance(para, nodes.paragraph)
+        assert len(para.children) == 2
+
+        node = para.children[0]
+        assert isinstance(node, nodes.Text)
+        assert len(node.children) == 0
+        assert str(node) == 'some text '
+
+        node = para.children[1]
+        assert isinstance(node, nodes.reference)
         assert len(node.children) == 1
+        assert node.get('refuri') == 'http://example.com'
 
         node = node.children[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
-        assert str(node) == 'some text http://example.com'
+        assert str(node) == 'http://example.com'
+
+    # Test: mailto in text.
+    def test_mailto(self):
+        doc = visitor.parse('some text example@bla.com')
+        assert isinstance(doc, nodes.document)
+
+        para = doc.children[0]
+        assert isinstance(para, nodes.paragraph)
+        assert len(para.children) == 2
+
+        node = para.children[0]
+        assert isinstance(node, nodes.Text)
+        assert len(node.children) == 0
+        assert str(node) == 'some text '
+
+        node = para.children[1]
+        assert isinstance(node, nodes.reference)
+        assert len(node.children) == 1
+        assert node.get('refuri') == 'mailto:example@bla.com'
+
+        node = node.children[0]
+        assert isinstance(node, nodes.Text)
+        assert len(node.children) == 0
+        assert str(node) == 'example@bla.com'

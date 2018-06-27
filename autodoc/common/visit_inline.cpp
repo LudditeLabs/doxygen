@@ -33,27 +33,43 @@ void PyDocVisitor::visit(DocLineBreak *node)
 void PyDocVisitor::visit(DocLinkedWord *node)
 {
     printf("visit(DocLinkedWord)\n");
+    // TODO: what node to use?
+    m_textBuf.append(node->word());
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocSymbol *node)
 {
     printf("visit(DocSymbol)\n");
+    // TODO: special symbols.
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocURL *node)
 {
     printf("visit(DocURL)\n");
+    maybeCreateTextNode();
+
+    QCString refuri;
     if (node->isEmail())
-        m_textBuf.append("mailto:");
-    m_textBuf.append(node->url());
+        refuri.append("mailto:");
+    refuri.append(node->url());
+
+    PyObjectPtr args = PyTuple_New(0);
+    PyDict kw;
+    kw.setField("refuri", refuri);
+
+    PyObjectPtr ref = m_tree->create("reference", args, kw.get());
+    PyObjectPtr txtnode = m_tree->createTextNode(node->url());
+    m_tree->addTo(ref, txtnode);
+    m_tree->addToCurrent(ref);
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocHorRuler *node)
 {
     printf("visit(DocHorRuler)\n");
+    // TODO: add <hruler/> like node.
 }
 //-----------------------------------------------------------------------------
 
