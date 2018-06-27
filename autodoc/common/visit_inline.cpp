@@ -19,7 +19,7 @@ void PyDocVisitor::visit(DocWhiteSpace *node)
     // Add space only if prev node is not style.
     if (!m_styled)
         m_textBuf.append(node->chars());
-   m_styled = false;
+    m_styled = false;
 }
 //-----------------------------------------------------------------------------
 
@@ -73,12 +73,9 @@ void PyDocVisitor::visit(DocStyleChange *node)
             tag = "emphasis";
             break;
         case DocStyleChange::Code:
-            // TODO: correct?
+            // TODO: is it correct tag?
             // doxy: computeroutput
-            // TODO: it also could be 'code' block. (?)
-            // http://docutils.sourceforge.net/docs/ref/rst/directives.html#code
             tag = "literal";
-            kw.setField("realtag", "code");
             break;
         case DocStyleChange::Subscript:
             tag = "subscript";
@@ -87,27 +84,31 @@ void PyDocVisitor::visit(DocStyleChange *node)
             tag = "superscript";
             break;
         case DocStyleChange::Center:
-            tag = "paragraph";
-            kw.setField("realtag", "center");
+            // NOTE: not supported by docutils, so we wrap with <inline>.
+            tag = "inline";
+            kw.setField("centered", "1");
             break;
         case DocStyleChange::Small:
+            // NOTE: not supported by docutils, so we wrap with <inline>.
             tag = "inline";
-            kw.setField("realtag", "small");
+            kw.setField("small", "1");
             break;
         case DocStyleChange::Preformatted:
-            // doxy: preformatted
-            // TODO: or 'code' block?
-            // http://docutils.sourceforge.net/docs/ref/rst/directives.html#code
-            tag = "literal_block";
-            kw.setField("realtag", "preformatted");
+            // NOTE: not supported by docutils, so we wrap with <paragraph>.
+            maybeFinishCurrentPara(node);
+            tag = "paragraph";
+            kw.setField("pre", "1");
             break;
         case DocStyleChange::Div:
+            // NOTE: not supported by docutils, so we wrap with <paragraph>.
+            maybeFinishCurrentPara(node);
             tag = "paragraph";
-            kw.setField("realtag", "div");  // TODO: html tag?
+            kw.setField("div", "1");
             break;
         case DocStyleChange::Span:
+            // NOTE: not supported by docutils, so we wrap with <inline>.
             tag = "inline";
-            kw.setField("realtag", "span");
+            kw.setField("span", "1");
             break;
         }
 
