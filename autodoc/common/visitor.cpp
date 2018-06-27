@@ -71,6 +71,9 @@ bool PyDocVisitor::maybeCreateTextNode()
             m_textBuf.remove(m_textBuf.size() - 1, 1);
     }
 
+    if (m_textBuf.isEmpty())
+        return false;
+
     PyObjectPtr pynode = m_tree->createTextNode(m_textBuf);
     m_textBuf = QCString();
 
