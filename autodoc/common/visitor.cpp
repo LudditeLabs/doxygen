@@ -92,6 +92,14 @@ bool PyDocVisitor::maybeFinishCurrentPara(DocNode *node)
     }
     else if (m_tree->currentType() == "paragraph")
     {
+        Py_ssize_t sz = m_tree->len(m_tree->current());
+        if (sz == 0)
+        {
+            PyObjectPtr parent = m_tree->getParentOf(m_tree->current());
+            sz = m_tree->len(parent);
+            if (sz > 0)
+                m_tree->removeChild(parent, sz - 1);
+        }
         m_tree->pop();
         return true;
     }

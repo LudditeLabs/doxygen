@@ -101,3 +101,21 @@ PyObject* PyDocutilsTree::createDocument(PyObject *kwargs)
     return m_current;
 }
 //-----------------------------------------------------------------------------
+
+Py_ssize_t PyDocutilsTree::len(PyObject *node) const
+{
+    Py_ssize_t sz = PySequence_Length(node);
+    if (sz == -1)
+        printPyError();
+    return sz;
+}
+//-----------------------------------------------------------------------------
+
+bool PyDocutilsTree::removeChild(PyObject *node, int index)
+{
+    PyObjectPtr i = PyLong_FromLong(index);
+    if (PyMapping_DelItem(node, i) == -1)
+        return printPyError();
+    return true;
+}
+//-----------------------------------------------------------------------------

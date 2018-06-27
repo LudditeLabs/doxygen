@@ -79,6 +79,9 @@ public:
 
     PyObject* takeDocument() { return m_document.take(); }
 
+    Py_ssize_t len(PyObject *node) const;
+    bool removeChild(PyObject *node, int index);
+
 private:
     PyGlobals *m_globals;
     PyObjectPtr m_document;
