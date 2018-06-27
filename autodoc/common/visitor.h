@@ -45,7 +45,6 @@ public:
     void visit(DocWhiteSpace *);
     void visit(DocLinkedWord *);
     void visit(DocLineBreak *);
-    void visit(DocStyleChange *);
     void visit(DocSymbol *);
     void visit(DocURL *);
     void visit(DocHorRuler *);
@@ -64,6 +63,7 @@ public:
 
     void visitPre(DocRoot *);
     void visitPost(DocRoot *);
+    void visit(DocStyleChange *);
     void visitPre(DocPara *);
     void visitPost(DocPara *);
     void visitPre(DocText *);
