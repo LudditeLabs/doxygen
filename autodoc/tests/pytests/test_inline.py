@@ -1,6 +1,6 @@
-from docutils import nodes
-from textwrap import dedent
 import pytest
+from textwrap import dedent
+from docutils import nodes
 import visitor
 
 # TODO: test html commands.
@@ -35,7 +35,14 @@ class TestInline:
         # xml
         (nodes.literal, r'<c>multiple words</c>', 'multiple words'),
 
+        ## subscript/superscript
+        # html
+        (nodes.subscript, r'<sub>multiple words</sub>', 'multiple words'),
+        (nodes.superscript, r'<sup>multiple words</sup>', 'multiple words'),
 
+        (nodes.inline, r'<center>multiple words</center>', 'multiple words'),
+        (nodes.inline, r'<small>multiple words</small>', 'multiple words'),
+        (nodes.inline, r'<span>multiple words</span>', 'multiple words'),
     ])
     def test_tag(self, cls, docstring, text):
         doc = visitor.parse(docstring)
@@ -54,14 +61,23 @@ class TestInline:
         assert len(node.children) == 0
         assert str(node) == text
 
-    # Test: all tag attributes are stored in 'extra' field.
+    # Test: node attributes.
     @pytest.mark.parametrize('cls,docstring,attrs', [
-        (nodes.emphasis, r'\a word', None),
-        (nodes.emphasis, '<em myattr=1 val="str">word</em>', dict(myattr='1', val="str")),
-        (nodes.strong, r'<b>multiple words</b>', None),
-        (nodes.strong, r'<b c="">multiple words</b>', dict(c='')),
+        (nodes.emphasis, r'\a word', {}),
+
+        # All tag attributes are stored in 'extra' field.
+        (nodes.emphasis, '<em myattr=1 val="str">word</em>', {
+            'extra': {'myattr':'1', 'val':"str"}
+        }),
+        (nodes.strong, r'<b>multiple words</b>', {}),
+        (nodes.strong, r'<b c="">multiple words</b>', {'extra': {'c': ''}}),
+
+        # Tags not supported by docutils has docutils node with special attr.
+        (nodes.inline, r'<center>words</center>', dict(centered='1')),
+        (nodes.inline, r'<small>words</small>', dict(small='1')),
+        (nodes.inline, r'<span>words</span>', dict(span='1')),
     ])
-    def test_attr(self, cls, docstring, attrs):
+    def test_attrs(self, cls, docstring, attrs):
         doc = visitor.parse(docstring)
         assert isinstance(doc, nodes.document)
 
@@ -71,8 +87,9 @@ class TestInline:
 
         node = para.children[0]
         assert isinstance(node, cls)
-        assert node.attributes.get('extra') == attrs
 
+        d = {k: v for k, v in node.attributes.items() if k in attrs}
+        assert d == attrs
 
     # Test: (non-standard construction) multiple words, nested tag.
     def test_multi_nested(self):
