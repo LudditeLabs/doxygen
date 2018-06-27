@@ -119,3 +119,17 @@ class TestInline:
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == 'words'
+
+    # Test: url in text.
+    def test_url(self):
+        doc = visitor.parse('some text http://example.com')
+        assert isinstance(doc, nodes.document)
+
+        node = doc.children[0]
+        assert isinstance(node, nodes.paragraph)
+        assert len(node.children) == 1
+
+        node = node.children[0]
+        assert isinstance(node, nodes.Text)
+        assert len(node.children) == 0
+        assert str(node) == 'some text http://example.com'

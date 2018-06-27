@@ -45,6 +45,9 @@ void PyDocVisitor::visit(DocSymbol *node)
 void PyDocVisitor::visit(DocURL *node)
 {
     printf("visit(DocURL)\n");
+    if (node->isEmail())
+        m_textBuf.append("mailto:");
+    m_textBuf.append(node->url());
 }
 //-----------------------------------------------------------------------------
 
