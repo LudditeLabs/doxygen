@@ -12,7 +12,19 @@
 #include "searchindex.h"
 #include "store.h"
 #include "qfileinfo.h"
+#include <gtest/gtest.h>
 #include <memory>
+#include <iostream>
+
+
+::std::ostream& operator<<(::std::ostream& os, const QCString& val)
+{
+    os << "[" << val.data() << "]";
+    return os;
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
 
 // Partially based on:
 // https://stackoverflow.com/questions/1796510/accessing-a-python-traceback-from-the-c-api
