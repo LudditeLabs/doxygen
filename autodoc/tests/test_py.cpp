@@ -96,7 +96,8 @@ static ::testing::AssertionResult runPyTest(const char *path)
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-TEST(PyTest, run)
+
+TEST(TestPy, run)
 {
     ASSERT_TRUE(do_chdir(TEST_PYTHON_FILES_PATH));
     ASSERT_TRUE(runPyTest(TEST_PYTHON_FILES_PATH));
