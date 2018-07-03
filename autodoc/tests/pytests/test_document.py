@@ -8,4 +8,4 @@ import visitor
 def test_empty_document():
     doc = visitor.parse("")
     assert isinstance(doc, nodes.document)
-    assert len(doc.children) == 0
+    assert len(doc) == 0

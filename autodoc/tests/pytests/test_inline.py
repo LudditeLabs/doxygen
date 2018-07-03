@@ -134,7 +134,7 @@ class TestInline:
         node = para.children[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
-        assert str(node) == 'some text '
+        assert str(node) == 'some text'
 
         node = para.children[1]
         assert isinstance(node, nodes.reference)
@@ -158,7 +158,7 @@ class TestInline:
         node = para.children[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
-        assert str(node) == 'some text '
+        assert str(node) == 'some text'
 
         node = para.children[1]
         assert isinstance(node, nodes.reference)

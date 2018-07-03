@@ -14,17 +14,17 @@ class TestCodeBlock:
         @endverbatim
         """))
         assert isinstance(doc, nodes.document)
-        assert len(doc.children) == 1
+        assert len(doc) == 1
 
-        block = doc.children[0]
+        block = doc[0]
         assert isinstance(block, nodes.literal_block)
-        assert len(block.children) == 1
+        assert len(block) == 1
         assert block.rawsource == "bla bla\n  line 2"
 
-        assert 'lang' not in block.attributes
-        assert 'filename' not in block.attributes
+        assert 'lang' not in block
+        assert 'filename' not in block
 
-        node = block.children[0]
+        node = block[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == "bla bla\n  line 2"
@@ -37,17 +37,17 @@ class TestCodeBlock:
         \endcode
         """))
         assert isinstance(doc, nodes.document)
-        assert len(doc.children) == 1
+        assert len(doc) == 1
 
-        block = doc.children[0]
+        block = doc[0]
         assert isinstance(block, nodes.literal_block)
-        assert len(block.children) == 1
+        assert len(block) == 1
         assert block.rawsource == "class text:\n    pass"
 
-        assert 'lang' not in block.attributes
-        assert 'filename' not in block.attributes
+        assert 'lang' not in block
+        assert 'filename' not in block
 
-        node = block.children[0]
+        node = block[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == "class text:\n    pass"
@@ -60,17 +60,17 @@ class TestCodeBlock:
         \endcode
         """))
         assert isinstance(doc, nodes.document)
-        assert len(doc.children) == 1
+        assert len(doc) == 1
 
-        block = doc.children[0]
+        block = doc[0]
         assert isinstance(block, nodes.literal_block)
-        assert len(block.children) == 1
+        assert len(block) == 1
         assert block.rawsource == "class text:\n    pass"
 
-        assert block.attributes.get('lang') == 'py'
-        assert 'filename' not in block.attributes
+        assert block.get('lang') == 'py'
+        assert 'filename' not in block
 
-        node = block.children[0]
+        node = block[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == "class text:\n    pass"

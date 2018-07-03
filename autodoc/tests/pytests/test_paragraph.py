@@ -42,16 +42,8 @@ class TestParagraph:
             text = 'Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit.'
 
         doc = visitor.parse(docstring)
-        assert len(doc.children) == 1
-
-        node = doc.children[0]
-        assert isinstance(node, nodes.paragraph)
-        assert len(node.children) == 1
-
-        node = node.children[0]
-        assert isinstance(node, nodes.Text)
-        assert len(node.children) == 0
-        assert str(node) == text
+        assert len(doc) == 1
+        pytest.g.assert_simple_par(doc[0], text)
 
     @pytest.mark.parametrize('docstring', [
         """
@@ -83,25 +75,14 @@ class TestParagraph:
     ])
     def test_multi_paragraph(self, docstring):
         doc = visitor.parse(dedent(docstring))
-        assert len(doc.children) == 2
+        assert len(doc) == 2
 
-        node = doc.children[0]
-        assert isinstance(node, nodes.paragraph)
+        pytest.g.assert_simple_par(doc[0], 'Lorem ipsum dolor sit amet,'
+                                           '\nconsectetur adipiscing elit,')
 
-        node = node.children[0]
-        assert isinstance(node, nodes.Text)
-        assert len(node.children) == 0
-        assert str(node) == ('Lorem ipsum dolor sit amet,'
-                             '\nconsectetur adipiscing elit,')
-
-        node = doc.children[1]
-        assert isinstance(node, nodes.paragraph)
-
-        node = node.children[0]
-        assert isinstance(node, nodes.Text)
-        assert len(node.children) == 0
-        assert str(node) == ('sed do eiusmod tempor incididunt ut labore'
-                             '\net dolore magna aliqua.')
+        pytest.g.assert_simple_par(doc[1],
+                                   'sed do eiusmod tempor incididunt ut labore'
+                                   '\net dolore magna aliqua.')
 
     # Test: <div> tag is not supported by docutils.
     # It represented as paragraph with attr div=1.
@@ -112,17 +93,10 @@ class TestParagraph:
         </div>
         """))
 
-        assert len(doc.children) == 1
-
-        node = doc.children[0]
-        assert isinstance(node, nodes.paragraph)
-        assert node.attributes.get('div') == '1'
-
-        node = node.children[0]
-        assert isinstance(node, nodes.Text)
-        assert len(node.children) == 0
-        assert str(node) == ('Lorem ipsum dolor sit amet,\n'
-                             'consectetur adipiscing elit.')
+        assert len(doc) == 1
+        assert doc[0].get('div') == '1'
+        pytest.g.assert_simple_par(doc[0], 'Lorem ipsum dolor sit amet,\n'
+                                           'consectetur adipiscing elit.')
 
     # Test: <pre> tag is not supported by docutils.
     # It represented as paragraph with attr pre=1.
@@ -133,14 +107,7 @@ class TestParagraph:
         </pre>
         """))
 
-        assert len(doc.children) == 1
-
-        node = doc.children[0]
-        assert isinstance(node, nodes.paragraph)
-        assert node.attributes.get('pre') == '1'
-
-        node = node.children[0]
-        assert isinstance(node, nodes.Text)
-        assert len(node.children) == 0
-        assert str(node) == ('Lorem ipsum dolor sit amet,\n'
-        'consectetur adipiscing elit.')
+        assert len(doc) == 1
+        assert doc[0].get('pre') == '1'
+        pytest.g.assert_simple_par(doc[0], 'Lorem ipsum dolor sit amet,\n'
+                                           'consectetur adipiscing elit.')
