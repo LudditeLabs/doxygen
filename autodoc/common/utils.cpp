@@ -1,11 +1,13 @@
 #include "Python.h"
 #include "autodoc/common/utils.h"
 #include <iostream>
+#include <ctype.h>
 
 // For debugging purpose.
 #define TRACE_REF(txt) ((void)0)
 //#define TRACE_REF(txt)  if (m_p) \
 //    std::cerr << txt << " " << m_p->ob_type->tp_name << " " << m_p << std::endl
+
 
 bool printPyError(const char *message)
 {
