@@ -260,7 +260,7 @@ void PyDocVisitor::visitPost(DocPara *node)
     printf("visitPost(DocPara)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
-    m_tree->pop();
+    m_tree->pop("paragraph");
 }
 //-----------------------------------------------------------------------------
 
