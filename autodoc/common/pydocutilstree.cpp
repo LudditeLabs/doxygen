@@ -65,7 +65,7 @@ void PyDocutilsTree::pop(PyObject *newParent)
 
 PyObject* PyDocutilsTree::createTextNode(const QCString &text)
 {
-    PyObjectPtr str = PyUnicode_FromStringAndSize(text.data(), text.size());
+    PyObjectPtr str = PyUnicode_DecodeUTF8(text.data(), text.size(), "replace");
     return createWithArgs("Text", str.get(), NULL);
 }
 //-----------------------------------------------------------------------------
@@ -111,9 +111,9 @@ Py_ssize_t PyDocutilsTree::len(PyObject *node) const
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocutilsTree::removeChild(PyObject *node, int index)
+bool PyDocutilsTree::removeChild(PyObject *node, Py_ssize_t index)
 {
-    PyObjectPtr i = PyLong_FromLong(index);
+    PyObjectPtr i = PyLong_FromSsize_t(index);
     if (PyMapping_DelItem(node, i) == -1)
         return printPyError();
     return true;

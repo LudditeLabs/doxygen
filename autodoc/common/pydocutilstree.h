@@ -80,7 +80,7 @@ public:
     PyObject* takeDocument() { return m_document.take(); }
 
     Py_ssize_t len(PyObject *node) const;
-    bool removeChild(PyObject *node, int index);
+    bool removeChild(PyObject *node, Py_ssize_t index);
 
 private:
     PyGlobals *m_globals;
