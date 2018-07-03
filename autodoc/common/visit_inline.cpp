@@ -18,9 +18,9 @@ void PyDocVisitor::visit(DocWhiteSpace *node)
     printf("visit(DocWhiteSpace)\n");
 
     // Add space only if prev node is not style.
-    if (!m_styled)
+    if (!m_skipNextWhitespace)
         m_textBuf.append(node->chars());
-    m_styled = false;
+    m_skipNextWhitespace = false;
 }
 //-----------------------------------------------------------------------------
 
@@ -164,7 +164,76 @@ void PyDocVisitor::visit(DocHorRuler *node)
 
 void PyDocVisitor::visit(DocVerbatim *node)
 {
+    // Verbatim, unparsed text fragment.
     printf("visit(DocVerbatim)\n");
+    maybeCreateTextNode();
+    maybeFinishCurrentPara(node);
+
+    switch(node->type())
+    {
+    case DocVerbatim::Code:
+    case DocVerbatim::Verbatim:
+    {
+       PyObjectPtr args = PyTuple_New(0);
+       PyDict kw;
+
+       QCString text = node->text();
+       if (!text.isEmpty())
+       {
+           // Remove trailing line break, it's redundant for docutils.
+           if (text.at(text.size() - 1) == '\n')
+               text.remove(text.size() - 1, 1);
+
+           PyObjectPtr txtnode = m_tree->createTextNode(text);
+           kw.setField("rawsource", txtnode);
+           kw.setField("text", txtnode);
+       }
+
+       text = node->language();
+       if (!text.isEmpty())
+       {
+           // remove dot from language name: .py -> py
+           if (text.at(0) == '.')
+               text.remove(0, 1);
+           kw.setField("lang", text);
+       }
+
+       // This flag is set in validatingParseDoc(),
+       // and we always call this function with 'false' value.
+       // if (node->isExample())
+       //     kw.setField("filename", node->exampleFile());
+
+       PyObjectPtr block = m_tree->create("literal_block", args, kw.get());
+       m_tree->addToCurrent(block);
+       m_skipNextWhitespace = true;
+       break;
+    }
+    case DocVerbatim::HtmlOnly:
+    case DocVerbatim::RtfOnly:
+    case DocVerbatim::ManOnly:
+    case DocVerbatim::LatexOnly:
+    case DocVerbatim::DocbookOnly:
+    case DocVerbatim::XmlOnly:
+        /* nothing */
+        break;
+
+    // TODO: add support, it can be some generic node.
+    case DocVerbatim::Dot:
+        //        visitPreStart(m_t, "dot", s->hasCaption(), this, s->children(), QCString(""), FALSE, DocImage::Html, s->width(), s->height());
+        //        filter(s->text());
+        //        visitPostEnd(m_t, "dot");
+        break;
+    case DocVerbatim::Msc:
+        //        visitPreStart(m_t, "msc", s->hasCaption(), this, s->children(),  QCString(""), FALSE, DocImage::Html, s->width(), s->height());
+        //        filter(s->text());
+        //        visitPostEnd(m_t, "msc");
+        break;
+    case DocVerbatim::PlantUML:
+        //        visitPreStart(m_t, "plantuml", s->hasCaption(), this, s->children(),  QCString(""), FALSE, DocImage::Html, s->width(), s->height());
+        //        filter(s->text());
+        //        visitPostEnd(m_t, "plantuml");
+        break;
+    }
 }
 //-----------------------------------------------------------------------------
 

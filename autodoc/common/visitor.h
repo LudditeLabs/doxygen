@@ -154,7 +154,7 @@ private:
     QCString m_textBuf;
 
     int m_paramType;
-    bool m_styled;  // Style node sets this flag.
+    bool m_skipNextWhitespace;  // Don't add next whitespace.
 
     /**
      * Create text node from content in m_textBuf.

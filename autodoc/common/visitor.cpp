@@ -36,7 +36,7 @@ PyDocVisitor::PyDocVisitor(const QCString &fileName, int lineNumber)
   m_tree(new PyDocutilsTree),
   m_fileName(fileName),
   m_lineNumber(lineNumber),
-  m_styled(false)
+  m_skipNextWhitespace(false)
 {
 }
 //-----------------------------------------------------------------------------
@@ -230,7 +230,7 @@ void PyDocVisitor::visit(DocStyleChange *node)
     else
     {
         m_tree->pop();
-        m_styled = true;
+        m_skipNextWhitespace = true;
     }
 }
 //-----------------------------------------------------------------------------
