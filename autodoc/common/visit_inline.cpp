@@ -8,14 +8,14 @@
 
 void PyDocVisitor::visit(DocWord *node)
 {
-    printf("visit(DocWord)\n");
+    TRACE_VISIT("visit(DocWord)\n");
     m_textBuf.append(node->word());
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocWhiteSpace *node)
 {
-    printf("visit(DocWhiteSpace)\n");
+    TRACE_VISIT("visit(DocWhiteSpace)\n");
 
     // Add space only if prev node is not style.
     if (!m_skipNextWhitespace)
@@ -26,14 +26,14 @@ void PyDocVisitor::visit(DocWhiteSpace *node)
 
 void PyDocVisitor::visit(DocLineBreak *)
 {
-    printf("visit(DocLineBreak)\n");
+    TRACE_VISIT("visit(DocLineBreak)\n");
     m_textBuf.append("\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocLinkedWord *node)
 {
-    printf("visit(DocLinkedWord)\n");
+    TRACE_VISIT("visit(DocLinkedWord)\n");
     // TODO: what node to use?
     m_textBuf.append(node->word());
 }
@@ -43,7 +43,7 @@ void PyDocVisitor::visit(DocSymbol *node)
 {
     // Special symbols.
     // See also HtmlEntityMapper, http://tobybartels.name/characters/
-    printf("visit(DocSymbol)\n");
+    TRACE_VISIT("visit(DocSymbol)\n");
     switch (node->symbol()) {
     case DocSymbol::Sym_nbsp:
         m_textBuf.append(" ");
@@ -136,7 +136,7 @@ void PyDocVisitor::visit(DocSymbol *node)
 
 void PyDocVisitor::visit(DocURL *node)
 {
-    printf("visit(DocURL)\n");
+    TRACE_VISIT("visit(DocURL)\n");
     maybeCreateTextNode();
 
     QCString refuri;
@@ -157,7 +157,7 @@ void PyDocVisitor::visit(DocURL *node)
 
 void PyDocVisitor::visit(DocHorRuler *node)
 {
-    printf("visit(DocHorRuler)\n");
+    TRACE_VISIT("visit(DocHorRuler)\n");
     // TODO: add <hruler/> like node.
 }
 //-----------------------------------------------------------------------------
@@ -165,7 +165,7 @@ void PyDocVisitor::visit(DocHorRuler *node)
 void PyDocVisitor::visit(DocVerbatim *node)
 {
     // Verbatim, unparsed text fragment.
-    printf("visit(DocVerbatim)\n");
+    TRACE_VISIT("visit(DocVerbatim)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -239,32 +239,32 @@ void PyDocVisitor::visit(DocVerbatim *node)
 
 void PyDocVisitor::visit(DocAnchor *node)
 {
-    printf("visit(DocAnchor)\n");
+    TRACE_VISIT("visit(DocAnchor)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocInclude *node)
 {
-    printf("visit(DocInclude)\n");
+    TRACE_VISIT("visit(DocInclude)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocIncOperator *node)
 {
-    printf("visit(DocIncOperator)\n");
+    TRACE_VISIT("visit(DocIncOperator)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocFormula *node)
 {
-    printf("visit(DocFormula)\n");
+    TRACE_VISIT("visit(DocFormula)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocIndexEntry *node)
 {
     // An entry in the index.
-    printf("visit(DocIndexEntry)\n");
+    TRACE_VISIT("visit(DocIndexEntry)\n");
 }
 //-----------------------------------------------------------------------------
 
@@ -272,13 +272,13 @@ void PyDocVisitor::visit(DocSimpleSectSep *)
 {
     // Separator between two simple sections of the same type.
     // Nothing to add to docutils tree.
-    printf("visit(DocSimpleSectSep)\n");
+    TRACE_VISIT("visit(DocSimpleSectSep)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocCite *node)
 {
     // Citation of some bibliographic reference.
-    printf("visit(DocCite)\n");
+    TRACE_VISIT("visit(DocCite)\n");
 }
 //-----------------------------------------------------------------------------

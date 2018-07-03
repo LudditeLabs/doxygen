@@ -119,7 +119,7 @@ bool PyDocVisitor::maybeFinishCurrentPara(DocNode *node)
 
 void PyDocVisitor::visitPre(DocRoot *node)
 {
-    printf("visitPre(DocRoot)\n");
+    TRACE_VISIT("visitPre(DocRoot)\n");
 
 //    // We don't have setings and reporter.
 //    // document = nodes.document(settings, reporter, source=source_path)
@@ -142,7 +142,7 @@ void PyDocVisitor::visitPre(DocRoot *node)
 
 void PyDocVisitor::visitPost(DocRoot *node)
 {
-    printf("visitPost(DocRoot)\n");
+    TRACE_VISIT("visitPost(DocRoot)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
     m_tree->pop();
@@ -169,7 +169,7 @@ static PyObject* htmlAttribsToDict(const HtmlAttribList &attribs)
 
 void PyDocVisitor::visit(DocStyleChange *node)
 {
-    printf("visit(DocStyleChange)\n");
+    TRACE_VISIT("visit(DocStyleChange)\n");
 
     maybeCreateTextNode();
 
@@ -244,7 +244,7 @@ void PyDocVisitor::visit(DocStyleChange *node)
 
 void PyDocVisitor::visitPre(DocPara *node)
 {
-    printf("visitPre(DocPara)\n");
+    TRACE_VISIT("visitPre(DocPara)\n");
     if (!m_tree->isValid())
         return;
 
@@ -257,439 +257,320 @@ void PyDocVisitor::visitPre(DocPara *node)
 
 void PyDocVisitor::visitPost(DocPara *node)
 {
-    printf("visitPost(DocPara)\n");
+    TRACE_VISIT("visitPost(DocPara)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
     m_tree->pop("paragraph");
 }
 //-----------------------------------------------------------------------------
 
-
-
-void PyDocVisitor::visitPre(DocText *node)
+void PyDocVisitor::visitPre(DocText *)
 {
-    printf("visitPre(DocText)\n");
-
+    TRACE_VISIT("visitPre(DocText)\n");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocText *node)
+void PyDocVisitor::visitPost(DocText *)
 {
-    printf("visitPost(DocText)\n");
+    TRACE_VISIT("visitPost(DocText)\n");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocParBlock *node)
+void PyDocVisitor::visitPre(DocParBlock *)
 {
-    printf("visitPre(DocParBlock)\n");
-
+    TRACE_VISIT("visitPre(DocParBlock)\n");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocParBlock *node)
+void PyDocVisitor::visitPost(DocParBlock *)
 {
-    printf("visitPost(DocParBlock)\n");
+    TRACE_VISIT("visitPost(DocParBlock)\n");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocAutoList *node)
-{
-    printf("visitPre(DocAutoList)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocAutoList *node)
-{
-    printf("visitPost(DocAutoList)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocAutoListItem *node)
-{
-    printf("visitPre(DocAutoListItem)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocAutoListItem *node)
-{
-    printf("visitPost(DocAutoListItem)\n");
-}
-//-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocTitle *node)
 {
-    printf("visitPre(DocTitle)\n");
+    TRACE_VISIT("visitPre(DocTitle)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocTitle *node)
 {
-    printf("visitPost(DocTitle)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocSimpleList *node)
-{
-    printf("visitPre(DocSimpleList)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocSimpleList *node)
-{
-    printf("visitPost(DocSimpleList)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocSimpleListItem *node)
-{
-    printf("visitPre(DocSimpleListItem)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocSimpleListItem *node)
-{
-    printf("visitPost(DocSimpleListItem)\n");
+    TRACE_VISIT("visitPost(DocTitle)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocSection *node)
 {
-    printf("visitPre(DocSection)\n");
+    TRACE_VISIT("visitPre(DocSection)\n");
 
 }//-----------------------------------------------------------------------------
 
 
 void PyDocVisitor::visitPost(DocSection *node)
 {
-    printf("visitPost(DocSection)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocHtmlList *node)
-{
-    printf("visitPre(DocHtmlList)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocHtmlList *node)
-{
-    printf("visitPost(DocHtmlList)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocHtmlListItem *node)
-{
-    printf("visitPre(DocHtmlListItem)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocHtmlListItem *node)
-{
-    printf("visitPost(DocHtmlListItem)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocHtmlDescList *node)
-{
-    printf("visitPre(DocHtmlDescList)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocHtmlDescList *node)
-{
-    printf("visitPost(DocHtmlDescList)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocHtmlDescTitle *node)
-{
-    printf("visitPre(DocHtmlDescTitle)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocHtmlDescTitle *node)
-{
-    printf("visitPost(DocHtmlDescTitle)\n");
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPre(DocHtmlDescData *node)
-{
-    printf("visitPre(DocHtmlDescData)\n");
-
-}
-//-----------------------------------------------------------------------------
-
-void PyDocVisitor::visitPost(DocHtmlDescData *node)
-{
-    printf("visitPost(DocHtmlDescData)\n");
+    TRACE_VISIT("visitPost(DocSection)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlTable *node)
 {
-    printf("visitPre(DocHtmlTable)\n");
+    TRACE_VISIT("visitPre(DocHtmlTable)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlTable *node)
 {
-    printf("visitPost(DocHtmlTable)\n");
+    TRACE_VISIT("visitPost(DocHtmlTable)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlRow *node)
 {
-    printf("visitPre(DocHtmlRow)\n");
+    TRACE_VISIT("visitPre(DocHtmlRow)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlRow *node)
 {
-    printf("visitPost(DocHtmlRow)\n");
+    TRACE_VISIT("visitPost(DocHtmlRow)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlCell *node)
 {
-    printf("visitPre(DocHtmlCell)\n");
+    TRACE_VISIT("visitPre(DocHtmlCell)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlCell *node)
 {
-    printf("visitPost(DocHtmlCell)\n");
+    TRACE_VISIT("visitPost(DocHtmlCell)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlCaption *node)
 {
-    printf("visitPre(DocHtmlCaption)\n");
+    TRACE_VISIT("visitPre(DocHtmlCaption)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlCaption *node)
 {
-    printf("visitPost(DocHtmlCaption)\n");
+    TRACE_VISIT("visitPost(DocHtmlCaption)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocInternal *node)
 {
-    printf("visitPre(DocInternal)\n");
+    TRACE_VISIT("visitPre(DocInternal)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocInternal *node)
 {
-    printf("visitPost(DocInternal)\n");
+    TRACE_VISIT("visitPost(DocInternal)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHRef *node)
 {
-    printf("visitPre(DocHRef)\n");
+    TRACE_VISIT("visitPre(DocHRef)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHRef *node)
 {
-    printf("visitPost(DocHRef)\n");
+    TRACE_VISIT("visitPost(DocHRef)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlHeader *node)
 {
-    printf("visitPre(DocHtmlHeader)\n");
+    TRACE_VISIT("visitPre(DocHtmlHeader)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlHeader *node)
 {
-    printf("visitPost(DocHtmlHeader)\n");
+    TRACE_VISIT("visitPost(DocHtmlHeader)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocImage *node)
 {
-    printf("visitPre(DocImage)\n");
+    TRACE_VISIT("visitPre(DocImage)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocImage *node)
 {
-    printf("visitPost(DocImage)\n");
+    TRACE_VISIT("visitPost(DocImage)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocDotFile *node)
 {
-    printf("visitPre(DocDotFile)\n");
+    TRACE_VISIT("visitPre(DocDotFile)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocDotFile *node)
 {
-    printf("visitPost(DocDotFile)\n");
+    TRACE_VISIT("visitPost(DocDotFile)\n");
 }
 //-----------------------------------------------------------------------------
 
 
 void PyDocVisitor::visitPre(DocMscFile *node)
 {
-    printf("visitPre(DocMscFile)\n");
+    TRACE_VISIT("visitPre(DocMscFile)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocMscFile *node)
 {
-    printf("visitPost(DocMscFile)\n");
+    TRACE_VISIT("visitPost(DocMscFile)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocDiaFile *node)
 {
-    printf("visitPre(DocDiaFile)\n");
+    TRACE_VISIT("visitPre(DocDiaFile)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocDiaFile *node)
 {
-    printf("visitPost(DocDiaFile)\n");
+    TRACE_VISIT("visitPost(DocDiaFile)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocLink *node)
 {
-    printf("visitPre(DocLink)\n");
+    TRACE_VISIT("visitPre(DocLink)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocLink *node)
 {
-    printf("visitPost(DocLink)\n");
+    TRACE_VISIT("visitPost(DocLink)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocRef *node)
 {
-    printf("visitPre(DocRef)\n");
+    TRACE_VISIT("visitPre(DocRef)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocRef *node)
 {
-    printf("visitPost(DocRef)\n");
+    TRACE_VISIT("visitPost(DocRef)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocSecRefItem *node)
 {
-    printf("visitPre(DocSecRefItem)\n");
+    TRACE_VISIT("visitPre(DocSecRefItem)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocSecRefItem *node)
 {
-    printf("visitPost(DocSecRefItem)\n");
+    TRACE_VISIT("visitPost(DocSecRefItem)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocSecRefList *node)
 {
-    printf("visitPre(DocSecRefList)\n");
+    TRACE_VISIT("visitPre(DocSecRefList)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocSecRefList *node)
 {
-    printf("visitPost(DocSecRefList)\n");
+    TRACE_VISIT("visitPost(DocSecRefList)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocXRefItem *node)
 {
-    printf("visitPre(DocXRefItem)\n");
+    TRACE_VISIT("visitPre(DocXRefItem)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocXRefItem *node)
 {
-    printf("visitPost(DocXRefItem)\n");
+    TRACE_VISIT("visitPost(DocXRefItem)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocInternalRef *node)
 {
-    printf("visitPre(DocInternalRef)\n");
+    TRACE_VISIT("visitPre(DocInternalRef)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocInternalRef *node)
 {
-    printf("visitPost(DocInternalRef)\n");
+    TRACE_VISIT("visitPost(DocInternalRef)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocCopy *node)
 {
-    printf("visitPre(DocCopy)\n");
+    TRACE_VISIT("visitPre(DocCopy)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocCopy *node)
 {
-    printf("visitPost(DocCopy)\n");
+    TRACE_VISIT("visitPost(DocCopy)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlBlockQuote *node)
 {
-    printf("visitPre(DocHtmlBlockQuote)\n");
+    TRACE_VISIT("visitPre(DocHtmlBlockQuote)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlBlockQuote *node)
 {
-    printf("visitPost(DocHtmlBlockQuote)\n");
+    TRACE_VISIT("visitPost(DocHtmlBlockQuote)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocVhdlFlow *node)
 {
-    printf("visitPre(DocVhdlFlow)\n");
+    TRACE_VISIT("visitPre(DocVhdlFlow)\n");
 
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocVhdlFlow *node)
 {
-    printf("visitPost(DocVhdlFlow)\n");
+    TRACE_VISIT("visitPost(DocVhdlFlow)\n");
 }
 //-----------------------------------------------------------------------------

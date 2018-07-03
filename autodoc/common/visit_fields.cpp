@@ -7,7 +7,7 @@
 
 void PyDocVisitor::visitPre(DocParamSect *node)
 {
-    printf("visitPre(DocParamSect)\n");
+    TRACE_VISIT("visitPre(DocParamSect)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -29,7 +29,7 @@ void PyDocVisitor::visitPre(DocParamSect *node)
 
 void PyDocVisitor::visitPost(DocParamSect *node)
 {
-    printf("visitPost(DocParamSect)\n");
+    TRACE_VISIT("visitPost(DocParamSect)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
     m_tree->pop();
@@ -41,7 +41,7 @@ void PyDocVisitor::visitPost(DocParamSect *node)
 
 void PyDocVisitor::visitPre(DocParamList *node)
 {
-    printf("visitPre(DocParamList)\n");
+    TRACE_VISIT("visitPre(DocParamList)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -186,7 +186,7 @@ void PyDocVisitor::visitPre(DocParamList *node)
 
 void PyDocVisitor::visitPost(DocParamList *node)
 {
-    printf("visitPost(DocParamList)\n");
+    TRACE_VISIT("visitPost(DocParamList)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -199,7 +199,7 @@ void PyDocVisitor::visitPost(DocParamList *node)
 
 void PyDocVisitor::visitPre(DocSimpleSect *node)
 {
-    printf("visitPre(DocSimpleSect)\n");
+    TRACE_VISIT("visitPre(DocSimpleSect)\n");
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -266,6 +266,6 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
 
 void PyDocVisitor::visitPost(DocSimpleSect *node)
 {
-    printf("visitPost(DocSimpleSect)\n");
+    TRACE_VISIT("visitPost(DocSimpleSect)\n");
 }
 //-----------------------------------------------------------------------------

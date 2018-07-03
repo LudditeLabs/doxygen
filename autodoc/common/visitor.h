@@ -7,6 +7,13 @@
 #include "docvisitor.h"
 #include "autodoc/common/utils.h"
 
+#if defined(NOTRACE_VISIT)
+# define TRACE_VISIT(text) (void)0
+#else
+# define TRACE_VISIT(text) printf(text)
+#endif
+
+
 #ifndef PyObject_HEAD
 struct _object;
 typedef _object PyObject;
@@ -70,6 +77,8 @@ public:
     void visitPost(DocText *);
     void visitPre(DocParBlock *);
     void visitPost(DocParBlock *);
+
+    // Fields.
     void visitPre(DocParamSect *);
     void visitPost(DocParamSect *);
     void visitPre(DocParamList *);
@@ -77,30 +86,33 @@ public:
     void visitPre(DocSimpleSect *);
     void visitPost(DocSimpleSect *);
 
+    // Lists.
     void visitPre(DocAutoList *);
     void visitPost(DocAutoList *);
     void visitPre(DocAutoListItem *);
     void visitPost(DocAutoListItem *);
-    void visitPre(DocTitle *);
-    void visitPost(DocTitle *);
     void visitPre(DocSimpleList *);
     void visitPost(DocSimpleList *);
     void visitPre(DocSimpleListItem *);
     void visitPost(DocSimpleListItem *);
-    void visitPre(DocSection *);
-    void visitPost(DocSection *);
     void visitPre(DocHtmlList *);
     void visitPost(DocHtmlList *) ;
     void visitPre(DocHtmlListItem *);
     void visitPost(DocHtmlListItem *);
-    //void visitPre(DocHtmlPre *);
-    //void visitPost(DocHtmlPre *);
     void visitPre(DocHtmlDescList *);
     void visitPost(DocHtmlDescList *);
     void visitPre(DocHtmlDescTitle *);
     void visitPost(DocHtmlDescTitle *);
     void visitPre(DocHtmlDescData *);
     void visitPost(DocHtmlDescData *);
+
+    void visitPre(DocTitle *);
+    void visitPost(DocTitle *);
+    void visitPre(DocSection *);
+    void visitPost(DocSection *);
+
+    //void visitPre(DocHtmlPre *);
+    //void visitPost(DocHtmlPre *);
     void visitPre(DocHtmlTable *);
     void visitPost(DocHtmlTable *);
     void visitPre(DocHtmlRow *);
