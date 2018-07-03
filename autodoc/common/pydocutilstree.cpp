@@ -50,14 +50,16 @@ void PyDocutilsTree::pushWithName(const QCString &name, PyObject *node,
 }
 //-----------------------------------------------------------------------------
 
-void PyDocutilsTree::pop(PyObject *newParent)
+void PyDocutilsTree::pop(const char *nodeType)
 {
     if (m_current.get() != m_document.get())
     {
-        if (newParent)
-            m_current = newParent;
-        else
-            m_current = getParentOf(m_current);
+        if (nodeType && nodeType != currentType())
+        {
+            printf("POP: node type is different: %s (expected %s)\n", currentType().data(), nodeType);
+            return;
+        }
+        m_current = getParentOf(m_current);
         m_nodeTypes.pop_back();
     }
 }

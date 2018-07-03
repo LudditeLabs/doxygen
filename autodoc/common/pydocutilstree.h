@@ -51,7 +51,7 @@ public:
     // NOTE: takes ownership!
     void pushWithName(const QCString &name, PyObject *node, bool append = true);
 
-    void pop(PyObject *newParent = NULL);
+    void pop(const char *nodeType = NULL);
 
     PyObject* createTextNode(const QCString &text);
 
