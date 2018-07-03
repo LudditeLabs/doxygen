@@ -11,6 +11,7 @@ typedef _object PyObject;
 
 bool printPyError(const char *message = nullptr);
 bool checkPyError(const char *message = nullptr);
+bool stripTrailing(QCString *text);
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -126,6 +127,8 @@ public:
 
     PyObjectPtr& ptr() { return m_object; }
     const PyObjectPtr& ptr() const { return m_object; }
+
+    operator PyObject*() const { return m_object.get(); }
 
     PyObject* get() const { return m_object.get(); }
     PyObject* take() { return m_object.take(); }

@@ -22,6 +22,25 @@ bool checkPyError(const char *message)
     return PyErr_Occurred() ? printPyError(message) : true;
 }
 //-----------------------------------------------------------------------------
+
+bool stripTrailing(QCString *text)
+{
+    const uint size = text->size();
+    uint i = size - 1;
+
+    while (i && (isspace(static_cast<uchar>(text->at(i))) || text->at(i) == '\n'))
+        --i;
+
+    if (i < size - 1)
+    {
+        ++i;
+        text->remove(i, size - i);
+        return true;
+    }
+
+    return false;
+}
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
