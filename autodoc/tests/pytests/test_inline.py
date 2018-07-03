@@ -169,3 +169,51 @@ class TestInline:
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == 'example@bla.com'
+
+    # Test: special symbols
+    @pytest.mark.parametrize('text,expected', [
+        # Converted from unicode to plain text.
+        ('some text 1', None),
+        ('some text Some::bla() > 1', None),
+        ('text &copy; 42', 'text (C) 42'),
+        ('text &reg; 42', 'text (R) 42'),
+        ('text &trade; 42', 'text (TM) 42'),
+        ('text &frac14; 42', 'text 1/4 42'),
+        ('text &frac12; 42', 'text 1/2 42'),
+        ('text &frac34; 42', 'text 3/4 42'),
+        ('text &times; 42', 'text * 42'),
+        ('text &divide; 42', 'text / 42'),
+        ('text &hellip; 42', 'text ... 42'),
+        ('text &prime; 42', 'text \' 42'),
+        ('text &Prime; 42', 'text " 42'),
+        ('text &frasl; 42', 'text / 42'),
+        ('text &larr; 42', 'text <- 42'),
+        ('text &rarr; 42', 'text -> 42'),
+        ('text &minus; 42', 'text - 42'),
+        ('text &lowast; 42', 'text * 42'),
+        ('text &sim; 42', 'text ~ 42'),
+        ('text &ne; 42', 'text != 42'),
+        ('text &le; 42', 'text <= 42'),
+        ('text &gt; 42', 'text >= 42'),
+        ('text &sdot; 42', 'text . 42'),
+        ('text &tilde; 42', 'text ~ 42'),
+        ('text &ndash; 42', 'text - 42'),
+        ('text &mdash; 42', 'text -- 42'),
+        ('text &sect; 42', 'text  42'),  # ignored
+
+        # Unicode.
+        ('text &AElig; 42', 'text Æ 42'),
+    ])
+    def test_special(self, text, expected):
+        expected = expected or text
+        doc = visitor.parse(text)
+        assert isinstance(doc, nodes.document)
+
+        para = doc.children[0]
+        assert isinstance(para, nodes.paragraph)
+        assert len(para.children) == 1
+
+        node = para.children[0]
+        assert isinstance(node, nodes.Text)
+        assert len(node.children) == 0
+        assert str(node) == expected

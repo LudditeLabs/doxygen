@@ -2,6 +2,7 @@
 #include "autodoc/common/visitor.h"
 #include <memory>
 #include "docparser.h"
+#include "htmlentity.h"
 #include "autodoc/common/pydocutilstree.h"
 
 
@@ -23,7 +24,7 @@ void PyDocVisitor::visit(DocWhiteSpace *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocLineBreak *node)
+void PyDocVisitor::visit(DocLineBreak *)
 {
     printf("visit(DocLineBreak)\n");
     m_textBuf.append("\n");
@@ -40,8 +41,96 @@ void PyDocVisitor::visit(DocLinkedWord *node)
 
 void PyDocVisitor::visit(DocSymbol *node)
 {
+    // Special symbols.
+    // See also HtmlEntityMapper, http://tobybartels.name/characters/
     printf("visit(DocSymbol)\n");
-    // TODO: special symbols.
+    switch (node->symbol()) {
+    case DocSymbol::Sym_nbsp:
+        m_textBuf.append(" ");
+        break;
+    case DocSymbol::Sym_copy:
+        m_textBuf.append("(C)");
+        break;
+    case DocSymbol::Sym_reg:
+        m_textBuf.append("(R)");
+        break;
+    case DocSymbol::Sym_trade:
+        m_textBuf.append("(TM)");
+        break;
+    case DocSymbol::Sym_frac14:
+        m_textBuf.append("1/4");
+        break;
+    case DocSymbol::Sym_frac12:
+        m_textBuf.append("1/2");
+        break;
+    case DocSymbol::Sym_frac34:
+        m_textBuf.append("3/4");
+        break;
+    case DocSymbol::Sym_times:
+        m_textBuf.append("*");
+        break;
+    case DocSymbol::Sym_divide:
+        m_textBuf.append("/");
+        break;
+    case DocSymbol::Sym_hellip:
+        m_textBuf.append("...");
+        break;
+    case DocSymbol::Sym_prime:
+        m_textBuf.append("'");
+        break;
+    case DocSymbol::Sym_Prime:
+        m_textBuf.append("\"");
+        break;
+    case DocSymbol::Sym_frasl:
+        m_textBuf.append("/");
+        break;
+    case DocSymbol::Sym_larr:
+        m_textBuf.append("<-");
+        break;
+    case DocSymbol::Sym_rarr:
+        m_textBuf.append("->");
+        break;
+    case DocSymbol::Sym_minus:
+        m_textBuf.append("-");
+        break;
+    case DocSymbol::Sym_lowast:
+        m_textBuf.append("*");
+        break;
+    case DocSymbol::Sym_sim:
+        m_textBuf.append("~");
+        break;
+    case DocSymbol::Sym_ne:
+        m_textBuf.append("!=");
+        break;
+    case DocSymbol::Sym_le:
+        m_textBuf.append("<=");
+        break;
+    case DocSymbol::Sym_gt:
+        m_textBuf.append(">=");
+        break;
+    case DocSymbol::Sym_sdot:
+        m_textBuf.append(".");
+        break;
+    case DocSymbol::Sym_tilde:
+        m_textBuf.append("~");
+        break;
+    case DocSymbol::Sym_ndash:
+        m_textBuf.append("-");
+        break;
+    case DocSymbol::Sym_mdash:
+        m_textBuf.append("--");
+        break;
+    case DocSymbol::Sym_sect:
+        // Ignore this symbol.
+        break;
+    default:
+        const char *symbol = HtmlEntityMapper::instance()->utf8(node->symbol());
+        if (symbol)
+            m_textBuf.append(symbol);
+        else
+            printf("WARNING: invalid symbol!");
+        break;
+    }
 }
 //-----------------------------------------------------------------------------
 
@@ -105,18 +194,22 @@ void PyDocVisitor::visit(DocFormula *node)
 
 void PyDocVisitor::visit(DocIndexEntry *node)
 {
+    // An entry in the index.
     printf("visit(DocIndexEntry)\n");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocSimpleSectSep *node)
+void PyDocVisitor::visit(DocSimpleSectSep *)
 {
+    // Separator between two simple sections of the same type.
+    // Nothing to add to docutils tree.
     printf("visit(DocSimpleSectSep)\n");
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocCite *node)
 {
+    // Citation of some bibliographic reference.
     printf("visit(DocCite)\n");
 }
 //-----------------------------------------------------------------------------
