@@ -1,6 +1,7 @@
 #include "Python.h"
 #include "autodoc/common/visitor.h"
 #include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/utils.h"
 #include "docparser.h"
 #include "config.h"
 
@@ -59,12 +60,18 @@ PyObject* PyDocVisitor::takeDocument()
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocVisitor::maybeCreateTextNode()
+bool PyDocVisitor::maybeCreateTextNode(bool stripTrailing)
 {
     if (m_textBuf.isEmpty())
         return false;
 
     // Remove trailing line break because <paragraph> node already assumes that.
+    if (m_tree->currentType() == "paragraph")
+        stripTrailing = true;
+
+    if (stripTrailing)
+        ::stripTrailing(&m_textBuf);
+
     if (m_tree->currentType() == "paragraph")
     {
         if (m_textBuf.at(m_textBuf.size() - 1) == '\n')

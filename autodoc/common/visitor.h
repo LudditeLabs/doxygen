@@ -159,7 +159,7 @@ private:
     /**
      * Create text node from content in m_textBuf.
      */
-    bool maybeCreateTextNode();
+    bool maybeCreateTextNode(bool stripTrailing = false);
     bool maybeFinishCurrentPara(DocNode *node);
 };
 //-----------------------------------------------------------------------------
