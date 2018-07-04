@@ -109,8 +109,7 @@ class TestInline:
         node = node.children[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
-        # TODO: trailing space, improve me.
-        assert str(node) == 'multiple '
+        assert str(node) == 'multiple'
 
         assert isinstance(emp, nodes.emphasis)
         assert len(emp.children) == 1

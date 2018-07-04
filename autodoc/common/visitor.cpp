@@ -171,7 +171,7 @@ void PyDocVisitor::visit(DocStyleChange *node)
 {
     TRACE_VISIT("visit(DocStyleChange)\n");
 
-    maybeCreateTextNode();
+    maybeCreateTextNode(true);
 
     if (node->enable())
     {
