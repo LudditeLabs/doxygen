@@ -17,9 +17,7 @@ public:
 
     static PyGlobals* instance();
 
-    PyObject* nodesModule() const { return m_nodesMod.get(); }
-    PyObject* dump() const { return m_dump.get(); }
-    PyObject* open() const { return m_open.get(); }
+    bool isValid() const { return m_valid; }
 
     /**
      * Get node class from <tt>docutils.nodes</tt>.
@@ -32,15 +30,12 @@ public:
         return PyObject_GetAttrString(m_nodesMod, name.data());
     }
 
-    bool isValid() const { return m_valid; }
-
-    bool pickleToFile(PyObject *node, const QCString &fileName);
+    PyObject* pickleToString(PyObject *object);
 
 private:
     static PyGlobals *m_instance;
     PyObjectPtr m_nodesMod;
-    PyObjectPtr m_dump;
-    PyObjectPtr m_open;
+    PyObjectPtr m_dumps;
     bool m_valid;
 
     PyGlobals();

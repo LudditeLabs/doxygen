@@ -1,6 +1,7 @@
 #ifndef AUTODOC_COMMON_VISITOR_H
 #define AUTODOC_COMMON_VISITOR_H
 
+#include "Python.h"
 #include <string>
 #include <memory>
 #include <qcstring.h>
@@ -13,23 +14,17 @@
 # define TRACE_VISIT(text) printf(text)
 #endif
 
-
-#ifndef PyObject_HEAD
-struct _object;
-typedef _object PyObject;
-#endif
-
 class Definition;
 class MemberDef;
 class DocNode;
 class PyDocutilsTree;
 
 
-void pickleDocTree(const QCString &fileName,
-                   int lineNr,
-                   Definition *scope,
-                   MemberDef *md,
-                   const QCString &text);
+PyObject* pickleDocTree(const QCString &fileName,
+                        int lineNr,
+                        Definition *scope,
+                        MemberDef *md,
+                        const QCString &text);
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 

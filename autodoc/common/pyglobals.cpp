@@ -8,10 +8,7 @@ PyGlobals::PyGlobals()
 : m_valid(false)
 {
     if (!setupDocutils() || !setupPickle())
-    {
-        m_dump.release();
-        m_open.release();
-    }
+        m_dumps.release();
     else
         m_valid = true;
 }
@@ -48,9 +45,9 @@ bool PyGlobals::setupPickle()
     if (!pickle)
         return printPyError("can't import pickle.");
 
-    m_dump = PyObject_GetAttrString(pickle, "dump");
-    if (!m_dump)
-        return printPyError("can't get io.open().");
+    m_dumps = PyObject_GetAttrString(pickle, "dumps");
+    if (!m_dumps)
+        return printPyError("can't get pickle.dumps().");
 
     // Cache io.open
 
@@ -58,37 +55,19 @@ bool PyGlobals::setupPickle()
     if (!io)
         return printPyError("can't import io.");
 
-    m_open = PyObject_GetAttrString(io, "open");
-    if (!m_open)
-        return printPyError("can't get io.open().");
-
     return true;
 }
 //-----------------------------------------------------------------------------
 
-bool PyGlobals::pickleToFile(PyObject *node, const QCString &fileName)
+PyObject* PyGlobals::pickleToString(PyObject *object)
 {
     if (!isValid())
-        return false;
+        return NULL;
 
-    PyObjectPtr n = PyUnicode_FromStringAndSize(fileName.data(), fileName.size());
-    PyObjectPtr wb = PyUnicode_FromString("wb");
-    PyObjectPtr file = PyObject_CallFunctionObjArgs(m_open, n.get(), wb.get(), NULL);
-    if (!file)
-        return printPyError("ERROR: can't open file.");
-
-    PyObjectPtr res = PyObject_CallFunctionObjArgs(m_dump, node, file.get(), NULL);
+    PyObject* res = PyObject_CallFunctionObjArgs(m_dumps, object, NULL);
     if (!res)
-        return printPyError("can't dump.");
+        printPyError("can't call pickle.dumps().");
 
-    res = PyObject_CallMethod(file, "flush", NULL);
-    if (!res)
-        return printPyError("can't flush file.");
-
-    res = PyObject_CallMethod(file, "close", NULL);
-    if (!res)
-        return printPyError("can't close file.");
-
-    return true;
+    return res;
 }
 //-----------------------------------------------------------------------------

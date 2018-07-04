@@ -1,4 +1,3 @@
-#include "Python.h"
 #include "autodoc/common/visitor.h"
 #include "autodoc/common/pydocutilstree.h"
 #include "autodoc/common/utils.h"
@@ -6,17 +5,15 @@
 #include "config.h"
 
 
-void pickleDocTree(const QCString &fileName,
-                   int lineNr,
-                   Definition *scope,
-                   MemberDef * md,
-                   const QCString &text)
+PyObject* pickleDocTree(const QCString &fileName,
+                        int lineNr,
+                        Definition *scope,
+                        MemberDef * md,
+                        const QCString &text)
 {
     QCString stext = text.stripWhiteSpace();
     if (stext.isEmpty())
-    {
-        return;
-    }
+        return NULL;
 
     // convert the documentation string into an abstract syntax tree
     std::unique_ptr<DocNode> root(validatingParseDoc(fileName,lineNr,scope,md,text,FALSE,FALSE));
@@ -25,11 +22,10 @@ void pickleDocTree(const QCString &fileName,
     root->accept(visitor.get());
 
     QCString path = Config_getString(OUTPUT_DIRECTORY);
-    PyGlobals::instance()->pickleToFile(visitor->document(), path + "/test.pkl");
+    return PyGlobals::instance()->pickleToString(visitor->document());
 }
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-
 
 
 PyDocVisitor::PyDocVisitor(const QCString &fileName, int lineNumber)

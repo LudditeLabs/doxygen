@@ -150,7 +150,8 @@ const char * schema_queries[][2] = {
       /// @todo make a `detaileddescription' table
       "\tdetaileddescription  TEXT,\n"
       "\tbriefdescription     TEXT,\n"
-      "\tinbodydescription    TEXT\n"
+      "\tinbodydescription    TEXT,\n"
+      "\tpydocument           TEXT\n"
       ");"
   },
   { "compounddef",
@@ -327,7 +328,8 @@ SqlStmt memberdef_insert={"INSERT INTO memberdef "
       "column,"
       "detaileddescription,"
       "briefdescription,"
-      "inbodydescription"
+      "inbodydescription,"
+      "pydocument"
     ")"
     "VALUES "
     "("
@@ -385,7 +387,8 @@ SqlStmt memberdef_insert={"INSERT INTO memberdef "
       ":column,"
       ":detaileddescription,"
       ":briefdescription,"
-      ":inbodydescription"
+      ":inbodydescription,"
+      ":pydocument"
     ")"
     ,NULL
 };
@@ -487,6 +490,22 @@ static bool bindTextParameter(SqlStmt &s,const char *name,const char *value, boo
   }
   return true;
 }
+
+static bool bindBlobParameter(SqlStmt &s,const char *name,const void *value, size_t size, bool _static=TRUE)
+{
+  int idx = sqlite3_bind_parameter_index(s.stmt, name);
+  if (idx==0) {
+    msg("sqlite3_bind_parameter_index(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
+    return false;
+  }
+  int rv = sqlite3_bind_blob64(s.stmt, idx, value, size, _static==TRUE?SQLITE_STATIC:SQLITE_TRANSIENT);
+  if (rv!=SQLITE_OK) {
+    msg("sqlite3_bind_blob64(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
+    return false;
+  }
+  return true;
+}
+
 
 static bool bindIntParameter(SqlStmt &s,const char *name,int value)
 {
@@ -896,15 +915,6 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
   if (md->isHidden()) return;
   //if (md->name().at(0)=='@') return; // anonymous member
 
-  // TODO: is const cast valid here?
-  pickleDocTree(
-      md->getDefFileName(),
-      md->getDefLine(),
-      const_cast<Definition*>(def),
-      const_cast<MemberDef*>(md),
-      md->documentation()
-  );
-
   // group members are only visible in their group
   //if (def->definitionType()!=Definition::TypeGroup && md->getGroupDef()) return;
   QCString memType;
@@ -1073,6 +1083,27 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
   bindTextParameter(memberdef_insert,":briefdescription",md->briefDescription(),FALSE);
   bindTextParameter(memberdef_insert,":detaileddescription",md->documentation(),FALSE);
   bindTextParameter(memberdef_insert,":inbodydescription",md->inbodyDocumentation(),FALSE);
+
+  // Python: pickled docutils document.
+  // TODO: is const cast valid here?
+
+  PyObjectPtr res = pickleDocTree(
+      md->getDefFileName(),
+      md->getDefLine(),
+      const_cast<Definition*>(def),
+      const_cast<MemberDef*>(md),
+      md->documentation());
+
+  if (res)
+  {
+      char *bytes;
+      Py_ssize_t size;
+
+      if (PyBytes_AsStringAndSize(res, &bytes, &size) == -1)
+          printPyError("can't pickle object.");
+      else
+        bindBlobParameter(memberdef_insert,":pydocument",bytes,size);
+  }
 
   // File location
   if (md->getDefLine() != -1)
