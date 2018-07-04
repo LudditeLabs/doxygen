@@ -1,9 +1,9 @@
 #include "Python.h"
 #include "autodoc/common/visitor.h"
-#include <memory>
 #include "docparser.h"
 #include "htmlentity.h"
 #include "autodoc/common/pydocutilstree.h"
+#include <memory>
 
 
 void PyDocVisitor::visit(DocWord *node)
