@@ -48,15 +48,15 @@ class TestInline:
         doc = visitor.parse(docstring)
         assert isinstance(doc, nodes.document)
 
-        para = doc.children[0]
+        para = doc[0]
         assert isinstance(para, nodes.paragraph)
-        assert len(para.children) == 1
+        assert len(para) == 1
 
-        node = para.children[0]
+        node = para[0]
         assert isinstance(node, cls)
-        assert len(node.children) == 1
+        assert len(node) == 1
 
-        node = node.children[0]
+        node = node[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == text
@@ -81,11 +81,11 @@ class TestInline:
         doc = visitor.parse(docstring)
         assert isinstance(doc, nodes.document)
 
-        para = doc.children[0]
+        para = doc[0]
         assert isinstance(para, nodes.paragraph)
-        assert len(para.children) == 1
+        assert len(para) == 1
 
-        node = para.children[0]
+        node = para[0]
         assert isinstance(node, cls)
 
         d = {k: v for k, v in node.attributes.items() if k in attrs}
@@ -97,15 +97,15 @@ class TestInline:
 
         assert isinstance(doc, nodes.document)
 
-        para = doc.children[0]
+        para = doc[0]
         assert isinstance(para, nodes.paragraph)
-        assert len(para.children) == 1
+        assert len(para) == 1
 
-        node = para.children[0]
+        node = para[0]
         assert isinstance(node, nodes.emphasis)
-        assert len(node.children) == 2
+        assert len(node) == 2
 
-        emp = node.children[1]
+        emp = node[1]
         node = node.children[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
@@ -127,21 +127,21 @@ class TestInline:
         doc = visitor.parse('some text http://example.com')
         assert isinstance(doc, nodes.document)
 
-        para = doc.children[0]
+        para = doc[0]
         assert isinstance(para, nodes.paragraph)
-        assert len(para.children) == 2
+        assert len(para) == 2
 
-        node = para.children[0]
+        node = para[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == 'some text'
 
-        node = para.children[1]
+        node = para[1]
         assert isinstance(node, nodes.reference)
-        assert len(node.children) == 1
+        assert len(node) == 1
         assert node.get('refuri') == 'http://example.com'
 
-        node = node.children[0]
+        node = node[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == 'http://example.com'
@@ -151,21 +151,21 @@ class TestInline:
         doc = visitor.parse('some text example@bla.com')
         assert isinstance(doc, nodes.document)
 
-        para = doc.children[0]
+        para = doc[0]
         assert isinstance(para, nodes.paragraph)
-        assert len(para.children) == 2
+        assert len(para) == 2
 
-        node = para.children[0]
+        node = para[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == 'some text'
 
-        node = para.children[1]
+        node = para[1]
         assert isinstance(node, nodes.reference)
-        assert len(node.children) == 1
+        assert len(node) == 1
         assert node.get('refuri') == 'mailto:example@bla.com'
 
-        node = node.children[0]
+        node = node[0]
         assert isinstance(node, nodes.Text)
         assert len(node.children) == 0
         assert str(node) == 'example@bla.com'
@@ -208,12 +208,4 @@ class TestInline:
         expected = expected or text
         doc = visitor.parse(text)
         assert isinstance(doc, nodes.document)
-
-        para = doc.children[0]
-        assert isinstance(para, nodes.paragraph)
-        assert len(para.children) == 1
-
-        node = para.children[0]
-        assert isinstance(node, nodes.Text)
-        assert len(node.children) == 0
-        assert str(node) == expected
+        pytest.g.assert_simple_par(doc[0], expected)
