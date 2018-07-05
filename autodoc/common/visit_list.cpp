@@ -10,6 +10,9 @@
 void PyDocVisitor::visitPre(DocAutoList *node)
 {
     TRACE_VISIT("visitPre(DocAutoList)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -30,9 +33,11 @@ void PyDocVisitor::visitPre(DocAutoList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocAutoList *)
+void PyDocVisitor::visitPost(DocAutoList *node)
 {
     TRACE_VISIT("visitPost(DocAutoList)\n");
+    if (!beforePost(node))
+        return;
     m_tree->pop();
 }
 //-----------------------------------------------------------------------------
@@ -40,15 +45,20 @@ void PyDocVisitor::visitPost(DocAutoList *)
 void PyDocVisitor::visitPre(DocAutoListItem *node)
 {
     TRACE_VISIT("visitPre(DocAutoListItem)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
     m_tree->push("list_item");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocAutoListItem *)
+void PyDocVisitor::visitPost(DocAutoListItem *node)
 {
     TRACE_VISIT("visitPost(DocAutoListItem)\n");
+    if (!beforePost(node))
+        return;
     m_tree->pop();
 }
 //-----------------------------------------------------------------------------
@@ -57,6 +67,9 @@ void PyDocVisitor::visitPost(DocAutoListItem *)
 void PyDocVisitor::visitPre(DocSimpleList *node)
 {
     TRACE_VISIT("visitPre(DocSimpleList)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -69,9 +82,11 @@ void PyDocVisitor::visitPre(DocSimpleList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSimpleList *)
+void PyDocVisitor::visitPost(DocSimpleList *node)
 {
     TRACE_VISIT("visitPost(DocSimpleList)\n");
+    if (!beforePost(node))
+        return;
     m_tree->pop();
 }
 //-----------------------------------------------------------------------------
@@ -79,15 +94,20 @@ void PyDocVisitor::visitPost(DocSimpleList *)
 void PyDocVisitor::visitPre(DocSimpleListItem *node)
 {
     TRACE_VISIT("visitPre(DocSimpleListItem)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
     m_tree->push("list_item");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSimpleListItem *)
+void PyDocVisitor::visitPost(DocSimpleListItem *node)
 {
     TRACE_VISIT("visitPost(DocSimpleListItem)\n");
+    if (!beforePost(node))
+        return;
     m_tree->pop();
 }
 //-----------------------------------------------------------------------------
@@ -96,6 +116,9 @@ void PyDocVisitor::visitPost(DocSimpleListItem *)
 void PyDocVisitor::visitPre(DocHtmlList *node)
 {
     TRACE_VISIT("visitPre(DocHtmlList)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -117,9 +140,11 @@ void PyDocVisitor::visitPre(DocHtmlList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlList *)
+void PyDocVisitor::visitPost(DocHtmlList *node)
 {
     TRACE_VISIT("visitPost(DocHtmlList)\n");
+    if (!beforePost(node))
+        return;
     m_tree->pop();
 }
 //-----------------------------------------------------------------------------
@@ -127,15 +152,20 @@ void PyDocVisitor::visitPost(DocHtmlList *)
 void PyDocVisitor::visitPre(DocHtmlListItem *node)
 {
     TRACE_VISIT("visitPre(DocHtmlListItem)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode(true);
     maybeFinishCurrentPara(node);
     m_tree->push("list_item");
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlListItem *)
+void PyDocVisitor::visitPost(DocHtmlListItem *node)
 {
     TRACE_VISIT("visitPost(DocHtmlListItem)\n");
+    if (!beforePost(node))
+        return;
     m_tree->pop();
 }
 //-----------------------------------------------------------------------------
@@ -146,37 +176,47 @@ void PyDocVisitor::visitPost(DocHtmlListItem *)
 void PyDocVisitor::visitPre(DocHtmlDescList *node)
 {
     TRACE_VISIT("visitPre(DocHtmlDescList)\n");
-
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlDescList *node)
 {
     TRACE_VISIT("visitPost(DocHtmlDescList)\n");
+    if (!beforePost(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlDescTitle *node)
 {
     TRACE_VISIT("visitPre(DocHtmlDescTitle)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlDescTitle *node)
 {
     TRACE_VISIT("visitPost(DocHtmlDescTitle)\n");
+    if (!beforePost(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPre(DocHtmlDescData *node)
 {
     TRACE_VISIT("visitPre(DocHtmlDescData)\n");
-
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visitPost(DocHtmlDescData *node)
 {
     TRACE_VISIT("visitPost(DocHtmlDescData)\n");
+    if (!beforePost(node))
+        return;
 }
 //-----------------------------------------------------------------------------

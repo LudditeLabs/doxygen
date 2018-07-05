@@ -80,6 +80,8 @@ public:
     void visitPost(DocParamList *);
     void visitPre(DocSimpleSect *);
     void visitPost(DocSimpleSect *);
+    void visitPre(DocTitle *);
+    void visitPost(DocTitle *);
 
     // Lists.
     void visitPre(DocAutoList *);
@@ -101,8 +103,6 @@ public:
     void visitPre(DocHtmlDescData *);
     void visitPost(DocHtmlDescData *);
 
-    void visitPre(DocTitle *);
-    void visitPost(DocTitle *);
     void visitPre(DocSection *);
     void visitPost(DocSection *);
 
@@ -163,11 +163,18 @@ private:
     int m_paramType;
     bool m_skipNextWhitespace;  // Don't add next whitespace.
 
+    // Skip node processing if not -1.
+    // Value describes which node (its kind) sets the restriction.
+    int m_skipProcessing;
+
     /**
      * Create text node from content in m_textBuf.
      */
     bool maybeCreateTextNode(bool stripTrailing = false);
     bool maybeFinishCurrentPara(DocNode *node);
+
+    bool beforePre(DocNode *node);
+    bool beforePost(DocNode *node);
 };
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

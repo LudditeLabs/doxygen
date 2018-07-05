@@ -61,7 +61,7 @@ bool PyGlobals::setupPickle()
 
 PyObject* PyGlobals::pickleToString(PyObject *object)
 {
-    if (!isValid())
+    if (!object || !isValid())
         return NULL;
 
     PyObject* res = PyObject_CallFunctionObjArgs(m_dumps, object, NULL);

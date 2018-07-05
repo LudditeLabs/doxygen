@@ -64,7 +64,10 @@ static PyObject* visitor_parse(PyObject *self, PyObject *args)
     std::unique_ptr<PyDocVisitor> visitor(new PyDocVisitor(scope.absFilePath(), 10));
     root->accept(visitor.get());
 
-    return visitor->takeDocument();
+    PyObject *res = visitor->takeDocument();
+    if (!res)
+        Py_RETURN_NONE;
+    return res;
 }
 
 

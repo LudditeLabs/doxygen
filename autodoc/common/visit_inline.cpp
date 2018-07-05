@@ -9,6 +9,8 @@
 void PyDocVisitor::visit(DocWord *node)
 {
     TRACE_VISIT("visit(DocWord)\n");
+    if (!beforePre(node))
+        return;
     m_textBuf.append(node->word());
 }
 //-----------------------------------------------------------------------------
@@ -16,6 +18,8 @@ void PyDocVisitor::visit(DocWord *node)
 void PyDocVisitor::visit(DocWhiteSpace *node)
 {
     TRACE_VISIT("visit(DocWhiteSpace)\n");
+    if (!beforePre(node))
+        return;
 
     // Add space only if prev node is not style.
     if (!m_skipNextWhitespace)
@@ -24,9 +28,11 @@ void PyDocVisitor::visit(DocWhiteSpace *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocLineBreak *)
+void PyDocVisitor::visit(DocLineBreak *node)
 {
     TRACE_VISIT("visit(DocLineBreak)\n");
+    if (!beforePre(node))
+        return;
     m_textBuf.append("\n");
 }
 //-----------------------------------------------------------------------------
@@ -34,6 +40,8 @@ void PyDocVisitor::visit(DocLineBreak *)
 void PyDocVisitor::visit(DocLinkedWord *node)
 {
     TRACE_VISIT("visit(DocLinkedWord)\n");
+    if (!beforePre(node))
+        return;
     // TODO: what node to use?
     m_textBuf.append(node->word());
 }
@@ -44,6 +52,8 @@ void PyDocVisitor::visit(DocSymbol *node)
     // Special symbols.
     // See also HtmlEntityMapper, http://tobybartels.name/characters/
     TRACE_VISIT("visit(DocSymbol)\n");
+    if (!beforePre(node))
+        return;
     switch (node->symbol()) {
     case DocSymbol::Sym_nbsp:
         m_textBuf.append(" ");
@@ -137,6 +147,9 @@ void PyDocVisitor::visit(DocSymbol *node)
 void PyDocVisitor::visit(DocURL *node)
 {
     TRACE_VISIT("visit(DocURL)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
 
     QCString refuri;
@@ -158,6 +171,8 @@ void PyDocVisitor::visit(DocURL *node)
 void PyDocVisitor::visit(DocHorRuler *node)
 {
     TRACE_VISIT("visit(DocHorRuler)\n");
+    if (!beforePre(node))
+        return;
     // TODO: add <hruler/> like node.
 }
 //-----------------------------------------------------------------------------
@@ -166,6 +181,9 @@ void PyDocVisitor::visit(DocVerbatim *node)
 {
     // Verbatim, unparsed text fragment.
     TRACE_VISIT("visit(DocVerbatim)\n");
+    if (!beforePre(node))
+        return;
+    
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -240,24 +258,32 @@ void PyDocVisitor::visit(DocVerbatim *node)
 void PyDocVisitor::visit(DocAnchor *node)
 {
     TRACE_VISIT("visit(DocAnchor)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocInclude *node)
 {
     TRACE_VISIT("visit(DocInclude)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocIncOperator *node)
 {
     TRACE_VISIT("visit(DocIncOperator)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
 void PyDocVisitor::visit(DocFormula *node)
 {
     TRACE_VISIT("visit(DocFormula)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
@@ -265,14 +291,18 @@ void PyDocVisitor::visit(DocIndexEntry *node)
 {
     // An entry in the index.
     TRACE_VISIT("visit(DocIndexEntry)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocSimpleSectSep *)
+void PyDocVisitor::visit(DocSimpleSectSep *node)
 {
     // Separator between two simple sections of the same type.
     // Nothing to add to docutils tree.
     TRACE_VISIT("visit(DocSimpleSectSep)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------
 
@@ -280,5 +310,7 @@ void PyDocVisitor::visit(DocCite *node)
 {
     // Citation of some bibliographic reference.
     TRACE_VISIT("visit(DocCite)\n");
+    if (!beforePre(node))
+        return;
 }
 //-----------------------------------------------------------------------------

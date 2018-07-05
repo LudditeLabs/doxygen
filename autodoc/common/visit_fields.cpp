@@ -8,6 +8,9 @@
 void PyDocVisitor::visitPre(DocParamSect *node)
 {
     TRACE_VISIT("visitPre(DocParamSect)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -30,6 +33,9 @@ void PyDocVisitor::visitPre(DocParamSect *node)
 void PyDocVisitor::visitPost(DocParamSect *node)
 {
     TRACE_VISIT("visitPost(DocParamSect)\n");
+    if (!beforePost(node))
+        return;
+    
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
     m_tree->pop();
@@ -42,6 +48,9 @@ void PyDocVisitor::visitPost(DocParamSect *node)
 void PyDocVisitor::visitPre(DocParamList *node)
 {
     TRACE_VISIT("visitPre(DocParamList)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -187,6 +196,9 @@ void PyDocVisitor::visitPre(DocParamList *node)
 void PyDocVisitor::visitPost(DocParamList *node)
 {
     TRACE_VISIT("visitPost(DocParamList)\n");
+    if (!beforePost(node))
+        return;
+    
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -200,6 +212,9 @@ void PyDocVisitor::visitPost(DocParamList *node)
 void PyDocVisitor::visitPre(DocSimpleSect *node)
 {
     TRACE_VISIT("visitPre(DocSimpleSect)\n");
+    if (!beforePre(node))
+        return;
+
     maybeCreateTextNode();
     maybeFinishCurrentPara(node);
 
@@ -267,5 +282,23 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
 void PyDocVisitor::visitPost(DocSimpleSect *node)
 {
     TRACE_VISIT("visitPost(DocSimpleSect)\n");
+    if (!beforePost(node))
+        return;
+}
+//-----------------------------------------------------------------------------
+
+void PyDocVisitor::visitPre(DocTitle *node)
+{
+    TRACE_VISIT("visitPre(DocTitle)\n");
+    if (!beforePre(node))
+        return;
+}
+//-----------------------------------------------------------------------------
+
+void PyDocVisitor::visitPost(DocTitle *node)
+{
+    TRACE_VISIT("visitPost(DocTitle)\n");
+    if (!beforePost(node))
+        return;
 }
 //-----------------------------------------------------------------------------
