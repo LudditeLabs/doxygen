@@ -234,7 +234,11 @@ void DocutilsVisitor::visitPost(DocSimpleSect *node)
         break;
     }
 
+    case DocSimpleSect::Unknown:
+        break;
+
     default:
+        m_tree->pop();
         break;
     }
 }
