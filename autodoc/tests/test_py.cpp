@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "Python.h"
-#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/docutilstree.h"
 #include "testconfig.h"
 #include "autodoc/common/utils.h"
 #include "autodoc/tests/utils.h"

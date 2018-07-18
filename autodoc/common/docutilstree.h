@@ -1,5 +1,5 @@
-#ifndef AUTODOC_COMMON_PYDOCUTILSTREE_H
-#define AUTODOC_COMMON_PYDOCUTILSTREE_H
+#ifndef AUTODOC_COMMON_DOCUTILSTREE_H
+#define AUTODOC_COMMON_DOCUTILSTREE_H
 
 #include "Python.h"
 #include <qstringlist.h>
@@ -92,4 +92,4 @@ private:
     bool m_valid;
 };
 
-#endif // AUTODOC_COMMON_PYDOCUTILSTREE_H
+#endif // AUTODOC_COMMON_DOCUTILSTREE_H

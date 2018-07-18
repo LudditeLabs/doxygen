@@ -1,6 +1,6 @@
 #include "Python.h"
 #include "autodoc/tests/utils.h"
-#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/docutilstree.h"
 #include "autodoc/common/visitor.h"
 #include "autodoc/common/utils.h"
 #include "testconfig.h"

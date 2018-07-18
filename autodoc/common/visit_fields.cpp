@@ -2,7 +2,7 @@
 #include "autodoc/common/visitor.h"
 #include <memory>
 #include "docparser.h"
-#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/docutilstree.h"
 
 
 void DocutilsVisitor::visitPre(DocParamSect *node)

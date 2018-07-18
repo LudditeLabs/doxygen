@@ -1,4 +1,4 @@
-#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/docutilstree.h"
 
 
 DocutilsTree::DocutilsTree()

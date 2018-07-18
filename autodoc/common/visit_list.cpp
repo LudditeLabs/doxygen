@@ -3,7 +3,7 @@
 #include <memory>
 #include "docparser.h"
 #include "htmlentity.h"
-#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/docutilstree.h"
 
 // http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists
 

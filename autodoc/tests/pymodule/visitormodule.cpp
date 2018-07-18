@@ -11,7 +11,7 @@
 
 #include "docparser.h"
 #include "filedef.h"
-#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/docutilstree.h"
 #include "autodoc/common/visitor.h"
 
 

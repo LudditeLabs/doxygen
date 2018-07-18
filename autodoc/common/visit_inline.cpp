@@ -2,7 +2,7 @@
 #include "autodoc/common/visitor.h"
 #include "docparser.h"
 #include "htmlentity.h"
-#include "autodoc/common/pydocutilstree.h"
+#include "autodoc/common/docutilstree.h"
 #include <memory>
 
 
