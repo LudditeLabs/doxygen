@@ -12,17 +12,17 @@ static ::testing::AssertionResult do_chdir(const char *path)
 {
     PyObjectPtr os = PyImport_ImportModule("os");
     if (!os)
-        return getPyError();
+        return assertPyError();
 
     PyObjectPtr chdir = PyObject_GetAttrString(os, "chdir");
     if (!chdir)
-        return getPyError();
+        return assertPyError();
 
     PyObjectPtr val = PyUnicode_FromString(path);
 
     PyObjectPtr res = PyObject_CallFunctionObjArgs(chdir, val.get(), NULL);
     if (!res)
-        return getPyError();
+        return assertPyError();
 
     return ::testing::AssertionSuccess();
 }
@@ -43,11 +43,11 @@ static ::testing::AssertionResult runPyTest(const char *path)
 {
     PyObjectPtr pytest = PyImport_ImportModule("pytest");
     if (!pytest)
-        return getPyError();
+        return assertPyError();
 
     PyObjectPtr main = PyObject_GetAttrString(pytest, "main");
     if (!main)
-        return getPyError();
+        return assertPyError();
 
     PyObjectPtr args = Py_BuildValue("[s]", path);
 
@@ -59,7 +59,7 @@ static ::testing::AssertionResult runPyTest(const char *path)
 
     PyObjectPtr res = PyObject_CallFunctionObjArgs(main, args.get(), NULL);
     if (!res)
-        return getPyError();
+        return assertPyError();
 
     long status = PyLong_AsLong(res);
 

@@ -8,7 +8,9 @@ struct _object;
 typedef _object PyObject;
 #endif
 
-
+void getTraceback(PyObject *type, PyObject *value, PyObject *traceback,
+                  QCString *out);
+QCString getPyError(bool clearError = true);
 bool printPyError(const char *message = nullptr);
 bool checkPyError(const char *message = nullptr);
 bool stripTrailing(QCString *text);

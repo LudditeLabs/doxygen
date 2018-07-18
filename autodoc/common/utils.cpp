@@ -9,12 +9,78 @@
 //    std::cerr << txt << " " << m_p->ob_type->tp_name << " " << m_p << std::endl
 
 
+// Partially based on:
+// https://stackoverflow.com/questions/1796510/accessing-a-python-traceback-from-the-c-api
+void getTraceback(PyObject *type, PyObject *value, PyObject *traceback, QCString *out)
+{
+    PyObjectPtr traceback_mod = PyImport_ImportModule("traceback");
+    if (!traceback)
+        return;
+
+    PyObjectPtr fmt = PyObject_GetAttrString(traceback_mod, "format_exception");
+    if (!fmt)
+        return;
+
+    PyObjectPtr tb = PyObject_CallFunctionObjArgs(fmt, type, value, traceback,
+                                                  NULL);
+
+    if (tb)
+    {
+        PyObjectPtr iterator = PyObject_GetIter(tb);
+        PyObjectPtr item;
+        const char *strVal;
+        while (item = PyIter_Next(iterator))
+        {
+            strVal =  PyUnicode_AsUTF8(item.get());
+            out->append(strVal);
+        }
+    }
+}
+//-----------------------------------------------------------------------------
+
+QCString getPyError(bool clearError)
+{
+    if (PyErr_Occurred())
+    {
+        PyObject *exType;
+        PyObject *exValue;
+        PyObject *traceback;
+
+        PyErr_Fetch(&exType, &exValue, &traceback);
+        PyErr_NormalizeException(&exType, &exValue, &traceback);
+
+        // Exception class name.
+        PyObjectPtr nameStr = PyObject_GetAttrString(exType, "__name__");
+        const char *name =  PyUnicode_AsUTF8(nameStr.get());
+
+        // Exception value.
+        PyObjectPtr valueStr = PyObject_Str(exValue);
+        const char *val = PyUnicode_AsUTF8(valueStr.get());
+
+        QCString result = val;
+        result.append(": ").append(name).append("\n");
+        getTraceback(exType, exValue, traceback, &result);
+
+        // When using PyErr_Restore() there is no need to decrement refs
+        // for these 3 pointers.
+        PyErr_Restore(exType, exValue, traceback);
+
+        if (clearError)
+            PyErr_Clear();
+
+        return result;
+    }
+
+    return QCString();
+}
+//-----------------------------------------------------------------------------
+
 bool printPyError(const char *message)
 {
     if (message)
         std::cerr << "ERROR: " << message << std::endl;
-    PyErr_Print();
-    PyErr_Clear();
+    QCString val = getPyError();
+    std::cout << val.data();
     return false;
 }
 //-----------------------------------------------------------------------------

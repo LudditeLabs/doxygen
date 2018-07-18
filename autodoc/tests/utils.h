@@ -18,7 +18,7 @@ namespace testutils {
      * @param prefix Message to set before the actuall error message.
      * @returns Google Test assertion result.
      */
-    ::testing::AssertionResult getPyError(const char *prefix = nullptr);
+    ::testing::AssertionResult assertPyError(const char *prefix = nullptr);
 
 
     class TestingEnv: public ::testing::Environment
