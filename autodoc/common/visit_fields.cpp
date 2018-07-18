@@ -209,6 +209,21 @@ void PyDocVisitor::visitPost(DocParamList *node)
 }
 //-----------------------------------------------------------------------------
 
+static QCString get_simple_sect_field_name(DocSimpleSect *node)
+{
+    switch (node->type())
+    {
+    case DocSimpleSect::Return:     return "return";
+    case DocSimpleSect::Author:     return "Author";
+    case DocSimpleSect::Authors:    return "Authors";
+    case DocSimpleSect::Version:    return "Version";
+    case DocSimpleSect::Date:       return "Date";
+    case DocSimpleSect::Copyright:  return "copyright";
+    default:
+        return "unknown";
+    }
+}
+
 void PyDocVisitor::visitPre(DocSimpleSect *node)
 {
     TRACE_VISIT("visitPre(DocSimpleSect)\n");
@@ -222,26 +237,49 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
 
     switch(node->type())
     {
+    // Fields.
+    case DocSimpleSect::Return:
+    case DocSimpleSect::Author:
+    case DocSimpleSect::Authors:
+    case DocSimpleSect::Version:
+    case DocSimpleSect::Date:
+    case DocSimpleSect::Copyright:
+        {
+            m_tree->push("field");
+            PyObjectPtr text = m_tree->createTextNode(get_simple_sect_field_name(node));
+            PyObjectPtr field_name = m_tree->create("field_name");
+            m_tree->addTo(field_name, text);
+            m_tree->addToCurrent(field_name);
+            m_tree->push("field_body");
+        }
+        break;
+
+    // RCS (Revision Control System, CSV, perforce) keyword: $<ID>:<text>$
+    // Example: $Revision: #19 $
+    //          $Author:Chuck$
+    case DocSimpleSect::Rcs:
+    {
+        PyObjectPtr args = PyTuple_New(0);
+        PyDict kw;
+        kw.setField("rcs", "1");
+        // field_name is created in visitPre(DocTitle).
+        // field_body is created in visitPost(DocTitle).
+        m_tree->push("field", args, kw);
+        break;
+    }
+
+    // Directives.
+    // @since {text or paragraph}
+    case DocSimpleSect::Since:
+    {
+        PyObjectPtr args = PyTuple_New(0);
+        PyDict kw;
+        kw.setField("type", "versionadded");
+        m_tree->push("admonition", args, kw);
+        break;
+    }
     case DocSimpleSect::See:
         name = "see";
-        break;
-    case DocSimpleSect::Return:
-        name = "return";
-        break;
-    case DocSimpleSect::Author:
-        name = "author";
-        break;
-    case DocSimpleSect::Authors:
-        name = "authors";
-        break;
-    case DocSimpleSect::Version:
-        name = "version";
-        break;
-    case DocSimpleSect::Since:
-        name = "since";
-        break;
-    case DocSimpleSect::Date:
-        name = "date";
         break;
     case DocSimpleSect::Note:
         name = "note";
@@ -249,41 +287,147 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
     case DocSimpleSect::Warning:
         name = "warning";
         break;
-    case DocSimpleSect::Pre:
-        name = "pre";
-        break;
-    case DocSimpleSect::Post:
-        name = "post";
-        break;
-    case DocSimpleSect::Copyright:
-        name = "copyright";
-        break;
-    case DocSimpleSect::Invar:
-        name = "invariant";
-        break;
-    case DocSimpleSect::Remark:
-        name = "remark";
-        break;
     case DocSimpleSect::Attention:
         name = "attention";
         break;
+
+    // \pre -  Starts a paragraph where the precondition of an entity
+    //         can be described.
+    case DocSimpleSect::Pre:
+        name = "pre";
+        break;
+    // \post - Starts a paragraph where the postcondition of an entity
+    //         can be described.
+    case DocSimpleSect::Post:
+        name = "post";
+        break;
+
+    // \invariant - Starts a paragraph where the invariant of an entity
+    //              can be described.
+    case DocSimpleSect::Invar:
+        name = "invariant";
+        break;
+
+    // \remark, \remarks - Starts a paragraph where one or more remarks
+    //                     may be entered.
+    case DocSimpleSect::Remark:
+        name = "remark";
+        break;
+
     case DocSimpleSect::User:
         name = "par";
         break;
-    case DocSimpleSect::Rcs:
-        name = "rcs";
-        break;
+
     case DocSimpleSect::Unknown:
         break;
     }
 }
 //-----------------------------------------------------------------------------
 
+QString getPyError(const char *prefix)
+{
+    PyObject *exType;
+    PyObject *exValue;
+    PyObject *traceback;
+
+    PyErr_Fetch(&exType, &exValue, &traceback);
+    PyErr_NormalizeException(&exType, &exValue, &traceback);
+
+    // Exception class name.
+    PyObjectPtr nameStr = PyObject_GetAttrString(exType, "__name__");
+    const char *name =  PyUnicode_AsUTF8(nameStr.get());
+
+    // Exception value.
+    PyObjectPtr valueStr = PyObject_Str(exValue);
+    const char *v = PyUnicode_AsUTF8(valueStr.get());
+
+    QString val = v;
+
+    // When using PyErr_Restore() there is no need to decrement refs
+    // for these 3 pointers.
+    PyErr_Restore(exType, exValue, traceback);
+
+    PyErr_Clear();
+    return val;
+}
+//-----------------------------------------------------------------------------
+//
 void PyDocVisitor::visitPost(DocSimpleSect *node)
 {
     TRACE_VISIT("visitPost(DocSimpleSect)\n");
     if (!beforePost(node))
         return;
+    
+    if (node->type() == DocSimpleSect::Since)
+    {
+        // TODO: check for errors.
+        // See: http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded
+        // Extract first line from the first paragraph and put it to
+        // admonition's attr 'version'.
+        PyObject *since = m_tree->current();
+        if (PySequence_Length(since))
+        {
+            PyObjectPtr par = PySequence_GetItem(since, 0);
+            if (PySequence_Length(par))
+            {
+                PyObjectPtr text = PySequence_GetItem(par, 0);
+                if (PySequence_Length(text))
+                {
+                    PyObjectPtr meth = PyUnicode_FromString("astext");
+                    PyObjectPtr str = PyObject_CallMethodObjArgs(text, meth, NULL);
+                    QCString t = PyUnicode_AsUTF8(str);
+                    int i = t.find('\n');
+                    QCString left;
+                    QCString right;
+                    if (i != -1)
+                    {
+                        left = t.left(i);
+                        right = t.right(t.length() - i - 1);
+                    }
+                    else
+                        left = t;
+
+                    PyObjectPtr stro = PyUnicode_DecodeUTF8(left.data(), left.length(), "replace");
+                    PyMapping_SetItemString(since, "version", stro);
+
+                    // Remove nested paragrahp if remaining text is empty.
+                    if (right.isEmpty())
+                    {
+                        PyObjectPtr index = PyLong_FromLong(0);
+                        PyObject_DelItem(since, index);
+                    }
+                    // Replace text in paragraph.
+                    else
+                    {
+                        PyObjectPtr index = PyLong_FromLong(0);
+                        PyObjectPtr newt = m_tree->createTextNode(right.data());
+                        PyObject_SetItem(par, index, newt);
+                    }
+                }
+            }
+        }
+    }
+
+    maybeCreateTextNode();
+    maybeFinishCurrentPara(node);
+
+    switch(node->type())
+    {
+    // Fields.
+    case DocSimpleSect::Return:
+    case DocSimpleSect::Author:
+    case DocSimpleSect::Authors:
+    case DocSimpleSect::Version:
+    case DocSimpleSect::Date:
+    case DocSimpleSect::Copyright:
+    case DocSimpleSect::Rcs:
+        m_tree->pop();  // field_body -> field
+        m_tree->pop();  // field -> field_list
+        break;
+    default:
+        m_tree->pop();
+        break;
+    }
 }
 //-----------------------------------------------------------------------------
 
@@ -292,6 +436,9 @@ void PyDocVisitor::visitPre(DocTitle *node)
     TRACE_VISIT("visitPre(DocTitle)\n");
     if (!beforePre(node))
         return;
+
+    // See visitPre(DocSimpleSect)
+    m_tree->push("field_name");
 }
 //-----------------------------------------------------------------------------
 
@@ -300,5 +447,9 @@ void PyDocVisitor::visitPost(DocTitle *node)
     TRACE_VISIT("visitPost(DocTitle)\n");
     if (!beforePost(node))
         return;
+
+    maybeCreateTextNode();      // create text node from DocWord.
+    m_tree->pop();              // field_name -> field
+    m_tree->push("field_body"); // field -> field_body
 }
 //-----------------------------------------------------------------------------
