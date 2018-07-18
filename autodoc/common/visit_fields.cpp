@@ -324,34 +324,6 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
 }
 //-----------------------------------------------------------------------------
 
-QString getPyError(const char *prefix)
-{
-    PyObject *exType;
-    PyObject *exValue;
-    PyObject *traceback;
-
-    PyErr_Fetch(&exType, &exValue, &traceback);
-    PyErr_NormalizeException(&exType, &exValue, &traceback);
-
-    // Exception class name.
-    PyObjectPtr nameStr = PyObject_GetAttrString(exType, "__name__");
-    const char *name =  PyUnicode_AsUTF8(nameStr.get());
-
-    // Exception value.
-    PyObjectPtr valueStr = PyObject_Str(exValue);
-    const char *v = PyUnicode_AsUTF8(valueStr.get());
-
-    QString val = v;
-
-    // When using PyErr_Restore() there is no need to decrement refs
-    // for these 3 pointers.
-    PyErr_Restore(exType, exValue, traceback);
-
-    PyErr_Clear();
-    return val;
-}
-//-----------------------------------------------------------------------------
-//
 void PyDocVisitor::visitPost(DocSimpleSect *node)
 {
     TRACE_VISIT("visitPost(DocSimpleSect)\n");
