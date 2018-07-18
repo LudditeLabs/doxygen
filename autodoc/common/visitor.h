@@ -29,7 +29,7 @@ PyObject* pickleDocTree(const QCString &fileName,
 //-----------------------------------------------------------------------------
 
 
-/** This visitor builds python tree object. */
+/** This visitor builds python docutils document. */
 class DocutilsVisitor: public DocVisitor
 {
 public:
@@ -39,10 +39,17 @@ public:
     PyObject* document() const;
     PyObject* takeDocument();
 
-    //--------------------------------------
-    // visitor functions for leaf nodes
-    //--------------------------------------
+    void visitPre(DocRoot *);
+    void visitPost(DocRoot *);
+    void visit(DocStyleChange *);
+    void visitPre(DocPara *);
+    void visitPost(DocPara *);
+    void visitPre(DocText *);
+    void visitPost(DocText *);
+    void visitPre(DocParBlock *);
+    void visitPost(DocParBlock *);
 
+    // visit_inline.cpp
     void visit(DocWord *);
     void visit(DocWhiteSpace *);
     void visit(DocLinkedWord *);
@@ -58,32 +65,20 @@ public:
     void visit(DocIndexEntry *);
     void visit(DocCite *);
 
-    //--------------------------------------
-    // visitor functions for compound nodes
-    //--------------------------------------
-
-    void visitPre(DocRoot *);
-    void visitPost(DocRoot *);
-    void visit(DocStyleChange *);
-    void visitPre(DocPara *);
-    void visitPost(DocPara *);
-    void visitPre(DocText *);
-    void visitPost(DocText *);
-    void visitPre(DocParBlock *);
-    void visitPost(DocParBlock *);
-
-    // Fields.
+    // visit_params.cpp
     void visitPre(DocParamSect *);
     void visitPost(DocParamSect *);
     void visitPre(DocParamList *);
     void visitPost(DocParamList *);
+
+    // visit_simple_sect.cpp
     void visitPre(DocSimpleSect *);
     void visitPost(DocSimpleSect *);
     void visitPre(DocTitle *);
     void visitPost(DocTitle *);
     void visit(DocSimpleSectSep *);
 
-    // Lists.
+    // visit_list.cpp
     void visitPre(DocAutoList *);
     void visitPost(DocAutoList *);
     void visitPre(DocAutoListItem *);
@@ -103,11 +98,9 @@ public:
     void visitPre(DocHtmlDescData *);
     void visitPost(DocHtmlDescData *);
 
+    // Not implemented yet.
     void visitPre(DocSection *);
     void visitPost(DocSection *);
-
-    //void visitPre(DocHtmlPre *);
-    //void visitPost(DocHtmlPre *);
     void visitPre(DocHtmlTable *);
     void visitPost(DocHtmlTable *);
     void visitPre(DocHtmlRow *);
@@ -126,7 +119,6 @@ public:
     void visitPost(DocImage *);
     void visitPre(DocDotFile *);
     void visitPost(DocDotFile *);
-
     void visitPre(DocMscFile *);
     void visitPost(DocMscFile *);
     void visitPre(DocDiaFile *);
@@ -139,8 +131,6 @@ public:
     void visitPost(DocSecRefItem *);
     void visitPre(DocSecRefList *);
     void visitPost(DocSecRefList *);
-    //void visitPre(DocLanguage *);
-    //void visitPost(DocLanguage *);
     void visitPre(DocXRefItem *);
     void visitPost(DocXRefItem *);
     void visitPre(DocInternalRef *);
