@@ -9,11 +9,11 @@
 
 
 // TODO: do nothing if isValid() = false.
-class PyDocutilsTree
+class DocutilsTree
 {
 public:
-    PyDocutilsTree();
-    ~PyDocutilsTree();
+    DocutilsTree();
+    ~DocutilsTree();
 
     PyObject* create(const QCString &name,
                      PyObject *args = NULL,

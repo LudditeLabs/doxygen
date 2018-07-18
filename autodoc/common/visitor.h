@@ -17,7 +17,7 @@
 class Definition;
 class MemberDef;
 class DocNode;
-class PyDocutilsTree;
+class DocutilsTree;
 
 
 PyObject* pickleDocTree(const QCString &fileName,
@@ -153,7 +153,7 @@ public:
     void visitPost(DocVhdlFlow *);
 
 private:
-    std::unique_ptr<PyDocutilsTree> m_tree;
+    std::unique_ptr<DocutilsTree> m_tree;
     PyObjectPtr m_fieldList;
 
     QCString m_fileName;

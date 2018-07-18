@@ -1,7 +1,7 @@
 #include "autodoc/common/pydocutilstree.h"
 
 
-PyDocutilsTree::PyDocutilsTree()
+DocutilsTree::DocutilsTree()
 : m_globals(PyGlobals::instance()),
   m_valid(false)
 {
@@ -9,15 +9,15 @@ PyDocutilsTree::PyDocutilsTree()
 }
 //-----------------------------------------------------------------------------
 
-PyDocutilsTree::~PyDocutilsTree()
+DocutilsTree::~DocutilsTree()
 {
 
 }
 //-----------------------------------------------------------------------------
 
-PyObject* PyDocutilsTree::create(const QCString &name,
-                                 PyObject *args,
-                                 PyObject *kwargs)
+PyObject* DocutilsTree::create(const QCString &name,
+                               PyObject *args,
+                               PyObject *kwargs)
 {
     PyObject *node = NULL;
     PyObjectPtr cls = m_globals->nodeClass(name);
@@ -35,8 +35,9 @@ PyObject* PyDocutilsTree::create(const QCString &name,
 }
 //-----------------------------------------------------------------------------
 
-void PyDocutilsTree::pushWithName(const QCString &name, PyObject *node,
-                                  bool append)
+void DocutilsTree::pushWithName(const QCString &name,
+                                PyObject *node,
+                                bool append)
 {
     // TODO: push node type to list.
     if (node == NULL)
@@ -50,13 +51,14 @@ void PyDocutilsTree::pushWithName(const QCString &name, PyObject *node,
 }
 //-----------------------------------------------------------------------------
 
-void PyDocutilsTree::pop(const char *nodeType)
+void DocutilsTree::pop(const char *nodeType)
 {
     if (m_current.get() != m_document.get())
     {
         if (nodeType && nodeType != currentType())
         {
-            printf("POP: node type is different: %s (expected %s)\n", currentType().data(), nodeType);
+            printf("POP: node type is different: %s (expected %s)\n",
+                   currentType().data(), nodeType);
             return;
         }
         m_current = getParentOf(m_current);
@@ -65,14 +67,14 @@ void PyDocutilsTree::pop(const char *nodeType)
 }
 //-----------------------------------------------------------------------------
 
-PyObject* PyDocutilsTree::createTextNode(const QCString &text)
+PyObject* DocutilsTree::createTextNode(const QCString &text)
 {
     PyObjectPtr str = PyUnicode_DecodeUTF8(text.data(), text.size(), "replace");
     return createWithArgs("Text", str.get(), NULL);
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocutilsTree::addTo(PyObject *parent, PyObject *node)
+bool DocutilsTree::addTo(PyObject *parent, PyObject *node)
 {
     PyObjectPtr meth = PyUnicode_FromString("append");
     PyObjectPtr res = PyObject_CallMethodObjArgs(parent, meth, node, NULL);
@@ -80,13 +82,13 @@ bool PyDocutilsTree::addTo(PyObject *parent, PyObject *node)
 }
 //-----------------------------------------------------------------------------
 
-PyObject* PyDocutilsTree::getParentOf(PyObject *node)
+PyObject* DocutilsTree::getParentOf(PyObject *node)
 {
     return PyObject_GetAttrString(node, "parent");
 }
 //-----------------------------------------------------------------------------
 
-PyObject* PyDocutilsTree::createDocument(PyObject *kwargs)
+PyObject* DocutilsTree::createDocument(PyObject *kwargs)
 {
     PyObjectPtr none = Py_None;
     none.incRef();  // increment for first arg
@@ -104,7 +106,7 @@ PyObject* PyDocutilsTree::createDocument(PyObject *kwargs)
 }
 //-----------------------------------------------------------------------------
 
-Py_ssize_t PyDocutilsTree::len(PyObject *node) const
+Py_ssize_t DocutilsTree::len(PyObject *node) const
 {
     Py_ssize_t sz = PySequence_Length(node);
     if (sz == -1)
@@ -113,7 +115,7 @@ Py_ssize_t PyDocutilsTree::len(PyObject *node) const
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocutilsTree::removeChild(PyObject *node, Py_ssize_t index)
+bool DocutilsTree::removeChild(PyObject *node, Py_ssize_t index)
 {
     PyObjectPtr i = PyLong_FromSsize_t(index);
     if (PyMapping_DelItem(node, i) == -1)

@@ -30,7 +30,7 @@ PyObject* pickleDocTree(const QCString &fileName,
 
 DocutilsVisitor::DocutilsVisitor(const QCString &fileName, int lineNumber)
 : DocVisitor(DocVisitor_Other),
-  m_tree(new PyDocutilsTree),
+  m_tree(new DocutilsTree),
   m_fileName(fileName),
   m_lineNumber(lineNumber),
   m_skipNextWhitespace(false),
