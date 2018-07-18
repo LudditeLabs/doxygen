@@ -7,7 +7,7 @@
 
 // http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists
 
-void PyDocVisitor::visitPre(DocAutoList *node)
+void DocutilsVisitor::visitPre(DocAutoList *node)
 {
     TRACE_VISIT("visitPre(DocAutoList)\n");
     if (!beforePre(node))
@@ -33,7 +33,7 @@ void PyDocVisitor::visitPre(DocAutoList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocAutoList *node)
+void DocutilsVisitor::visitPost(DocAutoList *node)
 {
     TRACE_VISIT("visitPost(DocAutoList)\n");
     if (!beforePost(node))
@@ -42,7 +42,7 @@ void PyDocVisitor::visitPost(DocAutoList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocAutoListItem *node)
+void DocutilsVisitor::visitPre(DocAutoListItem *node)
 {
     TRACE_VISIT("visitPre(DocAutoListItem)\n");
     if (!beforePre(node))
@@ -54,7 +54,7 @@ void PyDocVisitor::visitPre(DocAutoListItem *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocAutoListItem *node)
+void DocutilsVisitor::visitPost(DocAutoListItem *node)
 {
     TRACE_VISIT("visitPost(DocAutoListItem)\n");
     if (!beforePost(node))
@@ -64,7 +64,7 @@ void PyDocVisitor::visitPost(DocAutoListItem *node)
 //-----------------------------------------------------------------------------
 
 
-void PyDocVisitor::visitPre(DocSimpleList *node)
+void DocutilsVisitor::visitPre(DocSimpleList *node)
 {
     TRACE_VISIT("visitPre(DocSimpleList)\n");
     if (!beforePre(node))
@@ -82,7 +82,7 @@ void PyDocVisitor::visitPre(DocSimpleList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSimpleList *node)
+void DocutilsVisitor::visitPost(DocSimpleList *node)
 {
     TRACE_VISIT("visitPost(DocSimpleList)\n");
     if (!beforePost(node))
@@ -91,7 +91,7 @@ void PyDocVisitor::visitPost(DocSimpleList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocSimpleListItem *node)
+void DocutilsVisitor::visitPre(DocSimpleListItem *node)
 {
     TRACE_VISIT("visitPre(DocSimpleListItem)\n");
     if (!beforePre(node))
@@ -103,7 +103,7 @@ void PyDocVisitor::visitPre(DocSimpleListItem *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSimpleListItem *node)
+void DocutilsVisitor::visitPost(DocSimpleListItem *node)
 {
     TRACE_VISIT("visitPost(DocSimpleListItem)\n");
     if (!beforePost(node))
@@ -113,7 +113,7 @@ void PyDocVisitor::visitPost(DocSimpleListItem *node)
 //-----------------------------------------------------------------------------
 
 
-void PyDocVisitor::visitPre(DocHtmlList *node)
+void DocutilsVisitor::visitPre(DocHtmlList *node)
 {
     TRACE_VISIT("visitPre(DocHtmlList)\n");
     if (!beforePre(node))
@@ -140,7 +140,7 @@ void PyDocVisitor::visitPre(DocHtmlList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlList *node)
+void DocutilsVisitor::visitPost(DocHtmlList *node)
 {
     TRACE_VISIT("visitPost(DocHtmlList)\n");
     if (!beforePost(node))
@@ -149,7 +149,7 @@ void PyDocVisitor::visitPost(DocHtmlList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlListItem *node)
+void DocutilsVisitor::visitPre(DocHtmlListItem *node)
 {
     TRACE_VISIT("visitPre(DocHtmlListItem)\n");
     if (!beforePre(node))
@@ -161,7 +161,7 @@ void PyDocVisitor::visitPre(DocHtmlListItem *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlListItem *node)
+void DocutilsVisitor::visitPost(DocHtmlListItem *node)
 {
     TRACE_VISIT("visitPost(DocHtmlListItem)\n");
     if (!beforePost(node))
@@ -173,7 +173,7 @@ void PyDocVisitor::visitPost(DocHtmlListItem *node)
 // TODO: implement description list <dl>
 // https://www.w3schools.com/tags/tag_dl.asp
 
-void PyDocVisitor::visitPre(DocHtmlDescList *node)
+void DocutilsVisitor::visitPre(DocHtmlDescList *node)
 {
     TRACE_VISIT("visitPre(DocHtmlDescList)\n");
     if (!beforePre(node))
@@ -181,7 +181,7 @@ void PyDocVisitor::visitPre(DocHtmlDescList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlDescList *node)
+void DocutilsVisitor::visitPost(DocHtmlDescList *node)
 {
     TRACE_VISIT("visitPost(DocHtmlDescList)\n");
     if (!beforePost(node))
@@ -189,7 +189,7 @@ void PyDocVisitor::visitPost(DocHtmlDescList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlDescTitle *node)
+void DocutilsVisitor::visitPre(DocHtmlDescTitle *node)
 {
     TRACE_VISIT("visitPre(DocHtmlDescTitle)\n");
     if (!beforePre(node))
@@ -197,7 +197,7 @@ void PyDocVisitor::visitPre(DocHtmlDescTitle *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlDescTitle *node)
+void DocutilsVisitor::visitPost(DocHtmlDescTitle *node)
 {
     TRACE_VISIT("visitPost(DocHtmlDescTitle)\n");
     if (!beforePost(node))
@@ -205,7 +205,7 @@ void PyDocVisitor::visitPost(DocHtmlDescTitle *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlDescData *node)
+void DocutilsVisitor::visitPre(DocHtmlDescData *node)
 {
     TRACE_VISIT("visitPre(DocHtmlDescData)\n");
     if (!beforePre(node))
@@ -213,7 +213,7 @@ void PyDocVisitor::visitPre(DocHtmlDescData *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlDescData *node)
+void DocutilsVisitor::visitPost(DocHtmlDescData *node)
 {
     TRACE_VISIT("visitPost(DocHtmlDescData)\n");
     if (!beforePost(node))

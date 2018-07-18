@@ -30,11 +30,11 @@ PyObject* pickleDocTree(const QCString &fileName,
 
 
 /** This visitor builds python tree object. */
-class PyDocVisitor: public DocVisitor
+class DocutilsVisitor: public DocVisitor
 {
 public:
-    PyDocVisitor(const QCString &fileName, int lineNumber);
-    ~PyDocVisitor();
+    DocutilsVisitor(const QCString &fileName, int lineNumber);
+    ~DocutilsVisitor();
 
     PyObject* document() const;
     PyObject* takeDocument();

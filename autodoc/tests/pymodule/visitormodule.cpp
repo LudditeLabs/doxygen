@@ -61,7 +61,7 @@ static PyObject* visitor_parse(PyObject *self, PyObject *args)
         FALSE
     ));
 
-    std::unique_ptr<PyDocVisitor> visitor(new PyDocVisitor(scope.absFilePath(), 10));
+    std::unique_ptr<DocutilsVisitor> visitor(new DocutilsVisitor(scope.absFilePath(), 10));
     root->accept(visitor.get());
 
     PyObject *res = visitor->takeDocument();

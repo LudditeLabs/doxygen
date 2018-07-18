@@ -5,7 +5,7 @@
 #include "autodoc/common/pydocutilstree.h"
 
 
-void PyDocVisitor::visitPre(DocParamSect *node)
+void DocutilsVisitor::visitPre(DocParamSect *node)
 {
     TRACE_VISIT("visitPre(DocParamSect)\n");
     if (!beforePre(node))
@@ -30,7 +30,7 @@ void PyDocVisitor::visitPre(DocParamSect *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocParamSect *node)
+void DocutilsVisitor::visitPost(DocParamSect *node)
 {
     TRACE_VISIT("visitPost(DocParamSect)\n");
     if (!beforePost(node))
@@ -45,7 +45,7 @@ void PyDocVisitor::visitPost(DocParamSect *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocParamList *node)
+void DocutilsVisitor::visitPre(DocParamList *node)
 {
     TRACE_VISIT("visitPre(DocParamList)\n");
     if (!beforePre(node))
@@ -193,7 +193,7 @@ void PyDocVisitor::visitPre(DocParamList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocParamList *node)
+void DocutilsVisitor::visitPost(DocParamList *node)
 {
     TRACE_VISIT("visitPost(DocParamList)\n");
     if (!beforePost(node))
@@ -228,7 +228,7 @@ static QCString get_simple_sect_field_name(DocSimpleSect *node)
     }
 }
 
-void PyDocVisitor::visitPre(DocSimpleSect *node)
+void DocutilsVisitor::visitPre(DocSimpleSect *node)
 {
     TRACE_VISIT("visitPre(DocSimpleSect)\n");
     if (!beforePre(node))
@@ -330,7 +330,7 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSimpleSect *node)
+void DocutilsVisitor::visitPost(DocSimpleSect *node)
 {
     TRACE_VISIT("visitPost(DocSimpleSect)\n");
     if (!beforePost(node))
@@ -444,7 +444,7 @@ void PyDocVisitor::visitPost(DocSimpleSect *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocTitle *node)
+void DocutilsVisitor::visitPre(DocTitle *node)
 {
     TRACE_VISIT("visitPre(DocTitle)\n");
     if (!beforePre(node))
@@ -456,7 +456,7 @@ void PyDocVisitor::visitPre(DocTitle *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocTitle *node)
+void DocutilsVisitor::visitPost(DocTitle *node)
 {
     TRACE_VISIT("visitPost(DocTitle)\n");
     if (!beforePost(node))
@@ -494,7 +494,7 @@ void PyDocVisitor::visitPost(DocTitle *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocSimpleSectSep *node)
+void DocutilsVisitor::visit(DocSimpleSectSep *node)
 {
     // Separator between two simple sections of the same type.
     // Nothing to add to docutils tree.

@@ -6,7 +6,7 @@
 #include <memory>
 
 
-void PyDocVisitor::visit(DocWord *node)
+void DocutilsVisitor::visit(DocWord *node)
 {
     TRACE_VISIT("visit(DocWord)\n");
     if (!beforePre(node))
@@ -15,7 +15,7 @@ void PyDocVisitor::visit(DocWord *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocWhiteSpace *node)
+void DocutilsVisitor::visit(DocWhiteSpace *node)
 {
     TRACE_VISIT("visit(DocWhiteSpace)\n");
     if (!beforePre(node))
@@ -28,7 +28,7 @@ void PyDocVisitor::visit(DocWhiteSpace *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocLineBreak *node)
+void DocutilsVisitor::visit(DocLineBreak *node)
 {
     TRACE_VISIT("visit(DocLineBreak)\n");
     if (!beforePre(node))
@@ -37,7 +37,7 @@ void PyDocVisitor::visit(DocLineBreak *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocLinkedWord *node)
+void DocutilsVisitor::visit(DocLinkedWord *node)
 {
     TRACE_VISIT("visit(DocLinkedWord)\n");
     if (!beforePre(node))
@@ -47,7 +47,7 @@ void PyDocVisitor::visit(DocLinkedWord *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocSymbol *node)
+void DocutilsVisitor::visit(DocSymbol *node)
 {
     // Special symbols.
     // See also HtmlEntityMapper, http://tobybartels.name/characters/
@@ -144,7 +144,7 @@ void PyDocVisitor::visit(DocSymbol *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocURL *node)
+void DocutilsVisitor::visit(DocURL *node)
 {
     TRACE_VISIT("visit(DocURL)\n");
     if (!beforePre(node))
@@ -168,7 +168,7 @@ void PyDocVisitor::visit(DocURL *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocHorRuler *node)
+void DocutilsVisitor::visit(DocHorRuler *node)
 {
     TRACE_VISIT("visit(DocHorRuler)\n");
     if (!beforePre(node))
@@ -177,7 +177,7 @@ void PyDocVisitor::visit(DocHorRuler *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocVerbatim *node)
+void DocutilsVisitor::visit(DocVerbatim *node)
 {
     // Verbatim, unparsed text fragment.
     TRACE_VISIT("visit(DocVerbatim)\n");
@@ -255,7 +255,7 @@ void PyDocVisitor::visit(DocVerbatim *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocAnchor *node)
+void DocutilsVisitor::visit(DocAnchor *node)
 {
     TRACE_VISIT("visit(DocAnchor)\n");
     if (!beforePre(node))
@@ -263,7 +263,7 @@ void PyDocVisitor::visit(DocAnchor *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocInclude *node)
+void DocutilsVisitor::visit(DocInclude *node)
 {
     TRACE_VISIT("visit(DocInclude)\n");
     if (!beforePre(node))
@@ -271,7 +271,7 @@ void PyDocVisitor::visit(DocInclude *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocIncOperator *node)
+void DocutilsVisitor::visit(DocIncOperator *node)
 {
     TRACE_VISIT("visit(DocIncOperator)\n");
     if (!beforePre(node))
@@ -279,7 +279,7 @@ void PyDocVisitor::visit(DocIncOperator *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocFormula *node)
+void DocutilsVisitor::visit(DocFormula *node)
 {
     TRACE_VISIT("visit(DocFormula)\n");
     if (!beforePre(node))
@@ -287,7 +287,7 @@ void PyDocVisitor::visit(DocFormula *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocIndexEntry *node)
+void DocutilsVisitor::visit(DocIndexEntry *node)
 {
     // An entry in the index.
     TRACE_VISIT("visit(DocIndexEntry)\n");
@@ -296,7 +296,7 @@ void PyDocVisitor::visit(DocIndexEntry *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocCite *node)
+void DocutilsVisitor::visit(DocCite *node)
 {
     // Citation of some bibliographic reference.
     TRACE_VISIT("visit(DocCite)\n");

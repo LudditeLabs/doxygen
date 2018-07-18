@@ -17,7 +17,7 @@ PyObject* pickleDocTree(const QCString &fileName,
 
     // convert the documentation string into an abstract syntax tree
     std::unique_ptr<DocNode> root(validatingParseDoc(fileName,lineNr,scope,md,text,FALSE,FALSE));
-    std::unique_ptr<PyDocVisitor> visitor(new PyDocVisitor(fileName, lineNr));
+    std::unique_ptr<DocutilsVisitor> visitor(new DocutilsVisitor(fileName, lineNr));
 
     root->accept(visitor.get());
 
@@ -28,7 +28,7 @@ PyObject* pickleDocTree(const QCString &fileName,
 //-----------------------------------------------------------------------------
 
 
-PyDocVisitor::PyDocVisitor(const QCString &fileName, int lineNumber)
+DocutilsVisitor::DocutilsVisitor(const QCString &fileName, int lineNumber)
 : DocVisitor(DocVisitor_Other),
   m_tree(new PyDocutilsTree),
   m_fileName(fileName),
@@ -40,25 +40,25 @@ PyDocVisitor::PyDocVisitor(const QCString &fileName, int lineNumber)
 }
 //-----------------------------------------------------------------------------
 
-PyDocVisitor::~PyDocVisitor()
+DocutilsVisitor::~DocutilsVisitor()
 {
 //    m_fieldList.decRef();
 }
 //-----------------------------------------------------------------------------
 
-PyObject* PyDocVisitor::document() const
+PyObject* DocutilsVisitor::document() const
 {
     return m_tree->document();
 }
 //-----------------------------------------------------------------------------
 
-PyObject* PyDocVisitor::takeDocument()
+PyObject* DocutilsVisitor::takeDocument()
 {
     return m_tree->takeDocument();
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocVisitor::maybeCreateTextNode(bool stripTrailing)
+bool DocutilsVisitor::maybeCreateTextNode(bool stripTrailing)
 {
     if (m_textBuf.isEmpty())
         return false;
@@ -88,7 +88,7 @@ bool PyDocVisitor::maybeCreateTextNode(bool stripTrailing)
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocVisitor::maybeFinishCurrentPara(DocNode *node)
+bool DocutilsVisitor::maybeFinishCurrentPara(DocNode *node)
 {
     if (node->kind() == DocNode::Kind_Para)
     {
@@ -115,7 +115,7 @@ bool PyDocVisitor::maybeFinishCurrentPara(DocNode *node)
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocVisitor::beforePre(DocNode *node)
+bool DocutilsVisitor::beforePre(DocNode *node)
 {
     if (m_skipProcessing != -1 || !m_tree->isValid())
         return false;
@@ -124,7 +124,7 @@ bool PyDocVisitor::beforePre(DocNode *node)
 }
 //-----------------------------------------------------------------------------
 
-bool PyDocVisitor::beforePost(DocNode *node)
+bool DocutilsVisitor::beforePost(DocNode *node)
 {
     if (m_skipProcessing != -1)
         return false;
@@ -132,7 +132,7 @@ bool PyDocVisitor::beforePost(DocNode *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocRoot *node)
+void DocutilsVisitor::visitPre(DocRoot *node)
 {
     TRACE_VISIT("visitPre(DocRoot)\n");
 
@@ -155,7 +155,7 @@ void PyDocVisitor::visitPre(DocRoot *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocRoot *node)
+void DocutilsVisitor::visitPost(DocRoot *node)
 {
     TRACE_VISIT("visitPost(DocRoot)\n");
 
@@ -183,7 +183,7 @@ static PyObject* htmlAttribsToDict(const HtmlAttribList &attribs)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocStyleChange *node)
+void DocutilsVisitor::visit(DocStyleChange *node)
 {
     TRACE_VISIT("visit(DocStyleChange)\n");
     if (!beforePre(node))
@@ -260,7 +260,7 @@ void PyDocVisitor::visit(DocStyleChange *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocPara *node)
+void DocutilsVisitor::visitPre(DocPara *node)
 {
     TRACE_VISIT("visitPre(DocPara)\n");
     if (!beforePre(node))
@@ -276,7 +276,7 @@ void PyDocVisitor::visitPre(DocPara *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocPara *node)
+void DocutilsVisitor::visitPost(DocPara *node)
 {
     TRACE_VISIT("visitPost(DocPara)\n");
     if (!beforePost(node))
@@ -298,7 +298,7 @@ void PyDocVisitor::visitPost(DocPara *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocText *node)
+void DocutilsVisitor::visitPre(DocText *node)
 {
     TRACE_VISIT("visitPre(DocText)\n");
     if (!beforePre(node))
@@ -306,7 +306,7 @@ void PyDocVisitor::visitPre(DocText *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocText *node)
+void DocutilsVisitor::visitPost(DocText *node)
 {
     TRACE_VISIT("visitPost(DocText)\n");
     if (!beforePost(node))
@@ -314,7 +314,7 @@ void PyDocVisitor::visitPost(DocText *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocParBlock *node)
+void DocutilsVisitor::visitPre(DocParBlock *node)
 {
     TRACE_VISIT("visitPre(DocParBlock)\n");
     if (!beforePre(node))
@@ -323,7 +323,7 @@ void PyDocVisitor::visitPre(DocParBlock *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocParBlock *node)
+void DocutilsVisitor::visitPost(DocParBlock *node)
 {
     TRACE_VISIT("visitPost(DocParBlock)\n");
     if (!beforePost(node))
@@ -331,7 +331,7 @@ void PyDocVisitor::visitPost(DocParBlock *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocSection *node)
+void DocutilsVisitor::visitPre(DocSection *node)
 {
     TRACE_VISIT("visitPre(DocSection)\n");
     if (!beforePre(node))
@@ -339,7 +339,7 @@ void PyDocVisitor::visitPre(DocSection *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSection *node)
+void DocutilsVisitor::visitPost(DocSection *node)
 {
     TRACE_VISIT("visitPost(DocSection)\n");
     if (!beforePost(node))
@@ -347,7 +347,7 @@ void PyDocVisitor::visitPost(DocSection *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlTable *node)
+void DocutilsVisitor::visitPre(DocHtmlTable *node)
 {
     TRACE_VISIT("visitPre(DocHtmlTable)\n");
     if (!beforePre(node))
@@ -355,7 +355,7 @@ void PyDocVisitor::visitPre(DocHtmlTable *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlTable *node)
+void DocutilsVisitor::visitPost(DocHtmlTable *node)
 {
     TRACE_VISIT("visitPost(DocHtmlTable)\n");
     if (!beforePost(node))
@@ -363,7 +363,7 @@ void PyDocVisitor::visitPost(DocHtmlTable *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlRow *node)
+void DocutilsVisitor::visitPre(DocHtmlRow *node)
 {
     TRACE_VISIT("visitPre(DocHtmlRow)\n");
     if (!beforePre(node))
@@ -371,7 +371,7 @@ void PyDocVisitor::visitPre(DocHtmlRow *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlRow *node)
+void DocutilsVisitor::visitPost(DocHtmlRow *node)
 {
     TRACE_VISIT("visitPost(DocHtmlRow)\n");
     if (!beforePost(node))
@@ -379,7 +379,7 @@ void PyDocVisitor::visitPost(DocHtmlRow *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlCell *node)
+void DocutilsVisitor::visitPre(DocHtmlCell *node)
 {
     TRACE_VISIT("visitPre(DocHtmlCell)\n");
     if (!beforePre(node))
@@ -387,7 +387,7 @@ void PyDocVisitor::visitPre(DocHtmlCell *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlCell *node)
+void DocutilsVisitor::visitPost(DocHtmlCell *node)
 {
     TRACE_VISIT("visitPost(DocHtmlCell)\n");
     if (!beforePost(node))
@@ -395,7 +395,7 @@ void PyDocVisitor::visitPost(DocHtmlCell *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlCaption *node)
+void DocutilsVisitor::visitPre(DocHtmlCaption *node)
 {
     TRACE_VISIT("visitPre(DocHtmlCaption)\n");
     if (!beforePre(node))
@@ -403,7 +403,7 @@ void PyDocVisitor::visitPre(DocHtmlCaption *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlCaption *node)
+void DocutilsVisitor::visitPost(DocHtmlCaption *node)
 {
     TRACE_VISIT("visitPost(DocHtmlCaption)\n");
     if (!beforePost(node))
@@ -411,7 +411,7 @@ void PyDocVisitor::visitPost(DocHtmlCaption *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocInternal *node)
+void DocutilsVisitor::visitPre(DocInternal *node)
 {
     TRACE_VISIT("visitPre(DocInternal)\n");
     if (!beforePre(node))
@@ -419,7 +419,7 @@ void PyDocVisitor::visitPre(DocInternal *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocInternal *node)
+void DocutilsVisitor::visitPost(DocInternal *node)
 {
     TRACE_VISIT("visitPost(DocInternal)\n");
     if (!beforePost(node))
@@ -427,7 +427,7 @@ void PyDocVisitor::visitPost(DocInternal *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHRef *node)
+void DocutilsVisitor::visitPre(DocHRef *node)
 {
     TRACE_VISIT("visitPre(DocHRef)\n");
     if (!beforePre(node))
@@ -435,7 +435,7 @@ void PyDocVisitor::visitPre(DocHRef *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHRef *node)
+void DocutilsVisitor::visitPost(DocHRef *node)
 {
     TRACE_VISIT("visitPost(DocHRef)\n");
     if (!beforePost(node))
@@ -443,7 +443,7 @@ void PyDocVisitor::visitPost(DocHRef *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlHeader *node)
+void DocutilsVisitor::visitPre(DocHtmlHeader *node)
 {
     TRACE_VISIT("visitPre(DocHtmlHeader)\n");
     if (!beforePre(node))
@@ -451,7 +451,7 @@ void PyDocVisitor::visitPre(DocHtmlHeader *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlHeader *node)
+void DocutilsVisitor::visitPost(DocHtmlHeader *node)
 {
     TRACE_VISIT("visitPost(DocHtmlHeader)\n");
     if (!beforePost(node))
@@ -459,7 +459,7 @@ void PyDocVisitor::visitPost(DocHtmlHeader *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocImage *node)
+void DocutilsVisitor::visitPre(DocImage *node)
 {
     TRACE_VISIT("visitPre(DocImage)\n");
     if (!beforePre(node))
@@ -467,7 +467,7 @@ void PyDocVisitor::visitPre(DocImage *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocImage *node)
+void DocutilsVisitor::visitPost(DocImage *node)
 {
     TRACE_VISIT("visitPost(DocImage)\n");
     if (!beforePost(node))
@@ -475,7 +475,7 @@ void PyDocVisitor::visitPost(DocImage *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocDotFile *node)
+void DocutilsVisitor::visitPre(DocDotFile *node)
 {
     TRACE_VISIT("visitPre(DocDotFile)\n");
     if (!beforePre(node))
@@ -483,7 +483,7 @@ void PyDocVisitor::visitPre(DocDotFile *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocDotFile *node)
+void DocutilsVisitor::visitPost(DocDotFile *node)
 {
     TRACE_VISIT("visitPost(DocDotFile)\n");
     if (!beforePost(node))
@@ -492,7 +492,7 @@ void PyDocVisitor::visitPost(DocDotFile *node)
 //-----------------------------------------------------------------------------
 
 
-void PyDocVisitor::visitPre(DocMscFile *node)
+void DocutilsVisitor::visitPre(DocMscFile *node)
 {
     TRACE_VISIT("visitPre(DocMscFile)\n");
     if (!beforePre(node))
@@ -500,7 +500,7 @@ void PyDocVisitor::visitPre(DocMscFile *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocMscFile *node)
+void DocutilsVisitor::visitPost(DocMscFile *node)
 {
     TRACE_VISIT("visitPost(DocMscFile)\n");
     if (!beforePost(node))
@@ -508,7 +508,7 @@ void PyDocVisitor::visitPost(DocMscFile *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocDiaFile *node)
+void DocutilsVisitor::visitPre(DocDiaFile *node)
 {
     TRACE_VISIT("visitPre(DocDiaFile)\n");
     if (!beforePre(node))
@@ -516,7 +516,7 @@ void PyDocVisitor::visitPre(DocDiaFile *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocDiaFile *node)
+void DocutilsVisitor::visitPost(DocDiaFile *node)
 {
     TRACE_VISIT("visitPost(DocDiaFile)\n");
     if (!beforePost(node))
@@ -524,7 +524,7 @@ void PyDocVisitor::visitPost(DocDiaFile *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocLink *node)
+void DocutilsVisitor::visitPre(DocLink *node)
 {
     TRACE_VISIT("visitPre(DocLink)\n");
     if (!beforePre(node))
@@ -532,7 +532,7 @@ void PyDocVisitor::visitPre(DocLink *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocLink *node)
+void DocutilsVisitor::visitPost(DocLink *node)
 {
     TRACE_VISIT("visitPost(DocLink)\n");
     if (!beforePost(node))
@@ -540,7 +540,7 @@ void PyDocVisitor::visitPost(DocLink *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocRef *node)
+void DocutilsVisitor::visitPre(DocRef *node)
 {
     TRACE_VISIT("visitPre(DocRef)\n");
     if (!beforePre(node))
@@ -548,7 +548,7 @@ void PyDocVisitor::visitPre(DocRef *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocRef *node)
+void DocutilsVisitor::visitPost(DocRef *node)
 {
     TRACE_VISIT("visitPost(DocRef)\n");
     if (!beforePost(node))
@@ -556,7 +556,7 @@ void PyDocVisitor::visitPost(DocRef *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocSecRefItem *node)
+void DocutilsVisitor::visitPre(DocSecRefItem *node)
 {
     TRACE_VISIT("visitPre(DocSecRefItem)\n");
     if (!beforePre(node))
@@ -564,7 +564,7 @@ void PyDocVisitor::visitPre(DocSecRefItem *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSecRefItem *node)
+void DocutilsVisitor::visitPost(DocSecRefItem *node)
 {
     TRACE_VISIT("visitPost(DocSecRefItem)\n");
     if (!beforePost(node))
@@ -572,7 +572,7 @@ void PyDocVisitor::visitPost(DocSecRefItem *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocSecRefList *node)
+void DocutilsVisitor::visitPre(DocSecRefList *node)
 {
     TRACE_VISIT("visitPre(DocSecRefList)\n");
     if (!beforePre(node))
@@ -580,7 +580,7 @@ void PyDocVisitor::visitPre(DocSecRefList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocSecRefList *node)
+void DocutilsVisitor::visitPost(DocSecRefList *node)
 {
     TRACE_VISIT("visitPost(DocSecRefList)\n");
     if (!beforePost(node))
@@ -588,7 +588,7 @@ void PyDocVisitor::visitPost(DocSecRefList *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocXRefItem *node)
+void DocutilsVisitor::visitPre(DocXRefItem *node)
 {
     TRACE_VISIT("visitPre(DocXRefItem)\n");
     if (!beforePre(node))
@@ -596,7 +596,7 @@ void PyDocVisitor::visitPre(DocXRefItem *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocXRefItem *node)
+void DocutilsVisitor::visitPost(DocXRefItem *node)
 {
     TRACE_VISIT("visitPost(DocXRefItem)\n");
     if (!beforePost(node))
@@ -604,7 +604,7 @@ void PyDocVisitor::visitPost(DocXRefItem *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocInternalRef *node)
+void DocutilsVisitor::visitPre(DocInternalRef *node)
 {
     TRACE_VISIT("visitPre(DocInternalRef)\n");
     if (!beforePre(node))
@@ -612,7 +612,7 @@ void PyDocVisitor::visitPre(DocInternalRef *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocInternalRef *node)
+void DocutilsVisitor::visitPost(DocInternalRef *node)
 {
     TRACE_VISIT("visitPost(DocInternalRef)\n");
     if (!beforePost(node))
@@ -620,7 +620,7 @@ void PyDocVisitor::visitPost(DocInternalRef *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocCopy *node)
+void DocutilsVisitor::visitPre(DocCopy *node)
 {
     TRACE_VISIT("visitPre(DocCopy)\n");
     if (!beforePre(node))
@@ -628,7 +628,7 @@ void PyDocVisitor::visitPre(DocCopy *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocCopy *node)
+void DocutilsVisitor::visitPost(DocCopy *node)
 {
     TRACE_VISIT("visitPost(DocCopy)\n");
     if (!beforePost(node))
@@ -636,7 +636,7 @@ void PyDocVisitor::visitPost(DocCopy *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocHtmlBlockQuote *node)
+void DocutilsVisitor::visitPre(DocHtmlBlockQuote *node)
 {
     TRACE_VISIT("visitPre(DocHtmlBlockQuote)\n");
     if (!beforePre(node))
@@ -644,7 +644,7 @@ void PyDocVisitor::visitPre(DocHtmlBlockQuote *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocHtmlBlockQuote *node)
+void DocutilsVisitor::visitPost(DocHtmlBlockQuote *node)
 {
     TRACE_VISIT("visitPost(DocHtmlBlockQuote)\n");
     if (!beforePost(node))
@@ -652,7 +652,7 @@ void PyDocVisitor::visitPost(DocHtmlBlockQuote *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPre(DocVhdlFlow *node)
+void DocutilsVisitor::visitPre(DocVhdlFlow *node)
 {
     TRACE_VISIT("visitPre(DocVhdlFlow)\n");
     if (!beforePre(node))
@@ -660,7 +660,7 @@ void PyDocVisitor::visitPre(DocVhdlFlow *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visitPost(DocVhdlFlow *node)
+void DocutilsVisitor::visitPost(DocVhdlFlow *node)
 {
     TRACE_VISIT("visitPost(DocVhdlFlow)\n");
     if (!beforePost(node))
