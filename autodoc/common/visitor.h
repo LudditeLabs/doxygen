@@ -167,6 +167,8 @@ private:
     // Value describes which node (its kind) sets the restriction.
     int m_skipProcessing;
 
+    int m_titleParent;
+
     /**
      * Create text node from content in m_textBuf.
      */

@@ -34,7 +34,8 @@ PyDocVisitor::PyDocVisitor(const QCString &fileName, int lineNumber)
   m_fileName(fileName),
   m_lineNumber(lineNumber),
   m_skipNextWhitespace(false),
-  m_skipProcessing(-1)
+  m_skipProcessing(-1),
+  m_titleParent(-1)
 {
 }
 //-----------------------------------------------------------------------------

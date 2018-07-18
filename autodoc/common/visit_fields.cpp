@@ -219,6 +219,10 @@ static QCString get_simple_sect_field_name(DocSimpleSect *node)
     case DocSimpleSect::Version:    return "Version";
     case DocSimpleSect::Date:       return "Date";
     case DocSimpleSect::Copyright:  return "copyright";
+    case DocSimpleSect::Pre:        return "pre";
+    case DocSimpleSect::Post:       return "post";
+    case DocSimpleSect::Invar:      return "invariant";
+    case DocSimpleSect::Remark:     return "remark";
     default:
         return "unknown";
     }
@@ -265,6 +269,7 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
         // field_name is created in visitPre(DocTitle).
         // field_body is created in visitPost(DocTitle).
         m_tree->push("field", args, kw);
+        m_titleParent = DocSimpleSect::Rcs;
         break;
     }
 
@@ -279,47 +284,48 @@ void PyDocVisitor::visitPre(DocSimpleSect *node)
         break;
     }
     case DocSimpleSect::See:
-        name = "see";
+    {
+        PyObjectPtr args = PyTuple_New(0);
+        PyDict kw;
+        kw.setField("type", "seealso");
+        m_tree->push("admonition", args, kw);
         break;
+    }
     case DocSimpleSect::Note:
-        name = "note";
+        m_tree->push("note");
         break;
     case DocSimpleSect::Warning:
-        name = "warning";
+        m_tree->push("warning");
         break;
     case DocSimpleSect::Attention:
-        name = "attention";
+    {
+        PyObjectPtr args = PyTuple_New(0);
+        PyDict kw;
+        kw.setField("type", "attention");
+        m_tree->push("admonition", args, kw);
         break;
+    }
 
     // \pre -  Starts a paragraph where the precondition of an entity
     //         can be described.
-    case DocSimpleSect::Pre:
-        name = "pre";
-        break;
     // \post - Starts a paragraph where the postcondition of an entity
     //         can be described.
-    case DocSimpleSect::Post:
-        name = "post";
-        break;
-
     // \invariant - Starts a paragraph where the invariant of an entity
     //              can be described.
-    case DocSimpleSect::Invar:
-        name = "invariant";
-        break;
-
     // \remark, \remarks - Starts a paragraph where one or more remarks
     //                     may be entered.
+    case DocSimpleSect::Pre:
+    case DocSimpleSect::Post:
+    case DocSimpleSect::Invar:
     case DocSimpleSect::Remark:
-        name = "remark";
-        break;
+        break;  // see visitPost().
 
     case DocSimpleSect::User:
-        name = "par";
-        break;
+        m_titleParent = DocSimpleSect::User;
+        break;  // see visitPost().
 
     case DocSimpleSect::Unknown:
-        break;
+        break;  // TODO: what is it?
     }
 }
 //-----------------------------------------------------------------------------
@@ -396,8 +402,43 @@ void PyDocVisitor::visitPost(DocSimpleSect *node)
         m_tree->pop();  // field_body -> field
         m_tree->pop();  // field -> field_list
         break;
+    case DocSimpleSect::Pre:
+    case DocSimpleSect::Post:
+    case DocSimpleSect::Invar:
+    case DocSimpleSect::Remark:
+    {
+        PyObject *current = m_tree->current();
+        PyObjectPtr index = PyLong_FromLong(-1);
+        PyObjectPtr par = PyObject_GetItem(current, index);
+        QCString str = get_simple_sect_field_name(node);
+        PyObjectPtr key = PyUnicode_FromString("type");
+        PyObjectPtr val = PyUnicode_FromStringAndSize(str.data(), str.size());
+        PyObject_SetItem(par, key, val);
+        break;
+    }
+    case DocSimpleSect::User:
+    {
+        // TODO: add error checking.
+        // Move <inline> at -2 to the beginning of the paragraph at -1.
+        PyObject *current = m_tree->current();
+
+        // Take <inline> node.
+        PyObjectPtr index = PyLong_FromLong(-2);
+        PyObjectPtr meth = PyUnicode_FromString("pop");
+        PyObjectPtr title = PyObject_CallMethodObjArgs(current, meth, index.get(), NULL);
+
+        // Get paragraph after the <inline>.
+        index = PyLong_FromLong(-1);
+        PyObjectPtr par = PyObject_GetItem(current, index);
+        meth = PyUnicode_FromString("insert");
+
+        index = PyLong_FromLong(0);
+        PyObjectPtr res = PyObject_CallMethodObjArgs(par, meth, index.get(),
+                                                     title.get(), NULL);
+        break;
+    }
+
     default:
-        m_tree->pop();
         break;
     }
 }
@@ -410,7 +451,8 @@ void PyDocVisitor::visitPre(DocTitle *node)
         return;
 
     // See visitPre(DocSimpleSect)
-    m_tree->push("field_name");
+    if (m_titleParent == DocSimpleSect::Rcs)
+        m_tree->push("field_name");
 }
 //-----------------------------------------------------------------------------
 
@@ -420,8 +462,34 @@ void PyDocVisitor::visitPost(DocTitle *node)
     if (!beforePost(node))
         return;
 
-    maybeCreateTextNode();      // create text node from DocWord.
-    m_tree->pop();              // field_name -> field
-    m_tree->push("field_body"); // field -> field_body
+    if (m_titleParent == DocSimpleSect::Rcs)
+    {
+        maybeCreateTextNode();      // create text node from DocWord.
+        m_tree->pop();              // field_name -> field
+        m_tree->push("field_body"); // field -> field_body
+    }
+
+    // Add temporary <inline> node with title.
+    // It will be moved to the beginning of the paragraph.
+    // See visitPost(DocSimpleSect) for DocSimpleSect::User.
+    else if (m_titleParent == DocSimpleSect::User)
+    {
+        // NOTE: m_textBuf non empty for this node type (paragraph with title).
+        ::stripTrailing(&m_textBuf);
+
+        PyObjectPtr str = PyUnicode_DecodeUTF8(m_textBuf.data(),
+                                               m_textBuf.size(), "replace");
+
+        PyObjectPtr args = PyTuple_New(0);
+        PyDict kw;
+        kw.setField("rawsource", str);
+        kw.setField("text", str);
+        kw.setField("type", "title");
+        PyObjectPtr text = m_tree->create("inline", args, kw);
+        m_tree->addToCurrent(text);
+        m_textBuf = QCString();
+    }
+
+    m_titleParent = -1;
 }
 //-----------------------------------------------------------------------------
