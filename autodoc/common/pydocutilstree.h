@@ -35,6 +35,7 @@ public:
                    PyObject *kwargs = NULL)
     {
         PyObject *node = create(name, args, kwargs);
+        assert(node);
         pushWithName(name, node);
         return node;
     }
