@@ -296,16 +296,6 @@ void PyDocVisitor::visit(DocIndexEntry *node)
 }
 //-----------------------------------------------------------------------------
 
-void PyDocVisitor::visit(DocSimpleSectSep *node)
-{
-    // Separator between two simple sections of the same type.
-    // Nothing to add to docutils tree.
-    TRACE_VISIT("visit(DocSimpleSectSep)\n");
-    if (!beforePre(node))
-        return;
-}
-//-----------------------------------------------------------------------------
-
 void PyDocVisitor::visit(DocCite *node)
 {
     // Citation of some bibliographic reference.

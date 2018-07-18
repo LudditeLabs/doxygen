@@ -56,7 +56,6 @@ public:
     void visit(DocIncOperator *);
     void visit(DocFormula *);
     void visit(DocIndexEntry *);
-    void visit(DocSimpleSectSep *);
     void visit(DocCite *);
 
     //--------------------------------------
@@ -82,6 +81,7 @@ public:
     void visitPost(DocSimpleSect *);
     void visitPre(DocTitle *);
     void visitPost(DocTitle *);
+    void visit(DocSimpleSectSep *);
 
     // Lists.
     void visitPre(DocAutoList *);

@@ -493,3 +493,13 @@ void PyDocVisitor::visitPost(DocTitle *node)
     m_titleParent = -1;
 }
 //-----------------------------------------------------------------------------
+
+void PyDocVisitor::visit(DocSimpleSectSep *node)
+{
+    // Separator between two simple sections of the same type.
+    // Nothing to add to docutils tree.
+    TRACE_VISIT("visit(DocSimpleSectSep)\n");
+    if (!beforePre(node))
+        return;
+}
+//-----------------------------------------------------------------------------
