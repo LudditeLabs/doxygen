@@ -114,6 +114,12 @@ Entry::Entry(const Entry &e)
   fileName    = e.fileName;
   startLine   = e.startLine;
   startColumn = e.startColumn;
+
+  docBlockCol = e.docBlockCol;
+  docBlockColEnd = e.docBlockColEnd;
+  docBlockLineStart = e.docBlockLineStart;
+  docBlockLineEnd = e.docBlockLineEnd;
+
   if (e.sli)
   {
     sli = new QList<ListItemInfo>;
@@ -268,6 +274,12 @@ void Entry::reset()
   groups->clear();
   anchors->clear();
   argList->clear();
+
+  docBlockCol = 0;
+  docBlockColEnd = 0;
+  docBlockLineStart = 0;
+  docBlockLineEnd = 0;
+
   if (tagInfo)    { delete tagInfo; tagInfo=0; }
   if (tArgLists)  { delete tArgLists; tArgLists=0; }
   if (sli)        { delete sli; sli=0; }

@@ -289,6 +289,10 @@ class Entry
     GroupDocType groupDocType;
     QCString    id;           //!< libclang id
 
+    int docBlockCol;
+    int docBlockColEnd;
+    int docBlockLineStart;
+    int docBlockLineEnd;
 
     static int  num;          //!< counts the total number of entries
 

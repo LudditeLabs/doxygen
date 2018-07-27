@@ -399,6 +399,10 @@ void marshalEntry(StorageIntf *s,Entry *e)
   marshalBool(s,e->artificial);
   marshalInt(s,(int)e->groupDocType);
   marshalQCString(s,e->id);
+  marshalInt(s,e->docBlockCol);
+  marshalInt(s,e->docBlockColEnd);
+  marshalInt(s,e->docBlockLineStart);
+  marshalInt(s,e->docBlockLineEnd);
 }
 
 void marshalEntryTree(StorageIntf *s,Entry *e)
@@ -785,6 +789,11 @@ Entry * unmarshalEntry(StorageIntf *s)
   e->artificial       = unmarshalBool(s);
   e->groupDocType     = (Entry::GroupDocType)unmarshalInt(s);
   e->id               = unmarshalQCString(s);
+  e->docBlockCol      = unmarshalInt(s);
+  e->docBlockColEnd   = unmarshalInt(s);
+  e->docBlockLineStart= unmarshalInt(s);
+  e->docBlockLineEnd  = unmarshalInt(s);
+
   return e;
 }
 
