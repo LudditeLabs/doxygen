@@ -39,10 +39,13 @@
 #include "pagedef.h"
 #include "dirdef.h"
 #include "autodoc/common/visitor.h"
+#include "autodoc/common/docblock.h"
+#include "autodoc/common/db.h"
 
 #include <qdir.h>
 #include <string.h>
 #include <sqlite3.h>
+#include <memory>
 
 //#define DBG_CTX(x) printf x
 #define DBG_CTX(x) do { } while(0)
@@ -152,7 +155,7 @@ const char * schema_queries[][2] = {
       "\tdetaileddescription  TEXT,\n"
       "\tbriefdescription     TEXT,\n"
       "\tinbodydescription    TEXT,\n"
-      "\tpydocument           TEXT\n"
+      "\tinherited_from       INTEGER\n"
       ");"
   },
   { "compounddef",
@@ -324,7 +327,7 @@ SqlStmt memberdef_insert={"INSERT INTO memberdef "
       "detaileddescription,"
       "briefdescription,"
       "inbodydescription,"
-      "pydocument"
+      "inherited_from"
     ")"
     "VALUES "
     "("
@@ -383,7 +386,7 @@ SqlStmt memberdef_insert={"INSERT INTO memberdef "
       ":detaileddescription,"
       ":briefdescription,"
       ":inbodydescription,"
-      ":pydocument"
+      ":inherited_from"
     ")"
     ,NULL
 };
@@ -439,6 +442,8 @@ SqlStmt innernamespace_insert={"INSERT INTO  innernamespaces "
     "(:refid,:name)",
     NULL
 };
+
+std::unique_ptr<autodoc::AutodocDb> autodocDb;
 
 
 class TextGeneratorSqlite3Impl : public TextGeneratorIntf
@@ -677,7 +682,7 @@ static int prepareStatements(sqlite3 *db)
   {
     return -1;
   }
-  return 0;
+  return autodocDb->prepareStatements() ? 0 : -1;
 }
 
 
@@ -706,7 +711,8 @@ static int initializeSchema(sqlite3* db)
       return -1;
     }
   }
-  return 0;
+
+  return autodocDb->initializeSchema() ? 0 : -1;
 }
 
 ////////////////////////////////////////////
@@ -990,25 +996,20 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
   bindTextParameter(memberdef_insert,":detaileddescription",md->documentation(),FALSE);
   bindTextParameter(memberdef_insert,":inbodydescription",md->inbodyDocumentation(),FALSE);
 
-  // Python: pickled docutils document.
-  // TODO: is const cast valid here?
-
-  PyObjectPtr res = pickleDocTree(
-      md->getDefFileName(),
-      md->getDefLine(),
-      const_cast<Definition*>(def),
-      const_cast<MemberDef*>(md),
-      md->documentation());
-
-  if (res)
+  if (md->inheritsDocsFrom())
   {
-      char *bytes;
-      Py_ssize_t size;
+      MemberDef *d = md->inheritsDocsFrom();
+      QCString refid = d->getOutputFileBase() + "_1" + d->anchor();
 
-      if (PyBytes_AsStringAndSize(res, &bytes, &size) == -1)
-          printPyError("can't pickle object.");
+      bindTextParameter(refids_select, ":refid", refid);
+      int rowid=step(refids_select, TRUE, TRUE);
+      if (rowid == 0)
+      {
+          msg("Can't find inherited documentation member ref for %s\n",
+              md->name().data());
+      }
       else
-        bindBlobParameter(memberdef_insert,":pydocument",bytes,size);
+          bindIntParameter(memberdef_insert,":inherited_from", rowid);
   }
 
   // File location
@@ -1074,7 +1075,10 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
       insertMemberReference(rmd,md);//,mdi.currentKey());
     }
   }
+
+  autodocDb->generateDocBlocks(id_memberdef, 0, def, md);
 }
+
 
 static void generateSqlite3Section( const Definition *d,
                       const MemberList *ml,
@@ -1144,7 +1148,9 @@ static void generateSqlite3ForClass(const ClassDef *cd)
   bindIntParameter(compounddef_insert,":line",cd->getDefLine());
   bindIntParameter(compounddef_insert,":column",cd->getDefColumn());
 
-  step(compounddef_insert);
+  int id_compounddef = step(compounddef_insert, TRUE);
+
+  autodocDb->generateDocBlocks(id_compounddef, 1, cd, 0);
 
   // + list of direct super classes
   if (cd->baseClasses())
@@ -1446,6 +1452,8 @@ void generateSqlite3()
   }
   beginTransaction(db);
   pragmaTuning(db);
+
+  autodocDb.reset(new autodoc::AutodocDb(db, &insertFile));
 
   if (-1==initializeSchema(db))
     return;
