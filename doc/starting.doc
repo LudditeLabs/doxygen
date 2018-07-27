@@ -15,7 +15,7 @@
  *
  */
 /*! \page starting Getting started
-\tableofcontents
+\tableofcontents{html,latex}
 
 The executable \c doxygen is the main program that parses the sources and 
 generates the documentation. See section \ref doxygen_usage for more
@@ -77,7 +77,7 @@ You can probably leave the values of most tags in a generated template
 configuration file to their default value.  See section \ref config for 
 more details about the configuration file. 
 
-If you do not wish to edit the config file with a text editor, you should 
+If you do not wish to edit the configuration file with a text editor, you should 
 have a look at \ref doxywizard_usage "doxywizard", which is a GUI 
 front-end that can create, read and write doxygen configuration files, 
 and allows setting configuration options by entering them via dialogs.

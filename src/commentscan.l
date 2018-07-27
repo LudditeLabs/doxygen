@@ -30,6 +30,7 @@
 #include <qstack.h>
 #include <qregexp.h>
 #include <qfile.h>
+#include <qstringlist.h>
   
 #include "scanner.h"
 #include "entry.h"
@@ -54,81 +55,81 @@
 #define YY_NO_UNISTD_H 1
 
 // forward declarations
-static bool handleBrief(const QCString &);
-static bool handleFn(const QCString &);
-static bool handleDef(const QCString &);
-static bool handleOverload(const QCString &);
-static bool handleEnum(const QCString &);
-static bool handleDefGroup(const QCString &);
-static bool handleAddToGroup(const QCString &);
-static bool handleWeakGroup(const QCString &);
-static bool handleNamespace(const QCString &);
-static bool handlePackage(const QCString &);
-static bool handleClass(const QCString &);
-static bool handleHeaderFile(const QCString &);
-static bool handleProtocol(const QCString &);
-static bool handleCategory(const QCString &);
-static bool handleUnion(const QCString &);
-static bool handleStruct(const QCString &);
-static bool handleInterface(const QCString &);
-static bool handleIdlException(const QCString &);
-static bool handlePage(const QCString &);
-static bool handleMainpage(const QCString &);
-static bool handleFile(const QCString &);
-static bool handleDir(const QCString &);
-static bool handleExample(const QCString &);
-static bool handleDetails(const QCString &);
-static bool handleName(const QCString &);
-static bool handleTodo(const QCString &);
-static bool handleTest(const QCString &);
-static bool handleBug(const QCString &);
-static bool handleSubpage(const QCString &s);
-static bool handleDeprecated(const QCString &);
-static bool handleXRefItem(const QCString &);
-static bool handleRelated(const QCString &);
-static bool handleRelatedAlso(const QCString &);
-static bool handleMemberOf(const QCString &);
-static bool handleRefItem(const QCString &);
-static bool handleSection(const QCString &);
-static bool handleAnchor(const QCString &);
-static bool handleCite(const QCString &);
-static bool handleFormatBlock(const QCString &);
-static bool handleAddIndex(const QCString &);
-static bool handleIf(const QCString &);
-static bool handleIfNot(const QCString &);
-static bool handleElseIf(const QCString &);
-static bool handleElse(const QCString &);
-static bool handleEndIf(const QCString &);
-static bool handleIngroup(const QCString &);
-static bool handleNoSubGrouping(const QCString &);
-static bool handleShowInitializer(const QCString &);
-static bool handleHideInitializer(const QCString &);
-static bool handleCallgraph(const QCString &);
-static bool handleHideCallgraph(const QCString &);
-static bool handleCallergraph(const QCString &);
-static bool handleHideCallergraph(const QCString &);
-static bool handleInternal(const QCString &);
-static bool handleLineBr(const QCString &);
-static bool handleStatic(const QCString &);
-static bool handlePure(const QCString &);
-static bool handlePrivate(const QCString &);
-static bool handlePrivateSection(const QCString &);
-static bool handleProtected(const QCString &);
-static bool handleProtectedSection(const QCString &);
-static bool handlePublic(const QCString &s);
-static bool handlePublicSection(const QCString &s);
-static bool handleToc(const QCString &s);
-static bool handleInherit(const QCString &);
-static bool handleExtends(const QCString &);
-static bool handleCopyDoc(const QCString &);
-static bool handleCopyBrief(const QCString &);
-static bool handleCopyDetails(const QCString &);
-static bool handleParBlock(const QCString &);
-static bool handleEndParBlock(const QCString &);
-static bool handleParam(const QCString &);
-static bool handleRetval(const QCString &);
+static bool handleBrief(const QCString &, const QCString &);
+static bool handleFn(const QCString &, const QCString &);
+static bool handleDef(const QCString &, const QCString &);
+static bool handleOverload(const QCString &, const QCString &);
+static bool handleEnum(const QCString &, const QCString &);
+static bool handleDefGroup(const QCString &, const QCString &);
+static bool handleAddToGroup(const QCString &, const QCString &);
+static bool handleWeakGroup(const QCString &, const QCString &);
+static bool handleNamespace(const QCString &, const QCString &);
+static bool handlePackage(const QCString &, const QCString &);
+static bool handleClass(const QCString &, const QCString &);
+static bool handleHeaderFile(const QCString &, const QCString &);
+static bool handleProtocol(const QCString &, const QCString &);
+static bool handleCategory(const QCString &, const QCString &);
+static bool handleUnion(const QCString &, const QCString &);
+static bool handleStruct(const QCString &, const QCString &);
+static bool handleInterface(const QCString &, const QCString &);
+static bool handleIdlException(const QCString &, const QCString &);
+static bool handlePage(const QCString &, const QCString &);
+static bool handleMainpage(const QCString &, const QCString &);
+static bool handleFile(const QCString &, const QCString &);
+static bool handleDir(const QCString &, const QCString &);
+static bool handleExample(const QCString &, const QCString &);
+static bool handleDetails(const QCString &, const QCString &);
+static bool handleName(const QCString &, const QCString &);
+static bool handleTodo(const QCString &, const QCString &);
+static bool handleTest(const QCString &, const QCString &);
+static bool handleBug(const QCString &, const QCString &);
+static bool handleSubpage(const QCString &s, const QCString &);
+static bool handleDeprecated(const QCString &, const QCString &);
+static bool handleXRefItem(const QCString &, const QCString &);
+static bool handleRelated(const QCString &, const QCString &);
+static bool handleRelatedAlso(const QCString &, const QCString &);
+static bool handleMemberOf(const QCString &, const QCString &);
+static bool handleRefItem(const QCString &, const QCString &);
+static bool handleSection(const QCString &, const QCString &);
+static bool handleAnchor(const QCString &, const QCString &);
+static bool handleCite(const QCString &, const QCString &);
+static bool handleFormatBlock(const QCString &, const QCString &);
+static bool handleAddIndex(const QCString &, const QCString &);
+static bool handleIf(const QCString &, const QCString &);
+static bool handleIfNot(const QCString &, const QCString &);
+static bool handleElseIf(const QCString &, const QCString &);
+static bool handleElse(const QCString &, const QCString &);
+static bool handleEndIf(const QCString &, const QCString &);
+static bool handleIngroup(const QCString &, const QCString &);
+static bool handleNoSubGrouping(const QCString &, const QCString &);
+static bool handleShowInitializer(const QCString &, const QCString &);
+static bool handleHideInitializer(const QCString &, const QCString &);
+static bool handleCallgraph(const QCString &, const QCString &);
+static bool handleHideCallgraph(const QCString &, const QCString &);
+static bool handleCallergraph(const QCString &, const QCString &);
+static bool handleHideCallergraph(const QCString &, const QCString &);
+static bool handleInternal(const QCString &, const QCString &);
+static bool handleLineBr(const QCString &, const QCString &);
+static bool handleStatic(const QCString &, const QCString &);
+static bool handlePure(const QCString &, const QCString &);
+static bool handlePrivate(const QCString &, const QCString &);
+static bool handlePrivateSection(const QCString &, const QCString &);
+static bool handleProtected(const QCString &, const QCString &);
+static bool handleProtectedSection(const QCString &, const QCString &);
+static bool handlePublic(const QCString &s, const QCString &);
+static bool handlePublicSection(const QCString &s, const QCString &);
+static bool handleToc(const QCString &s, const QCString &);
+static bool handleInherit(const QCString &, const QCString &);
+static bool handleExtends(const QCString &, const QCString &);
+static bool handleCopyDoc(const QCString &, const QCString &);
+static bool handleCopyBrief(const QCString &, const QCString &);
+static bool handleCopyDetails(const QCString &, const QCString &);
+static bool handleParBlock(const QCString &, const QCString &);
+static bool handleEndParBlock(const QCString &, const QCString &);
+static bool handleParam(const QCString &, const QCString &);
+static bool handleRetval(const QCString &, const QCString &);
 
-typedef bool (*DocCmdFunc)(const QCString &name);
+typedef bool (*DocCmdFunc)(const QCString &name, const QCString &opt);
 
 struct DocCmdMap
 {
@@ -548,7 +549,7 @@ static void addXRefItem(const char *listName,const char *itemTitle,
   if (docEntry->sli)
   {
     QListIterator<ListItemInfo> slii(*docEntry->sli);
-    for (slii.toFirst();(lii=slii.current());++slii)
+    for (slii.toLast();(lii=slii.current());--slii)
     {
       if (qstrcmp(lii->type,listName)==0) 
       {
@@ -563,14 +564,7 @@ static void addXRefItem(const char *listName,const char *itemTitle,
     RefItem *item = refList->getRefItem(lii->itemId);
     ASSERT(item!=0);
     item->text += " <p>";
-    if (Doxygen::markdownSupport)
-    {
-      item->text += processMarkdown(yyFileName,yyLineNr,current,outputXRef);
-    }
-    else
-    {
-      item->text += outputXRef;
-    }
+    item->text += outputXRef;
     //printf("%s: text +=%s\n",listName,item->text.data());
   }
   else // new item
@@ -585,18 +579,11 @@ static void addXRefItem(const char *listName,const char *itemTitle,
     sprintf(anchorLabel,"_%s%06d",listName,itemId);
     RefItem *item = refList->getRefItem(itemId);
     ASSERT(item!=0);
-    if (Doxygen::markdownSupport)
-    {
-      item->text = processMarkdown(yyFileName,yyLineNr,current,outputXRef);
-    }
-    else
-    {
-      item->text = outputXRef;
-    }
+    item->text = outputXRef;
     item->listAnchor = anchorLabel;
     docEntry->addSpecialListItem(listName,itemId);
     QCString cmdString;
-    cmdString.sprintf("\\xrefitem %s %d.",listName,itemId);
+    cmdString.sprintf(" \\xrefitem %s %d.",listName,itemId);
     if (inBody)
     {
       docEntry->inbodyDocs += cmdString;
@@ -1003,6 +990,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
 %x	CiteLabel
 %x	CopyDoc
 %x      GuardExpr
+%x      CdataSection
 
 %%
 
@@ -1060,10 +1048,13 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
                                           addOutput(yytext);
   					}
 <Comment>"</summary>"	                { // start of a .NET XML style detailed description
+					  setOutput(OutputBrief);
                                           addOutput(yytext);
 					  setOutput(OutputDoc);
   					}
 <Comment>"</remarks>"			{ // end of a brief or detailed description
+                                          
+					  setOutput(OutputDoc);
                                           addOutput(yytext);
   					}
 <Comment>"<"{CAPTION}{ATTR}">"          {
@@ -1092,24 +1083,40 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
                                           insidePre=FALSE;
                                           addOutput(yytext);
                                         }
-<Comment>{RCSTAG}			{ // RCS tag which end a brief description
-  					  setOutput(OutputDoc);
-					  REJECT;
-  					}
-<Comment>"<!--"				{ 
-  					  BEGIN(HtmlComment);
-					}
+<Comment>{RCSTAG}                       { // RCS tag which end a brief description
+                                          setOutput(OutputDoc);
+                                          REJECT;
+                                        }
+<Comment>"<!--"                         { 
+                                          BEGIN(HtmlComment);
+                                        }
+<Comment>"<!\[CDATA\["                  {
+                                          BEGIN(CdataSection);
+                                        }
 <Comment>{B}*{CMD}"endinternal"{B}*	{
-                                          addOutput("\\endinternal "); 
+                                          addOutput(" \\endinternal "); 
                                           if (!inInternalDocs)
   					    warn(yyFileName,yyLineNr,
                                                "found \\endinternal without matching \\internal"
                                               );
                                           inInternalDocs = FALSE;
   					}
+<Comment>{B}*{CMD}[a-z_A-Z]+"{"[a-zA-Z_,:0-9\. ]*"}"{B}*  |
 <Comment>{B}*{CMD}[a-z_A-Z]+{B}*	{ // potentially interesting command
                                           // the {B}* in the front was added for bug620924
-  					  QCString cmdName = QCString(yytext).stripWhiteSpace().data()+1;
+                                          QCString fullMatch = QCString(yytext);
+                                          int idx = fullMatch.find('{');
+                                          QCString cmdName;
+                                          QCString optName;
+                                          if (idx == -1)
+                                          {
+                                            cmdName = QCString(yytext).stripWhiteSpace().data()+1; // to remove {CMD}
+                                          }
+                                          else
+                                          {
+                                            cmdName = fullMatch.left(idx).stripWhiteSpace().data()+1; // to remove {CMD}
+                                            optName = fullMatch.right(fullMatch.length() - idx).stripWhiteSpace().data();
+                                          }
 					  DocCmdMapper::Cmd *cmdPtr = DocCmdMapper::map(cmdName);
 					  if (cmdPtr) // special action is required
 					  {
@@ -1123,7 +1130,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
 					      setOutput(OutputDoc);
 					    }
                                             //if (i>0) addOutput(QCString(yytext).left(i)); // removed for bug 689341
-					    if (cmdPtr->func && cmdPtr->func(cmdName))
+					    if (cmdPtr->func && cmdPtr->func(cmdName, optName))
 					    {
 					      // implicit split of the comment block into two
 					      // entries. Restart the next block at the start
@@ -1329,6 +1336,24 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
 <HtmlComment>.				{ // ignore every else
   					}
 
+<CdataSection>"\]\]>"                   {
+                                          BEGIN( Comment );
+                                        }
+<CdataSection>{DOCNL}                   { 
+                                          addOutput('\n');
+                                          if (*yytext=='\n') yyLineNr++;
+                                        }
+<CdataSection>[<>&]                     { // the special XML characters for iwhich the CDATA section is especially used
+                                          addOutput('\\');
+                                          addOutput(*yytext);
+                                        }
+<CdataSection>[^\\\n\]<>&]+             {
+                                          addOutput(yytext);
+                                        }
+<CdataSection>.                         { 
+                                          addOutput(*yytext);
+                                        }
+
  /* --------------   Rules for handling formulas ---------------- */
  
 <ReadFormulaShort>{CMD}"f$"		{ // end of inline formula
@@ -1355,7 +1380,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
                                           formulaText+=*yytext; 
 					  yyLineNr++; 
 					}
-<ReadFormulaLong,ReadFormulaShort>.     { // any othe character
+<ReadFormulaLong,ReadFormulaShort>.     { // any other character
                                           formulaText+=*yytext; 
 					}
 
@@ -1517,14 +1542,16 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
   					  if (*yytext=='\n') yyLineNr++;
 					  BEGIN( Comment );
   					}
+<GroupDocArg1>.				{ // ignore other stuff
+  					}
 <GroupDocArg2>"\\"{B}*"\n"		{ // line continuation
   					  yyLineNr++; 
 					  addOutput('\n');
                                         }
-<GroupDocArg2>[^\n\\\*]+		{ // title (stored in type)
+<GroupDocArg2>[^\n\*]+			{ // title (stored in type)
 					  current->type += yytext;
 					  current->type = current->type.stripWhiteSpace();
-  					}
+                                        }
 <GroupDocArg2>{DOCNL}			{
                                           if ( current->groupDocType==Entry::GROUPDOC_NORMAL &&
                                                current->type.isEmpty() 
@@ -1716,7 +1743,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
 
   /* ----- handle arguments of the section/subsection/.. commands ------- */
 
-<SectionLabel>{LABELID}			{ // first argyment
+<SectionLabel>{LABELID}			{ // first argument
   					  g_sectionLabel=yytext;
                                           addOutput(yytext);
 					  g_sectionTitle.resize(0);
@@ -1860,10 +1887,10 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
   					  addOutput(*yytext);
   					}
 <FormatBlock><<EOF>>			{
-                                          QCString endTag = "@end"+blockName;
+                                          QCString endTag = "end"+blockName;
                                           if (blockName=="startuml") endTag="enduml";
                                           warn(yyFileName,yyLineNr,
-	                                    "reached end of comment while inside a @%s block; check for missing @%s tag!",
+	                                    "reached end of comment while inside a \\%s block; check for missing \\%s tag!",
 	                                    blockName.data(),endTag.data()
 	                                  );				
 					  yyterminate();
@@ -1944,7 +1971,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
   					  if (guards.isEmpty())
 					  {
 					    warn(yyFileName,yyLineNr,
-						"found @endif without matching start command");
+						"found \\endif without matching start command");
 					  }
 					  else
 					  {
@@ -1962,7 +1989,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
   					  if (guards.isEmpty())
 					  {
 					    warn(yyFileName,yyLineNr,
-						"found @else without matching start command");
+						"found \\else without matching start command");
 					  }
 					  else
 					  {
@@ -1979,7 +2006,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
   					  if (guards.isEmpty())
 					  {
 					    warn(yyFileName,yyLineNr,
-						"found @elseif without matching start command");
+						"found \\elseif without matching start command");
 					  }
 					  else
 					  {
@@ -2050,7 +2077,6 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
 					  }
   					}
 <SkipInternal>[@\\]"endinternal"[ \t]*  {
-                                          addOutput("\\endinternal "); 
 					  BEGIN(Comment);
 					}
 <SkipInternal>[^ \\@\n]+		{ // skip non-special characters
@@ -2221,7 +2247,7 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
 
   /* ----- handle arguments of the cite command ------- */
 
-<CiteLabel>{CITEID}			{ // found argyment
+<CiteLabel>{CITEID}			{ // found argument
   					  addCite();
                                           addOutput(yytext);
 					  BEGIN(Comment);
@@ -2267,14 +2293,14 @@ RCSTAG    "$"{ID}":"[^\n$]+"$"
 
 //----------------------------------------------------------------------------
 
-static bool handleBrief(const QCString &)
+static bool handleBrief(const QCString &, const QCString &)
 {
   //printf("handleBrief\n");
   setOutput(OutputBrief);
   return FALSE;
 }
 
-static bool handleFn(const QCString &)
+static bool handleFn(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::MEMBERDOC_SEC);
   functionProto.resize(0);
@@ -2283,7 +2309,7 @@ static bool handleFn(const QCString &)
   return stop;
 }
 
-static bool handleDef(const QCString &)
+static bool handleDef(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::DEFINEDOC_SEC);
   functionProto.resize(0);
@@ -2291,21 +2317,21 @@ static bool handleDef(const QCString &)
   return stop;
 }
 
-static bool handleOverload(const QCString &)
+static bool handleOverload(const QCString &, const QCString &)
 {
   functionProto.resize(0);
   BEGIN(OverloadParam);
   return FALSE;
 }
 
-static bool handleEnum(const QCString &)
+static bool handleEnum(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::ENUMDOC_SEC);
   BEGIN(EnumDocArg1);
   return stop;
 }
 
-static bool handleDefGroup(const QCString &)
+static bool handleDefGroup(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::GROUPDOC_SEC);
   current->groupDocType = Entry::GROUPDOC_NORMAL;
@@ -2313,7 +2339,7 @@ static bool handleDefGroup(const QCString &)
   return stop;
 }
 
-static bool handleAddToGroup(const QCString &)
+static bool handleAddToGroup(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::GROUPDOC_SEC);
   current->groupDocType = Entry::GROUPDOC_ADD;
@@ -2321,7 +2347,7 @@ static bool handleAddToGroup(const QCString &)
   return stop;
 }
 
-static bool handleWeakGroup(const QCString &)
+static bool handleWeakGroup(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::GROUPDOC_SEC);
   current->groupDocType = Entry::GROUPDOC_WEAK;
@@ -2329,83 +2355,83 @@ static bool handleWeakGroup(const QCString &)
   return stop;
 }
 
-static bool handleNamespace(const QCString &)
+static bool handleNamespace(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::NAMESPACEDOC_SEC);
   BEGIN( NameSpaceDocArg1 );
   return stop;
 }
 
-static bool handlePackage(const QCString &)
+static bool handlePackage(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::PACKAGEDOC_SEC);
   BEGIN( PackageDocArg1 );
   return stop;
 }
 
-static bool handleClass(const QCString &)
+static bool handleClass(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::CLASSDOC_SEC);
   BEGIN( ClassDocArg1 ); 
   return stop;
 }
 
-static bool handleHeaderFile(const QCString &)
+static bool handleHeaderFile(const QCString &, const QCString &)
 {
   BEGIN( ClassDocArg2 );
   return FALSE;
 }
 
-static bool handleProtocol(const QCString &)
+static bool handleProtocol(const QCString &, const QCString &)
 { // Obj-C protocol
   bool stop=makeStructuralIndicator(Entry::PROTOCOLDOC_SEC);
   BEGIN( ClassDocArg1 ); 
   return stop;
 }
 
-static bool handleCategory(const QCString &)
+static bool handleCategory(const QCString &, const QCString &)
 { // Obj-C category
   bool stop=makeStructuralIndicator(Entry::CATEGORYDOC_SEC);
   BEGIN( CategoryDocArg1 ); 
   return stop;
 }
 
-static bool handleUnion(const QCString &)
+static bool handleUnion(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::UNIONDOC_SEC);
   BEGIN( ClassDocArg1 ); 
   return stop;
 }
 
-static bool handleStruct(const QCString &)
+static bool handleStruct(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::STRUCTDOC_SEC);
   BEGIN( ClassDocArg1 ); 
   return stop;
 }
 
-static bool handleInterface(const QCString &)
+static bool handleInterface(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::INTERFACEDOC_SEC);
   BEGIN( ClassDocArg1 ); 
   return stop;
 }
 
-static bool handleIdlException(const QCString &)
+static bool handleIdlException(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::EXCEPTIONDOC_SEC);
   BEGIN( ClassDocArg1 ); 
   return stop;
 }
 
-static bool handlePage(const QCString &)
+static bool handlePage(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::PAGEDOC_SEC);
   BEGIN( PageDocArg1 );
   return stop;
 }
 
-static bool handleMainpage(const QCString &)
+static bool handleMainpage(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::MAINPAGEDOC_SEC);
   if (!stop) 
@@ -2416,7 +2442,7 @@ static bool handleMainpage(const QCString &)
   return stop;
 }
 
-static bool handleFile(const QCString &)
+static bool handleFile(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::FILEDOC_SEC);
   if (!stop) 
@@ -2427,7 +2453,7 @@ static bool handleFile(const QCString &)
   return stop;
 }
 
-static bool handleParam(const QCString &)
+static bool handleParam(const QCString &, const QCString &)
 {
   // we need process param and retval arguments to escape leading underscores in case of
   // markdown processing, see bug775493
@@ -2436,14 +2462,14 @@ static bool handleParam(const QCString &)
   return FALSE;
 }
 
-static bool handleRetval(const QCString &)
+static bool handleRetval(const QCString &, const QCString &)
 {
   addOutput("@retval ");
   BEGIN( ParamArg1 );
   return FALSE;
 }
 
-static bool handleDir(const QCString &)
+static bool handleDir(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::DIRDOC_SEC);
   if (!stop) current->name = yyFileName;
@@ -2451,7 +2477,7 @@ static bool handleDir(const QCString &)
   return stop;
 }
 
-static bool handleExample(const QCString &)
+static bool handleExample(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::EXAMPLE_SEC);
   if (!stop) current->name = yyFileName;
@@ -2459,7 +2485,7 @@ static bool handleExample(const QCString &)
   return stop;
 }
 
-static bool handleDetails(const QCString &)
+static bool handleDetails(const QCString &, const QCString &)
 {
   if (inContext!=OutputBrief)
   {
@@ -2470,7 +2496,7 @@ static bool handleDetails(const QCString &)
   return FALSE;
 }
 
-static bool handleName(const QCString &)
+static bool handleName(const QCString &, const QCString &)
 {
   bool stop=makeStructuralIndicator(Entry::MEMBERGRP_SEC);
   if (!stop)
@@ -2485,7 +2511,7 @@ static bool handleName(const QCString &)
   return stop;
 }
 
-static bool handleTodo(const QCString &)
+static bool handleTodo(const QCString &, const QCString &)
 {
   newXRefKind = XRef_Todo;
   setOutput(OutputXRef);
@@ -2493,7 +2519,7 @@ static bool handleTodo(const QCString &)
   return FALSE;
 }
 
-static bool handleTest(const QCString &)
+static bool handleTest(const QCString &, const QCString &)
 {
   newXRefKind = XRef_Test;
   setOutput(OutputXRef);
@@ -2501,7 +2527,7 @@ static bool handleTest(const QCString &)
   return FALSE;
 }
 
-static bool handleBug(const QCString &)
+static bool handleBug(const QCString &, const QCString &)
 {
   newXRefKind = XRef_Bug;
   setOutput(OutputXRef);
@@ -2509,7 +2535,7 @@ static bool handleBug(const QCString &)
   return FALSE;
 }
 
-static bool handleDeprecated(const QCString &)
+static bool handleDeprecated(const QCString &, const QCString &)
 {
   newXRefKind = XRef_Deprecated;
   setOutput(OutputXRef);
@@ -2517,14 +2543,14 @@ static bool handleDeprecated(const QCString &)
   return FALSE;
 }
 
-static bool handleXRefItem(const QCString &)
+static bool handleXRefItem(const QCString &, const QCString &)
 {
   newXRefKind = XRef_Item;
   BEGIN(XRefItemParam1);
   return FALSE;
 }
 
-static bool handleParBlock(const QCString &)
+static bool handleParBlock(const QCString &, const QCString &)
 {
   if (g_insideParBlock)
   {
@@ -2541,7 +2567,7 @@ static bool handleParBlock(const QCString &)
   return FALSE;
 }
 
-static bool handleEndParBlock(const QCString &)
+static bool handleEndParBlock(const QCString &, const QCString &)
 {
   if (!g_insideParBlock)
   {
@@ -2554,34 +2580,50 @@ static bool handleEndParBlock(const QCString &)
   return FALSE;
 }
 
-static bool handleRelated(const QCString &)
+static bool handleRelated(const QCString &, const QCString &)
 {
+  if (!current->relates.isEmpty())
+  {
+    warn(yyFileName,yyLineNr,
+	"found multiple \\relates, \\relatesalso or \\memberof commands in a comment block, using last definition");
+  }
+  current->relatesType = Simple;
   BEGIN(RelatesParam1);
   return FALSE;
 }
 
-static bool handleRelatedAlso(const QCString &)
+static bool handleRelatedAlso(const QCString &, const QCString &)
 {
+  if (!current->relates.isEmpty())
+  {
+    warn(yyFileName,yyLineNr,
+	"found multiple \\relates, \\relatesalso or \\memberof commands in a comment block, using last definition");
+  }
   current->relatesType = Duplicate;
   BEGIN(RelatesParam1);
   return FALSE;
 }
 
-static bool handleMemberOf(const QCString &)
+static bool handleMemberOf(const QCString &, const QCString &)
 {
+  if (!current->relates.isEmpty())
+  {
+    warn(yyFileName,yyLineNr,
+	"found multiple \\relates, \\relatesalso or \\memberof commands in a comment block, using last definition");
+  }
   current->relatesType = MemberOf;
   BEGIN(RelatesParam1);
   return FALSE;
 }
 
-static bool handleRefItem(const QCString &)
+static bool handleRefItem(const QCString &, const QCString &)
 {
   addOutput("@refitem ");
   BEGIN(LineParam);
   return FALSE;
 }
 
-static bool handleSection(const QCString &s)
+static bool handleSection(const QCString &s, const QCString &)
 {
   setOutput(OutputDoc);
   addOutput("@"+s+" ");
@@ -2593,7 +2635,7 @@ static bool handleSection(const QCString &s)
   return FALSE;
 }
 
-static bool handleSubpage(const QCString &s)
+static bool handleSubpage(const QCString &s, const QCString &)
 {
   if (current->section!=Entry::EMPTY_SEC && 
       current->section!=Entry::PAGEDOC_SEC &&
@@ -2613,14 +2655,14 @@ static bool handleSubpage(const QCString &s)
   return FALSE;
 }
 
-static bool handleAnchor(const QCString &s)
+static bool handleAnchor(const QCString &s, const QCString &)
 {
   addOutput("@"+s+" ");
   BEGIN(AnchorLabel);
   return FALSE;
 }
 
-static bool handleCite(const QCString &s)
+static bool handleCite(const QCString &s, const QCString &)
 {
   if (!g_spaceBeforeCmd.isEmpty()) 
   {
@@ -2632,24 +2674,24 @@ static bool handleCite(const QCString &s)
   return FALSE;
 }
 
-static bool handleFormatBlock(const QCString &s)
+static bool handleFormatBlock(const QCString &s, const QCString &opt)
 {
-  addOutput("@"+s+" ");
-  //printf("handleFormatBlock(%s)\n",s.data());
+  addOutput("@"+s+" "+opt);
+  //printf("handleFormatBlock(%s) with option(%s)\n",s.data(),opt.data());
   blockName=s;
   g_commentCount=0;
   BEGIN(FormatBlock);
   return FALSE;
 }
 
-static bool handleAddIndex(const QCString &)
+static bool handleAddIndex(const QCString &, const QCString &)
 {
   addOutput("@addindex ");
   BEGIN(LineParam);
   return FALSE;
 }
 
-static bool handleIf(const QCString &)
+static bool handleIf(const QCString &, const QCString &)
 {
   enabledSectionFound=FALSE;
   guardType = Guard_If;
@@ -2658,7 +2700,7 @@ static bool handleIf(const QCString &)
   return FALSE;
 }
 
-static bool handleIfNot(const QCString &)
+static bool handleIfNot(const QCString &, const QCString &)
 {
   enabledSectionFound=FALSE;
   guardType = Guard_IfNot;
@@ -2667,7 +2709,7 @@ static bool handleIfNot(const QCString &)
   return FALSE;
 }
 
-static bool handleElseIf(const QCString &)
+static bool handleElseIf(const QCString &, const QCString &)
 {
   if (guards.isEmpty())
   {
@@ -2682,7 +2724,7 @@ static bool handleElseIf(const QCString &)
   return FALSE;
 }
 
-static bool handleElse(const QCString &)
+static bool handleElse(const QCString &, const QCString &)
 {
   if (guards.isEmpty())
   {
@@ -2696,7 +2738,7 @@ static bool handleElse(const QCString &)
   return FALSE;
 }
 
-static bool handleEndIf(const QCString &)
+static bool handleEndIf(const QCString &, const QCString &)
 {
   if (guards.isEmpty())
   {
@@ -2717,56 +2759,56 @@ static bool handleEndIf(const QCString &)
   return FALSE;
 }
 
-static bool handleIngroup(const QCString &)
+static bool handleIngroup(const QCString &, const QCString &)
 {
   inGroupParamFound=FALSE;
   BEGIN( InGroupParam );
   return FALSE;
 }
 
-static bool handleNoSubGrouping(const QCString &)
+static bool handleNoSubGrouping(const QCString &, const QCString &)
 {
   current->subGrouping = FALSE; 
   return FALSE;
 }
 
-static bool handleShowInitializer(const QCString &)
+static bool handleShowInitializer(const QCString &, const QCString &)
 {
   current->initLines = 100000; // ON
   return FALSE;
 }
 
-static bool handleHideInitializer(const QCString &)
+static bool handleHideInitializer(const QCString &, const QCString &)
 {
   current->initLines = 0; // OFF
   return FALSE;
 }
 
-static bool handleCallgraph(const QCString &)
+static bool handleCallgraph(const QCString &, const QCString &)
 {
   current->callGraph = TRUE; // ON
   return FALSE;
 }
 
-static bool handleHideCallgraph(const QCString &)
+static bool handleHideCallgraph(const QCString &, const QCString &)
 {
   current->callGraph = FALSE; // OFF
   return FALSE;
 }
 
-static bool handleCallergraph(const QCString &)
+static bool handleCallergraph(const QCString &, const QCString &)
 {
   current->callerGraph = TRUE; // ON
   return FALSE;
 }
 
-static bool handleHideCallergraph(const QCString &)
+static bool handleHideCallergraph(const QCString &, const QCString &)
 {
   current->callerGraph = FALSE; // OFF
   return FALSE;
 }
 
-static bool handleInternal(const QCString &)
+static bool handleInternal(const QCString &, const QCString &)
 {
   if (!Config_getBool(INTERNAL_DOCS))
   {
@@ -2782,91 +2824,135 @@ static bool handleInternal(const QCString &)
   else
   {
     // re-enabled for bug640828
-    addOutput("\\internal "); 
+    addOutput(" \\internal "); 
     inInternalDocs = TRUE;
   }
   return FALSE;
 }
 
-static bool handleLineBr(const QCString &)
+static bool handleLineBr(const QCString &, const QCString &)
 {
   addOutput('\n');
   return FALSE;
 }
 
-static bool handleStatic(const QCString &)
+static bool handleStatic(const QCString &, const QCString &)
 {
   endBrief();
   current->stat = TRUE; 
   return FALSE;
 }
 
-static bool handlePure(const QCString &)
+static bool handlePure(const QCString &, const QCString &)
 {
   endBrief();
   current->virt = Pure; 
   return FALSE;
 }
 
-static bool handlePrivate(const QCString &)
+static bool handlePrivate(const QCString &, const QCString &)
 {
   current->protection = Private;
   return FALSE;
 }
 
-static bool handlePrivateSection(const QCString &)
+static bool handlePrivateSection(const QCString &, const QCString &)
 {
   current->protection = protection = Private;
   return FALSE;
 }
 
-static bool handleProtected(const QCString &)
+static bool handleProtected(const QCString &, const QCString &)
 {
   current->protection = Protected;
   return FALSE;
 }
 
-static bool handleProtectedSection(const QCString &)
+static bool handleProtectedSection(const QCString &, const QCString &)
 {
   current->protection = protection = Protected ;
   return FALSE;
 }
 
-static bool handlePublic(const QCString &)
+static bool handlePublic(const QCString &, const QCString &)
 {
   current->protection = Public;
   return FALSE;
 }
 
-static bool handlePublicSection(const QCString &)
+static bool handlePublicSection(const QCString &, const QCString &)
 {
   current->protection = protection = Public;
   return FALSE;
 }
 
-static bool handleToc(const QCString &)
+static bool handleToc(const QCString &, const QCString &opt)
 {
   if (current->section==Entry::PAGEDOC_SEC || 
       current->section==Entry::MAINPAGEDOC_SEC)
   {
-    current->stat=TRUE;  // we 'abuse' stat to pass whether or the TOC is enabled
+    QString optName = opt.stripWhiteSpace(); // to be sure
+    optName = optName.left(optName.length() - 1).right(optName.length() - 2);
+    QStringList optList=QStringList::split(",",optName,FALSE);
+    QStringList::Iterator it;
+    for ( it = optList.begin(); it != optList.end(); ++it )
+    {
+      QString opt = (*it).stripWhiteSpace().lower();
+      char dum;
+      int level = 5;
+      int i = opt.find(':');
+      if (i>0)  // found ':' but not on position 0 what would mean just a level
+      {
+        if (sscanf(opt.right(opt.length() - i - 1).data(),"%d%c",&level,&dum) != 1)
+        {
+          warn(yyFileName,yyLineNr,"Unknown option:level specified with \\tableofcontents: `%s'", (*it).stripWhiteSpace().data());
+          opt = "";
+        }
+        else
+        {
+          level = (level > 5 ? 5 : level);
+          level = (level <= 0 ? 5 : level);
+          opt = opt.left(i).stripWhiteSpace();
+        }
+      }
+      if (!opt.isEmpty())
+      {
+        if (opt == "html")
+        {
+          current->localToc.enableHtml(level);
+        }
+        else if (opt == "latex")
+        {
+          current->localToc.enableLatex(level);
+        }
+        else if (opt == "xml")
+        {
+          current->localToc.enableXml(level);
+        }
+        else warn(yyFileName,yyLineNr,"Unknown option specified with \\tableofcontents: `%s'", (*it).stripWhiteSpace().data());
+      }
+    }
+    if (current->localToc.nothingEnabled())
+    {
+      current->localToc.enableHtml(5); // for backward compatibility
+    }
   }
   return FALSE;
 }
 
-static bool handleInherit(const QCString &)
+static bool handleInherit(const QCString &, const QCString &)
 {
   BEGIN(InheritParam);
   return FALSE;
 }
 
-static bool handleExtends(const QCString &)
+static bool handleExtends(const QCString &, const QCString &)
 {
   BEGIN(ExtendsParam);
   return FALSE;
 }
 
-static bool handleCopyBrief(const QCString &)
+static bool handleCopyBrief(const QCString &, const QCString &)
 {
   if (current->brief.isEmpty() && current->doc.isEmpty())
   { // if we don't have a brief or detailed description yet,
@@ -2883,7 +2969,7 @@ static bool handleCopyBrief(const QCString &)
   return FALSE;
 }
 
-static bool handleCopyDetails(const QCString &)
+static bool handleCopyDetails(const QCString &, const QCString &)
 {
   setOutput(OutputDoc);
   if (!g_spaceBeforeCmd.isEmpty()) 
@@ -2895,7 +2981,7 @@ static bool handleCopyDetails(const QCString &)
   return FALSE;
 }
 
-static bool handleCopyDoc(const QCString &)
+static bool handleCopyDoc(const QCString &, const QCString &)
 {
   setOutput(OutputBrief);
   if (!g_spaceBeforeCmd.isEmpty()) 
@@ -2943,7 +3029,19 @@ bool parseCommentBlock(/* in */     ParserInterface *parser,
   langParser     = parser;
   current        = curEntry;
   if (comment.isEmpty()) return FALSE; // avoid empty strings
-  inputString    = comment;
+  if (Doxygen::markdownSupport)
+  {
+    inputString      = processMarkdown(fileName,lineNr,NULL,comment);
+    QString qq(inputString);
+    while (qq.startsWith(" ")) qq = qq.mid(1);
+    while (qq.startsWith("\n")) qq = qq.mid(1);
+    if (qq.startsWith("<br>")) qq = qq.mid(4);
+    inputString = QCString(qq.data());
+  }
+  else
+  {
+    inputString    = comment;
+  }
   inputString.append(" ");
   inputPosition  = position;
   yyLineNr       = lineNr;
@@ -2970,7 +3068,7 @@ bool parseCommentBlock(/* in */     ParserInterface *parser,
   }
 
   Debug::print(Debug::CommentScan,0,"-----------\nCommentScanner: %s:%d\n"
-               "input=[\n%s]\n",qPrint(fileName),lineNr,qPrint(comment)
+               "input=[\n%s]\n",qPrint(fileName),lineNr,qPrint(inputString)
               );
   
   commentscanYYrestart( commentscanYYin );
@@ -3008,15 +3106,9 @@ bool parseCommentBlock(/* in */     ParserInterface *parser,
     openGroup(current,yyFileName,yyLineNr);
   }
 
-  if (Doxygen::markdownSupport)
-  {
-    current->brief      = processMarkdown(fileName,lineNr,current,current->brief);
-    current->doc        = processMarkdown(fileName,lineNr,current,current->doc);
-    current->inbodyDocs = processMarkdown(fileName,lineNr,current,current->inbodyDocs);
-  }
-
-  Debug::print(Debug::CommentScan,0,
-               "brief=[line=%d\n%s]\ndocs=[line=%d\n%s]\ninbody=[line=%d\n%s]\n===========\n",
+  Debug::print(Debug::CommentScan,0,"-----------\nCommentScanner: %s:%d\noutput=[\n"
+               "brief=[line=%d\n%s]\ndocs=[line=%d\n%s]\ninbody=[line=%d\n%s]\n]\n===========\n",
+               qPrint(fileName),lineNr,
 	       current->briefLine,qPrint(current->brief),
                current->docLine,qPrint(current->doc),
                current->inbodyLine,qPrint(current->inbodyDocs)

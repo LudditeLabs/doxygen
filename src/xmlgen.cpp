@@ -175,7 +175,7 @@ static void writeCombineScript()
   "  <xsl:output method=\"xml\" version=\"1.0\" indent=\"no\" standalone=\"yes\" />\n"
   "  <xsl:template match=\"/\">\n"
   "    <doxygen version=\"{doxygenindex/@version}\">\n"
-  "      <!-- Load all doxgen generated xml files -->\n"
+  "      <!-- Load all doxygen generated xml files -->\n"
   "      <xsl:for-each select=\"doxygenindex/compound\">\n"
   "        <xsl:copy-of select=\"document( concat( @refid, '.xml' ) )/doxygen/*\" />\n"
   "      </xsl:for-each>\n"
@@ -954,11 +954,11 @@ static void generateXMLForMember(MemberDef *md,FTextStream &ti,FTextStream &t,De
       MemberDef *emd;
       for (emli.toFirst();(emd=emli.current());++emli)
       {
-        ti << "    <member refid=\"" << memberOutputFileBase(emd) 
-           << "_1" << emd->anchor() << "\" kind=\"enumvalue\"><name>" 
+        ti << "    <member refid=\"" << memberOutputFileBase(md)
+           << "_1" << emd->anchor() << "\" kind=\"enumvalue\"><name>"
            << convertToXML(emd->name()) << "</name></member>" << endl;
 
-        t << "        <enumvalue id=\"" << memberOutputFileBase(emd) << "_1" 
+        t << "        <enumvalue id=\"" << memberOutputFileBase(md) << "_1"
           << emd->anchor() << "\" prot=\"";
         switch (emd->protection())
         {
@@ -1838,9 +1838,62 @@ static void generateXMLForPage(PageDef *pd,FTextStream &ti,bool isExample)
     }
   }
   writeInnerPages(pd->getSubPages(),t);
-  if(pd->showToc())
+  if (pd->localToc().isXmlEnabled())
   {
-    t << "    <tableofcontents/>" << endl;
+    t << "    <tableofcontents>" << endl;
+    SectionDict *sectionDict = pd->getSectionDict();
+    SDict<SectionInfo>::Iterator li(*sectionDict);
+    SectionInfo *si;
+    int level=1,l;
+    bool inLi[5]={ FALSE, FALSE, FALSE, FALSE };
+    int maxLevel = pd->localToc().xmlLevel();
+    for (li.toFirst();(si=li.current());++li)
+    {
+      if (si->type==SectionInfo::Section       ||
+          si->type==SectionInfo::Subsection    ||
+          si->type==SectionInfo::Subsubsection ||
+          si->type==SectionInfo::Paragraph)
+      {
+        //printf("  level=%d title=%s\n",level,si->title.data());
+        int nextLevel = (int)si->type;
+        if (nextLevel>level)
+        {
+          for (l=level;l<nextLevel;l++)
+          {
+            if (l < maxLevel) t << "    <tableofcontents>" << endl;
+          }
+        }
+        else if (nextLevel<level)
+        {
+          for (l=level;l>nextLevel;l--)
+          {
+            if (l <= maxLevel && inLi[l]) t << "    </tocsect>" << endl;
+            inLi[l]=FALSE;
+            if (l <= maxLevel) t << "    </tableofcontents>" << endl;
+          }
+        }
+        if (l <= maxLevel && inLi[nextLevel]) t << "    </tocsect>" << endl;
+        if (nextLevel <= maxLevel)
+        {
+          QCString titleDoc = convertToXML(si->title);
+          t << "      <tocsect>" << endl;
+          t << "        <name>" << (si->title.isEmpty()?si->label:titleDoc) << "</name>" << endl;
+          t << "        <reference>"  <<  convertToXML(pageName) << "_1" << convertToXML(si -> label) << "</reference>" << endl;
+        }
+        inLi[nextLevel]=TRUE;
+        level = nextLevel;
+      }
+    }
+    while (level>1 && level <= maxLevel)
+    {
+      if (inLi[level]) t << "    </tocsect>" << endl;
+      inLi[level]=FALSE;
+      t << "    </tableofcontents>" << endl;
+      level--;
+    }
+    if (level <= maxLevel && inLi[level]) t << "    </tocsect>" << endl;
+    inLi[level]=FALSE;
+    t << "    </tableofcontents>" << endl;
   }
   t << "    <briefdescription>" << endl;
   writeXMLDocBlock(t,pd->briefFile(),pd->briefLine(),pd,0,pd->briefDescription());

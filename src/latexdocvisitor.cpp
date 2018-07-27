@@ -18,6 +18,7 @@
 #include "htmlattrib.h"
 #include <qfileinfo.h> 
 #include "latexdocvisitor.h"
+#include "latexgen.h"
 #include "docparser.h"
 #include "language.h"
 #include "doxygen.h"
@@ -218,7 +219,7 @@ void LatexDocVisitor::visit(DocURL *u)
     if (u->isEmail()) m_t << "mailto:";
     m_t << u->url() << "}";
   }
-  m_t << "{\\tt ";
+  m_t << "\\texttt{ ";
   filter(u->url());
   m_t << "}";
 }
@@ -291,10 +292,12 @@ void LatexDocVisitor::visit(DocVerbatim *s)
   {
     case DocVerbatim::Code: 
       {
-        m_t << "\n\\begin{DoxyCode}\n";
+        m_t << "\n\\begin{DoxyCode}{" << usedTableLevels() << "}\n";
+	LatexCodeGenerator::setDoxyCodeOpen(TRUE);
         Doxygen::parserManager->getParser(lang)
                               ->parseCode(m_ci,s->context(),s->text(),langExt,
                                           s->isExample(),s->exampleFile());
+	LatexCodeGenerator::setDoxyCodeOpen(FALSE);
         m_t << "\\end{DoxyCode}\n";
       }
       break;
@@ -399,7 +402,8 @@ void LatexDocVisitor::visit(DocInclude *inc)
   {
     case DocInclude::IncWithLines:
       { 
-         m_t << "\n\\begin{DoxyCodeInclude}\n";
+         m_t << "\n\\begin{DoxyCodeInclude}{" << usedTableLevels() << "}\n";
+	 LatexCodeGenerator::setDoxyCodeOpen(TRUE);
          QFileInfo cfi( inc->file() );
          FileDef fd( cfi.dirPath().utf8(), cfi.fileName().utf8() );
          Doxygen::parserManager->getParser(inc->extension())
@@ -415,11 +419,13 @@ void LatexDocVisitor::visit(DocInclude *inc)
                                            0,     // memberDef
                                            TRUE   // show line numbers
 					  );
+	 LatexCodeGenerator::setDoxyCodeOpen(FALSE);
          m_t << "\\end{DoxyCodeInclude}" << endl;
       }
       break;    
     case DocInclude::Include: 
-      m_t << "\n\\begin{DoxyCodeInclude}\n";
+      m_t << "\n\\begin{DoxyCodeInclude}{" << usedTableLevels() << "}\n";
+      LatexCodeGenerator::setDoxyCodeOpen(TRUE);
       Doxygen::parserManager->getParser(inc->extension())
                             ->parseCode(m_ci,inc->context(),
                                         inc->text(),langExt,inc->isExample(),
@@ -431,6 +437,7 @@ void LatexDocVisitor::visit(DocInclude *inc)
                                         0,     // memberDef
                                         FALSE
 			  		);
+      LatexCodeGenerator::setDoxyCodeOpen(FALSE);
       m_t << "\\end{DoxyCodeInclude}\n";
       break;
     case DocInclude::DontInclude: 
@@ -447,7 +454,8 @@ void LatexDocVisitor::visit(DocInclude *inc)
       break;
     case DocInclude::Snippet:
       {
-         m_t << "\n\\begin{DoxyCodeInclude}\n";
+         m_t << "\n\\begin{DoxyCodeInclude}{" << usedTableLevels() << "}\n";
+         LatexCodeGenerator::setDoxyCodeOpen(TRUE);
          Doxygen::parserManager->getParser(inc->extension())
                                ->parseCode(m_ci,
                                            inc->context(),
@@ -456,6 +464,7 @@ void LatexDocVisitor::visit(DocInclude *inc)
                                            inc->isExample(),
                                            inc->exampleFile()
                                           );
+         LatexCodeGenerator::setDoxyCodeOpen(FALSE);
          m_t << "\\end{DoxyCodeInclude}" << endl;
       }
       break;
@@ -463,7 +472,8 @@ void LatexDocVisitor::visit(DocInclude *inc)
       {
          QFileInfo cfi( inc->file() );
          FileDef fd( cfi.dirPath().utf8(), cfi.fileName().utf8() );
-         m_t << "\n\\begin{DoxyCodeInclude}\n";
+         m_t << "\n\\begin{DoxyCodeInclude}{" << usedTableLevels() << "}\n";
+         LatexCodeGenerator::setDoxyCodeOpen(TRUE);
          Doxygen::parserManager->getParser(inc->extension())
                                ->parseCode(m_ci,
                                            inc->context(),
@@ -478,6 +488,7 @@ void LatexDocVisitor::visit(DocInclude *inc)
                                            0,     // memberDef
                                            TRUE   // show line number
                                           );
+         LatexCodeGenerator::setDoxyCodeOpen(FALSE);
          m_t << "\\end{DoxyCodeInclude}" << endl;
       }
       break;
@@ -495,7 +506,8 @@ void LatexDocVisitor::visit(DocIncOperator *op)
   //    op->type(),op->isFirst(),op->isLast(),op->text().data());
   if (op->isFirst()) 
   {
-    if (!m_hide) m_t << "\n\\begin{DoxyCodeInclude}\n";
+    if (!m_hide) m_t << "\n\\begin{DoxyCodeInclude}{" << usedTableLevels() << "}\n";
+    LatexCodeGenerator::setDoxyCodeOpen(TRUE);
     pushEnabled();
     m_hide = TRUE;
   }
@@ -515,6 +527,7 @@ void LatexDocVisitor::visit(DocIncOperator *op)
   if (op->isLast())  
   {
     popEnabled();
+    LatexCodeGenerator::setDoxyCodeOpen(FALSE);
     if (!m_hide) m_t << "\n\\end{DoxyCodeInclude}\n";
   }
   else
@@ -526,7 +539,19 @@ void LatexDocVisitor::visit(DocIncOperator *op)
 void LatexDocVisitor::visit(DocFormula *f)
 {
   if (m_hide) return;
-  m_t << f->text();
+  const char *p=f->text();
+  char c;
+  if (p)
+  {
+    while ((c=*p++))
+    {
+      switch (c)
+      {
+        case '\'': m_t << "\\text{'}"; break;
+        default:  m_t << c; break;
+      }
+    }
+  }
 }
 
 void LatexDocVisitor::visit(DocIndexEntry *i)
@@ -923,11 +948,11 @@ static void writeStartTableCommand(FTextStream &t,const DocNode *n,int cols)
 {
   if (tableIsNested(n))
   {
-    t << "\\begin{tabularx}{\\linewidth}{|*{" << cols << "}{>{\\raggedright\\arraybackslash}X|}}";
+    t << "{\\begin{tabularx}{\\linewidth}{|*{" << cols << "}{>{\\raggedright\\arraybackslash}X|}}";
   }
   else
   {
-    t << "\\tabulinesep=1mm\n\\begin{longtabu} spread 0pt [c]{*{" << cols << "}{|X[-1]}|}\n";
+    t << "\\tabulinesep=1mm\n\\begin{longtabu}spread 0pt [c]{*{" << cols << "}{|X[-1]}|}\n";
   }
   //return isNested ? "TabularNC" : "TabularC";
 }
@@ -936,7 +961,7 @@ static void writeEndTableCommand(FTextStream &t,const DocNode *n)
 {
   if (tableIsNested(n))
   {
-    t << "\\end{tabularx}\n";
+    t << "\\end{tabularx}}\n";
   }
   else
   {
@@ -983,7 +1008,8 @@ void LatexDocVisitor::visitPre(DocHtmlTable *t)
   if (firstRow && firstRow->isHeading())
   {
     setFirstRow(TRUE);
-    firstRow->accept(this);
+    DocNode *n = t->parent();
+    if (!tableIsNested(n)) firstRow->accept(this);
     setFirstRow(FALSE);
   }
 }
@@ -1009,12 +1035,13 @@ void LatexDocVisitor::visitPost(DocHtmlCaption *c)
 void LatexDocVisitor::visitPre(DocHtmlRow *r)
 {
   setCurrentColumn(0);
-  if (r->isHeading()) m_t << "\\rowcolor{\\tableheadbgcolor}";
 }
 
 void LatexDocVisitor::visitPost(DocHtmlRow *row) 
 {
   if (m_hide) return;
+
+  DocNode *n = row->parent() ->parent();
 
   int c=currentColumn();
   while (c<=numCols()) // end of row while inside a row span?
@@ -1033,10 +1060,7 @@ void LatexDocVisitor::visitPost(DocHtmlRow *row)
         if (span->colSpan>1) // row span is also part of a column span
         {
           m_t << "\\multicolumn{" << span->colSpan << "}{";
-          m_t << "p{(\\linewidth-\\tabcolsep*" 
-            << numCols() << "-\\arrayrulewidth*"
-            << row->visibleCells() << ")*" 
-            << span->colSpan <<"/"<< numCols() << "}|}{}";
+          m_t <<  "}|}{}";
         }
         else // solitary row span
         {
@@ -1077,7 +1101,8 @@ void LatexDocVisitor::visitPost(DocHtmlRow *row)
 
   m_t << "\n";
 
-  if (row->isHeading() && row->rowIndex()==1)
+
+  if (row->isHeading() && row->rowIndex()==1 && !tableIsNested(n))
   {
     if (firstRow())
     {
@@ -1119,10 +1144,7 @@ void LatexDocVisitor::visitPre(DocHtmlCell *c)
         {
           m_t << "|";
         }
-        m_t << "p{(\\linewidth-\\tabcolsep*" 
-            << numCols() << "-\\arrayrulewidth*"
-            << row->visibleCells() << ")*" 
-            << span->colSpan <<"/"<< numCols() << "}|}{}";
+        m_t << "l|}{" << (c->isHeading()? "\\columncolor{\\tableheadbgcolor}" : "") << "}"; // alignment not relevant, empty column
         setCurrentColumn(currentColumn()+span->colSpan);
       }
       else
@@ -1134,6 +1156,7 @@ void LatexDocVisitor::visitPre(DocHtmlCell *c)
   }
 
   int cs = c->colSpan();
+  int a = c->alignment();
   if (cs>1 && row)
   {
     setInColSpan(TRUE);
@@ -1142,11 +1165,18 @@ void LatexDocVisitor::visitPre(DocHtmlCell *c)
     {
       m_t << "|";
     }
-    m_t << "p{(\\linewidth-\\tabcolsep*" 
-        << numCols() << "-\\arrayrulewidth*"
-        << row->visibleCells() << ")*" 
-        << cs <<"/"<< numCols() << "}|}{";
-    if (c->isHeading()) m_t << "\\cellcolor{\\tableheadbgcolor}";
+    switch (a)
+    {
+      case DocHtmlCell::Right:
+        m_t << "r|}{";
+        break;
+      case DocHtmlCell::Center:
+        break;
+        m_t << "c|}{";
+      default:
+        m_t << "l|}{";
+        break;
+    }
   }
   int rs = c->rowSpan();
   if (rs>0)
@@ -1156,9 +1186,8 @@ void LatexDocVisitor::visitPre(DocHtmlCell *c)
     //                       c->rowIndex(),c->columnIndex(),c->rowSpan(),c->colSpan(),
     //                       currentColumn());
     addRowSpan(new ActiveRowSpan(c,rs,cs,currentColumn()));
-    m_t << "\\multirow{" << rs << "}{\\linewidth}{";
+    m_t << "\\multirow{" << rs << "}{*}{";
   }
-  int a = c->alignment();
   if (a==DocHtmlCell::Center)
   {
     m_t << "\\PBS\\centering ";
@@ -1169,7 +1198,7 @@ void LatexDocVisitor::visitPre(DocHtmlCell *c)
   }
   if (c->isHeading())
   {
-    m_t << "\\textbf{ ";
+    m_t << "\\cellcolor{\\tableheadbgcolor}\\textbf{ ";
   }
   if (cs>1)
   {
@@ -1220,7 +1249,7 @@ void LatexDocVisitor::visitPre(DocHRef *href)
     m_t << href->url();
     m_t << "}";
   }
-  m_t << "{\\tt ";
+  m_t << "\\texttt{ ";
 }
 
 void LatexDocVisitor::visitPost(DocHRef *) 
@@ -1391,6 +1420,7 @@ void LatexDocVisitor::visitPre(DocParamSect *s)
   if (m_hide) return;
   bool hasInOutSpecs = s->hasInOutSpecifier();
   bool hasTypeSpecs  = s->hasTypeSpecifier();
+  incUsedTableLevels();
   switch(s->type())
   {
     case DocParamSect::Param:
@@ -1424,6 +1454,7 @@ void LatexDocVisitor::visitPre(DocParamSect *s)
 void LatexDocVisitor::visitPost(DocParamSect *s)
 {
   if (m_hide) return;
+  decUsedTableLevels();
   switch(s->type())
   {
     case DocParamSect::Param:
@@ -1465,7 +1496,7 @@ void LatexDocVisitor::visitPre(DocParamList *pl)
   {
     if (pl->direction()!=DocParamSect::Unspecified)
     {
-      m_t << "\\mbox{\\tt ";
+      m_t << "\\mbox{\\texttt{ ";
       if (pl->direction()==DocParamSect::In)
       {
         m_t << "in";
@@ -1478,7 +1509,7 @@ void LatexDocVisitor::visitPre(DocParamList *pl)
       {
         m_t << "in,out";
       }
-      m_t << "} ";
+      m_t << "}} ";
     }
     if (useTable) m_t << " & ";
   }

@@ -440,7 +440,7 @@ void ClassDef::internalInsertMember(MemberDef *md,
 
   if (getLanguage()==SrcLangExt_VHDL)
   {
-    QCString title=VhdlDocGen::trVhdlType(md->getMemberSpecifiers(),FALSE);
+    QCString title=theTranslator->trVhdlType(md->getMemberSpecifiers(),FALSE);
     if (!m_impl->vhdlSummaryTitles.find(title))
     {
       m_impl->vhdlSummaryTitles.append(title,new QCString(title));
@@ -1582,7 +1582,11 @@ void ClassDef::writeSummaryLinks(OutputList &ol)
 void ClassDef::writeTagFile(FTextStream &tagFile)
 {
   if (!isLinkableInProject()) return;
-  tagFile << "  <compound kind=\"" << compoundTypeString();
+  tagFile << "  <compound kind=\"";
+  if (isFortran() && (compoundTypeString() == "type")) 
+    tagFile << "struct";
+  else
+    tagFile << compoundTypeString();
   tagFile << "\"";
   if (isObjectiveC()) { tagFile << " objc=\"yes\""; }
   tagFile << ">" << endl;
@@ -1882,7 +1886,7 @@ void ClassDef::writeDeclarationLink(OutputList &ol,bool &found,const char *heade
       }
       else if (lang==SrcLangExt_VHDL)
       {
-        ol.parseText(VhdlDocGen::trVhdlType(VhdlDocGen::ARCHITECTURE,FALSE));
+        ol.parseText(theTranslator->trVhdlType(VhdlDocGen::ARCHITECTURE,FALSE));
       }
       else
       {
@@ -1935,21 +1939,7 @@ void ClassDef::writeDeclarationLink(OutputList &ol,bool &found,const char *heade
       if (rootNode && !rootNode->isEmpty())
       {
         ol.startMemberDescription(anchor());
-
-        ol.pushGeneratorState();
-        ol.disableAll();
-        ol.enable(OutputGenerator::RTF);
-        ol.writeString("{");
-        ol.popGeneratorState();
-
         ol.writeDoc(rootNode,this,0);
-
-        ol.pushGeneratorState();
-        ol.disableAll();
-        ol.enable(OutputGenerator::RTF);
-        ol.writeString("\\par}");
-        ol.popGeneratorState();
-
         if (isLinkableInProject())
         {
           writeMoreLink(ol,anchor());
@@ -2122,7 +2112,7 @@ QCString ClassDef::title() const
   }
   else if (lang==SrcLangExt_VHDL)
   {
-    pageTitle = VhdlDocGen::getClassTitle(this)+" Reference";
+    pageTitle = theTranslator->trCustomReference(VhdlDocGen::getClassTitle(this));
   }
   else if (isJavaEnum())
   {
@@ -2474,7 +2464,7 @@ void ClassDef::writeMemberList(OutputList &ol)
           QStrList sl;
           if (lang==SrcLangExt_VHDL)
           {
-            sl.append(VhdlDocGen::trVhdlType(md->getMemberSpecifiers())); //append vhdl type
+            sl.append(theTranslator->trVhdlType(md->getMemberSpecifiers(),TRUE)); //append vhdl type
           }
           else if (md->isFriend()) sl.append("friend");
           else if (md->isRelated()) sl.append("related");
@@ -2687,7 +2677,7 @@ bool ClassDef::hasNonReferenceSuperClass()
   return found;
 }
 
-/*! called from MemberDef::writeDeclaration() to (recusively) write the
+/*! called from MemberDef::writeDeclaration() to (recursively) write the
  *  definition of an anonymous struct, union or class.
  */
 void ClassDef::writeDeclaration(OutputList &ol,MemberDef *md,bool inGroup,
@@ -2873,7 +2863,7 @@ static bool isStandardFunc(MemberDef *md)
 }
 
 /*!
- * recusively merges the `all members' lists of a class base
+ * recursively merges the `all members' lists of a class base
  * with that of this class. Must only be called for classes without
  * subclasses!
  */
@@ -4512,6 +4502,11 @@ bool ClassDef::isForwardDeclared() const
 bool ClassDef::isObjectiveC() const
 {
   return getLanguage()==SrcLangExt_ObjC;
+}
+
+bool ClassDef::isFortran() const
+{
+  return getLanguage()==SrcLangExt_Fortran;
 }
 
 bool ClassDef::isCSharp() const

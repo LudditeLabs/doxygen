@@ -13,6 +13,10 @@
  *
  */
 
+#if !defined(_WIN32) || defined(__CYGWIN__)
+#define _DEFAULT_SOURCE 1
+#endif
+
 #include <locale.h>
 
 #include <qfileinfo.h>
@@ -605,7 +609,7 @@ static void addRelatedPage(EntryNav *rootNav)
   {
     pd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
     pd->addSectionsToDefinition(root->anchors);
-    pd->setShowToc(root->stat);
+    pd->setLocalToc(root->localToc);
     addPageToContext(pd,rootNav);
   }
 }
@@ -8740,7 +8744,7 @@ static void findMainPage(EntryNav *rootNav)
       //setFileNameForSections(root->anchors,"index",Doxygen::mainPage);
       Doxygen::mainPage->setBriefDescription(root->brief,root->briefFile,root->briefLine);
       Doxygen::mainPage->setFileName(indexName);
-      Doxygen::mainPage->setShowToc(root->stat);
+      Doxygen::mainPage->setLocalToc(root->localToc);
       addPageToContext(Doxygen::mainPage,rootNav);
 
       SectionInfo *si = Doxygen::sectionDict->find(Doxygen::mainPage->name());
@@ -9602,7 +9606,7 @@ int readDir(QFileInfo *fi,
   if (fi->isSymLink())
   {
     dirName = resolveSymlink(dirName.data());
-    if (dirName.isEmpty()) return 0;            // recusive symlink
+    if (dirName.isEmpty()) return 0;            // recursive symlink
     if (g_pathsVisited.find(dirName)) return 0; // already visited path
     g_pathsVisited.insert(dirName,(void*)0x8);
   }
@@ -9780,14 +9784,17 @@ int readFileOrDirectory(const char *s,
 
 //----------------------------------------------------------------------------
 
-void readFormulaRepository()
+void readFormulaRepository(QCString dir, bool cmp)
 {
-  QFile f(Config_getString(HTML_OUTPUT)+"/formula.repository");
+  static int current_repository = 0; 
+  int new_repository = 0; 
+  QFile f(dir+"/formula.repository");
   if (f.open(IO_ReadOnly)) // open repository
   {
     msg("Reading formula repository...\n");
     QTextStream t(&f);
     QCString line;
+    Formula *f;
     while (!t.eof())
     {
       line=t.readLine().utf8();
@@ -9801,13 +9808,41 @@ void readFormulaRepository()
       {
         QCString formName = line.left(se);
         QCString formText = line.right(line.length()-se-1);
-        Formula *f=new Formula(formText);
-        Doxygen::formulaList->setAutoDelete(TRUE);
-        Doxygen::formulaList->append(f);
-        Doxygen::formulaDict->insert(formText,f);
-        Doxygen::formulaNameDict->insert(formName,f);
+        if (cmp)
+        {
+          if ((f=Doxygen::formulaDict->find(formText))==0)
+          {
+            err("discrepancy between formula repositories! Remove "
+                "formula.repository and from_* files from output directories.");
+            exit(1);
+          }
+          QCString formLabel;
+          formLabel.sprintf("\\form#%d",f->getId());
+          if (formLabel != formName)
+          {
+            err("discrepancy between formula repositories! Remove "
+                "formula.repository and from_* files from output directories.");
+            exit(1);
+          }
+          new_repository++;
+        }
+        else
+        {
+          f=new Formula(formText);
+          Doxygen::formulaList->setAutoDelete(TRUE);
+          Doxygen::formulaList->append(f);
+          Doxygen::formulaDict->insert(formText,f);
+          Doxygen::formulaNameDict->insert(formName,f);
+          current_repository++;
+        }
       }
     }
+  }
+  if (cmp && (current_repository != new_repository))
+  {
+    err("size discrepancy between formula repositories! Remove "
+        "formula.repository and from_* files from output directories.");
+    exit(1);
   }
 }
 
@@ -10211,11 +10246,6 @@ void readConfiguration(int argc, char **argv)
     {
       case 'g':
         genConfig=TRUE;
-        configName=getArg(argc,argv,optind);
-        if (optind+1<argc && qstrcmp(argv[optind+1],"-")==0)
-        { configName="-"; optind++; }
-        if (!configName)
-        { configName="Doxyfile"; }
         break;
       case 'l':
         genLayout=TRUE;
@@ -10454,6 +10484,42 @@ void readConfiguration(int argc, char **argv)
 
   Config::init();
 
+  QFileInfo configFileInfo1("Doxyfile"),configFileInfo2("doxyfile");
+  if (optind>=argc)
+  {
+    if (configFileInfo1.exists())
+    {
+      configName="Doxyfile";
+    }
+    else if (configFileInfo2.exists())
+    {
+      configName="doxyfile";
+    }
+    else if (genConfig)
+    {
+      configName="Doxyfile";
+    }
+    else
+    {
+      err("Doxyfile not found and no input file specified!\n");
+      usage(argv[0]);
+      exit(1);
+    }
+  }
+  else
+  {
+    QFileInfo fi(argv[optind]);
+    if (fi.exists() || qstrcmp(argv[optind],"-")==0 || genConfig)
+    {
+      configName=argv[optind];
+    }
+    else
+    {
+      err("configuration file %s not found!\n",argv[optind]);
+      usage(argv[0]);
+      exit(1);
+    }
+  }
   if (genConfig && g_useOutputTemplate)
   {
     generateTemplateFiles("templates");
@@ -10473,40 +10539,6 @@ void readConfiguration(int argc, char **argv)
     cleanUpDoxygen();
     exit(0);
   }
-
-  QFileInfo configFileInfo1("Doxyfile"),configFileInfo2("doxyfile");
-  if (optind>=argc)
-  {
-    if (configFileInfo1.exists())
-    {
-      configName="Doxyfile";
-    }
-    else if (configFileInfo2.exists())
-    {
-      configName="doxyfile";
-    }
-    else
-    {
-      err("Doxyfile not found and no input file specified!\n");
-      usage(argv[0]);
-      exit(1);
-    }
-  }
-  else
-  {
-    QFileInfo fi(argv[optind]);
-    if (fi.exists() || qstrcmp(argv[optind],"-")==0)
-    {
-      configName=argv[optind];
-    }
-    else
-    {
-      err("configuration file %s not found!\n",argv[optind]);
-      usage(argv[0]);
-      exit(1);
-    }
-  }
-
 
   if (!Config::parse(configName,updateConfig))
   {
@@ -10992,7 +11024,7 @@ void parseInput()
 
 
   /**************************************************************************
-   *            Check/create output directorties                            *
+   *            Check/create output directories                             *
    **************************************************************************/
 
   QCString htmlOutput;
@@ -11097,7 +11129,12 @@ void parseInput()
 
   if (Config_getBool(GENERATE_HTML))
   {
-    readFormulaRepository();
+    readFormulaRepository(Config_getString(HTML_OUTPUT));
+  }
+  if (Config_getBool(GENERATE_RTF))
+  {
+    // in case GENERRATE_HTML is set we just have to compare, both repositories should be identical
+    readFormulaRepository(Config_getString(RTF_OUTPUT),Config_getBool(GENERATE_HTML));
   }
 
   /**************************************************************************
@@ -11583,6 +11620,12 @@ void generateOutput()
   {
     g_s.begin("Generating bitmaps for formulas in HTML...\n");
     Doxygen::formulaList->generateBitmaps(Config_getString(HTML_OUTPUT));
+    g_s.end();
+  }
+  if (Doxygen::formulaList->count()>0 && generateRtf)
+  {
+    g_s.begin("Generating bitmaps for formulas in RTF...\n");
+    Doxygen::formulaList->generateBitmaps(Config_getString(RTF_OUTPUT));
     g_s.end();
   }
 

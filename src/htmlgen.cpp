@@ -375,13 +375,13 @@ static QCString substituteHtmlKeywords(const QCString &s,
       mathJaxJs += "\n";
     }
     mathJaxJs += "</script>";
-    mathJaxJs += "<script type=\"text/javascript\" async src=\"" + path + "MathJax.js\"></script>\n";
+    mathJaxJs += "<script type=\"text/javascript\" async=\"async\" src=\"" + path + "MathJax.js\"></script>\n";
   }
 
   // first substitute generic keywords
   QCString result = substituteKeywords(s,title,
-        convertToHtml(Config_getString(PROJECT_NAME)),
-        convertToHtml(Config_getString(PROJECT_NUMBER)),
+    convertToHtml(Config_getString(PROJECT_NAME)),
+    convertToHtml(Config_getString(PROJECT_NUMBER)),
         convertToHtml(Config_getString(PROJECT_BRIEF)));
 
   // additional HTML only keywords
@@ -485,6 +485,8 @@ void HtmlCodeGenerator::codify(const char *str)
 
 void HtmlCodeGenerator::docify(const char *str)
 {
+  m_t << getHtmlDirEmbedingChar(getTextDirByConfig(str));
+
   if (str && m_streamSet)
   {
     const char *p=str;
@@ -604,7 +606,7 @@ void HtmlCodeGenerator::writeTooltip(const char *id, const DocLinkInfo &docInfo,
   if (desc)
   {
     m_t << "<div class=\"ttdoc\">";
-    docify(desc); // desc is already HTML escaped; but there are still < and > signs
+    docify(desc);
     m_t << "</div>";
   }
   if (!defInfo.file.isEmpty())
@@ -1115,7 +1117,8 @@ void HtmlGenerator::startIndexItem(const char *ref,const char *f)
     }
     t << "href=\"";
     t << externalRef(relPath,ref,TRUE);
-    if (f) t << f << Doxygen::htmlFileExtension << "\">";
+    if (f) t << f << Doxygen::htmlFileExtension;
+    t << "\">";
   }
   else
   {
@@ -1426,13 +1429,7 @@ void HtmlGenerator::startMemberItem(const char *anchor,int annoType,const char *
     t << " inherit " << inheritId;
   }
   t << "\">";
-  switch(annoType)
-  {
-    case 0:  t << "<td class=\"memItemLeft\" align=\"right\" valign=\"top\">"; break;
-    case 1:  t << "<td class=\"memItemLeft\" >"; break;
-    case 2:  t << "<td class=\"memItemLeft\" valign=\"top\">"; break;
-    default: t << "<td class=\"memTemplParams\" colspan=\"2\">"; break;
-  }
+  insertMemberAlignLeft(annoType, true);
 }
 
 void HtmlGenerator::endMemberItem()
@@ -1464,7 +1461,19 @@ void HtmlGenerator::insertMemberAlign(bool templ)
   t << "&#160;</td><td class=\"" << className << "\" valign=\"bottom\">";
 }
 
-void HtmlGenerator::startMemberDescription(const char *anchor,const char *inheritId)
+void HtmlGenerator::insertMemberAlignLeft(int annoType, bool initTag)
+{
+  if (!initTag) t << "&#160;</td>";
+  switch(annoType)
+  {
+    case 0:  t << "<td class=\"memItemLeft\" align=\"right\" valign=\"top\">"; break;
+    case 1:  t << "<td class=\"memItemLeft\" >"; break;
+    case 2:  t << "<td class=\"memItemLeft\" valign=\"top\">"; break;
+    default: t << "<td class=\"memTemplParams\" colspan=\"2\">"; break;
+  }
+}
+
+void HtmlGenerator::startMemberDescription(const char *anchor,const char *inheritId, bool typ)
 {
   DBG_HTML(t << "<!-- startMemberDescription -->" << endl)
     if (m_emptySection)
@@ -1477,7 +1486,10 @@ void HtmlGenerator::startMemberDescription(const char *anchor,const char *inheri
   {
     t << " inherit " << inheritId;
   }
-  t << "\"><td class=\"mdescLeft\">&#160;</td><td class=\"mdescRight\">";
+  t << "\">";
+  t << "<td class=\"mdescLeft\">&#160;</td>";
+  if (typ) t << "<td class=\"mdescLeft\">&#160;</td>";
+  t << "<td class=\"mdescRight\">";;
 }
 
 void HtmlGenerator::endMemberDescription()
@@ -1503,7 +1515,7 @@ void HtmlGenerator::endMemberSections()
   }
 }
 
-void HtmlGenerator::startMemberHeader(const char *anchor)
+void HtmlGenerator::startMemberHeader(const char *anchor, int typ)
 {
   DBG_HTML(t << "<!-- startMemberHeader -->" << endl)
   if (!m_emptySection)
@@ -1516,7 +1528,7 @@ void HtmlGenerator::startMemberHeader(const char *anchor)
     t << "<table class=\"memberdecls\">" << endl;
     m_emptySection=FALSE;
   }
-  t << "<tr class=\"heading\"><td colspan=\"2\"><h2 class=\"groupheader\">";
+  t << "<tr class=\"heading\"><td colspan=\"" << typ << "\"><h2 class=\"groupheader\">";
   if (anchor)
   {
     t << "<a name=\"" << anchor << "\"></a>" << endl;
@@ -2323,6 +2335,16 @@ void HtmlGenerator::endContents()
   t << "</div><!-- contents -->" << endl;
 }
 
+void HtmlGenerator::startPageDoc(const char *pageTitle)
+{
+  t << "<div" << getDirHtmlClassOfPage(pageTitle) << ">";
+}
+
+void HtmlGenerator::endPageDoc()
+{
+  t << "</div><!-- PageDoc -->" << endl;
+}
+
 void HtmlGenerator::writeQuickLinks(bool compact,HighlightedItem hli,const char *file)
 {
   writeDefaultQuickLinks(t,compact,hli,file,relPath);
@@ -2342,7 +2364,7 @@ void HtmlGenerator::writeSearchPage()
   if (cf.open(IO_WriteOnly))
   {
     FTextStream t(&cf);
-    t << "<script language=\"php\">\n\n";
+    t << "<?php\n\n";
     t << "$config = array(\n";
     t << "  'PROJECT_NAME' => \"" << convertToHtml(projectName) << "\",\n";
     t << "  'GENERATE_TREEVIEW' => " << (generateTreeView?"true":"false") << ",\n";
@@ -2360,7 +2382,7 @@ void HtmlGenerator::writeSearchPage()
     t << "  'split_bar' => \"" << substitute(substitute(writeSplitBarAsString("search",""), "\"","\\\""), "\n","\\n") << "\",\n";
     t << "  'logo' => \"" << substitute(substitute(writeLogoAsString(""), "\"","\\\""), "\n","\\n") << "\",\n";
     t << ");\n\n";
-    t << "</script>\n";
+    t << "?>\n";
   }
 
   ResourceMgr::instance().copyResource("search_functions.php",htmlOutput);
@@ -2391,10 +2413,10 @@ void HtmlGenerator::writeSearchPage()
       t << "</div>" << endl;
     }
 
-    t << "<script language=\"php\">\n";
+    t << "<?php\n";
     t << "require_once \"search_functions.php\";\n";
     t << "main();\n";
-    t << "</script>\n";
+    t << "?>\n";
 
     // Write empty navigation path, to make footer connect properly
     if (generateTreeView)
@@ -2696,13 +2718,16 @@ void HtmlGenerator::writeInheritedSectionTitle(
   DBG_HTML(t << "<!-- writeInheritedSectionTitle -->" << endl;)
   QCString a = anchor;
   if (!a.isEmpty()) a.prepend("#");
-  QCString classLink = QCString("<a class=\"el\" href=\"");
+  QCString classLink = QCString("<a class=\"el\" ");
   if (ref)
   {
-    classLink+= externalLinkTarget() + externalRef(relPath,ref,TRUE);
+    classLink+= externalLinkTarget();
+    classLink += " href=\"";
+    classLink+= externalRef(relPath,ref,TRUE);
   }
   else
   {
+    classLink += "href=\"";
     classLink+=relPath;
   }
   classLink+=file+Doxygen::htmlFileExtension+a;

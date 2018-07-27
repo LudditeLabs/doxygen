@@ -120,7 +120,7 @@ FLEX_TARGET(xmlcode        xmlcode.l        ${GENERATED_SRC}/xmlcode.cpp        
 FLEX_TARGET(sqlcode        sqlcode.l        ${GENERATED_SRC}/sqlcode.cpp        COMPILE_FLAGS "${LEX_FLAGS}")
 FLEX_TARGET(configimpl     configimpl.l     ${GENERATED_SRC}/configimpl.cpp     COMPILE_FLAGS "${LEX_FLAGS}")
 
-BISON_TARGET(constexp      constexp.y       ${GENERATED_SRC}/ce_parse.cpp       COMPILE_FLAGS ${YACC_FLAGS})
+BISON_TARGET(constexp      constexp.y       ${GENERATED_SRC}/ce_parse.cpp       COMPILE_FLAGS "${YACC_FLAGS}")
 
 
 include_directories(${PYTHON_INCLUDE_DIRS})

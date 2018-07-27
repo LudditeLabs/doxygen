@@ -149,6 +149,7 @@ static QCString         *pCopyRawString;
 
 static QGString         *pCopyCurlyGString;
 static QGString         *pCopyRoundGString;
+static QGString         *pCopySquareGString;
 static QGString         *pCopyQuotedGString;
 static QGString         *pCopyHereDocGString;
 static QGString         *pCopyRawGString;
@@ -757,6 +758,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 %x	CopyRound
 %x	CopyCurly
 %x	GCopyRound
+%x	GCopySquare
 %x	GCopyCurly
 %x	SkipUnionSwitch
 %x	Specialization
@@ -778,6 +780,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 %x	CopyHereDocEnd
 %x	RawString
 %x	RawGString
+%x	CSString
 
 %x      IDLAttribute
 %x      IDLProp
@@ -2417,10 +2420,6 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    {
 					      current->protection = Protected;
 					    }
-					    else if (javaLike && qstrcmp(yytext,"internal")==0)
-					    {
-					      current->protection = Package;
-					    }
 					    else if (javaLike && qstrcmp(yytext,"private")==0)
 					    {
 					      current->protection = Private;
@@ -2885,6 +2884,14 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  current->initializer+=*yytext; 
   					  BEGIN(GCopyRound);
   					}
+<ReadInitializer>"["                    {
+                                          if (!insidePHP) REJECT;
+                                          lastSquareContext=YY_START;
+                                          pCopySquareGString=&current->initializer;
+                                          squareCount=0;
+                                          current->initializer+=*yytext; 
+                                          BEGIN(GCopySquare);
+                                        }
 <ReadInitializer>"{"			{
   					  lastCurlyContext=YY_START;
   					  pCopyCurlyGString=&current->initializer;
@@ -3228,6 +3235,56 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <GCopyRound>.				{
   					  *pCopyRoundGString+=*yytext;
   					}
+
+  /* generic square bracket list copy rules for growable strings, we should only enter here in case of php, left the test part as in GCopyRound to keep it compatible with te round bracket version */
+<GCopySquare>\"                         {
+                                          *pCopySquareGString+=*yytext;
+                                            pCopyQuotedGString=pCopySquareGString;
+                                          lastStringContext=YY_START;
+                                          BEGIN(CopyGString);
+                                        }
+<GCopySquare>"["                        {
+                                          *pCopySquareGString+=*yytext;
+                                          squareCount++;
+                                        }
+<GCopySquare>"]"                        {
+                                          *pCopySquareGString+=*yytext;
+                                          if (--squareCount<0)
+                                          BEGIN(lastSquareContext);
+                                        }
+<GCopySquare>\n                         {
+                                          lineCount();
+                                          *pCopySquareGString+=*yytext;
+                                        }
+<GCopySquare>\'                         {
+                                          if (insidePHP)
+                                          {
+                                            current->initializer+=yytext; 
+                                            pCopyQuotedGString = pCopySquareGString;
+                                            lastStringContext=YY_START;
+                                            BEGIN(CopyPHPGString);
+                                          }
+                                          else
+                                          {
+                                            *pCopySquareGString+=yytext;
+                                          }
+                                        }
+<GCopySquare>{CHARLIT}                  { 
+                                          if (insidePHP)
+                                          {
+                                            REJECT;
+                                          }
+                                          else
+                                          {
+                                            *pCopySquareGString+=yytext; 
+                                          }
+                                        }
+<GCopySquare>[^"\[\]\n/]+               {
+                                          *pCopySquareGString+=yytext;
+                                        }
+<GCopySquare>.                          {
+                                          *pCopySquareGString+=*yytext;
+                                        }
 
   /* generic curly bracket list copy rules */
 <CopyCurly>\"				{
@@ -3685,7 +3742,10 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					      current->fileName   = yyFileName;
 					      current->startLine  = yyLineNr;
 					      current->startColumn = yyColNr;
-					      current->type       = "@"; // enum marker
+					      if (!(current_root->spec&Entry::Enum))
+					      {
+					        current->type       = "@"; // enum marker
+					      }
 					      current->args       = current->args.simplifyWhiteSpace();
 					      current->name       = current->name.stripWhiteSpace();
 					      current->section    = Entry::VARIABLE_SEC;
@@ -4854,7 +4914,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <FuncQual>{ID}				{ // typically a K&R style C function
                                           if (insideCS && qstrcmp(yytext,"where")==0)
 					  { 
-					    // type contraint for a method
+					    // type constraint for a method
                                             delete current->typeConstr;
                                             current->typeConstr = new ArgumentList;
 					    current->typeConstr->append(new Argument);
@@ -5607,7 +5667,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    baseName.resize(0);
 					    BEGIN( BasesProt ) ;
 					  }
-					  else if (insideCS && qstrcmp(yytext,"where")==0) // C# type contraint
+					  else if (insideCS && qstrcmp(yytext,"where")==0) // C# type constraint
 					  {
                                             delete current->typeConstr;
                                             current->typeConstr = new ArgumentList;
@@ -5894,7 +5954,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                           QCString baseScope = yytext;
                                           if (insideCS && baseScope.stripWhiteSpace()=="where")
 					  { 
-					    // type contraint for a class
+					    // type constraint for a class
                                             delete current->typeConstr;
                                             current->typeConstr = new ArgumentList;
 					    current->typeConstr->append(new Argument);
@@ -6324,8 +6384,14 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <CSAccessorDecl>"add"			{ if (curlyCount==0) current->spec |= Entry::Addable;   }
 <CSAccessorDecl>"remove"		{ if (curlyCount==0) current->spec |= Entry::Removable; }
 <CSAccessorDecl>"raise"			{ if (curlyCount==0) current->spec |= Entry::Raisable;  }
-<CSAccessorDecl>.			{}
+<CSAccessorDecl>"\""			{ BEGIN(CSString);}
+<CSAccessorDecl>"."			{}
 <CSAccessorDecl>\n			{ lineCount(); }
+<CSString>"\""				{ BEGIN(CSAccessorDecl);}
+<CSString>"//"				{} // Otherwise the rule <*>"//" will kick in
+<CSString>"/*"				{} // Otherwise the rule <*>"/*" will kick in
+<CSString>\n				{ lineCount(); }
+<CSString>"."				{}
 
 
 
@@ -6713,6 +6779,22 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  {
   					    lastStringContext=YY_START;
 					    BEGIN(SkipString);
+					  }
+  					}
+<*>\?                                   {
+  					  if (insideCS) 
+					  {
+					    if (current->type.isEmpty())
+					    {
+					      if (current->name.isEmpty())
+					        current->name="?";
+					      else
+					        current->name+="?";
+					    }
+					    else
+					    {
+					      current->type+="?";
+					    }
 					  }
   					}
 <*>.

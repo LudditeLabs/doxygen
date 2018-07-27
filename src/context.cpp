@@ -246,7 +246,6 @@ class PropertyMapper
 
     /** Add a property to the map
      *  @param[in] name   The name of the property to add.
-     *  @param[in] obj    The object handling access to the property.
      *  @param[in] handle The method to call when the property is accessed.
      */
     void addProperty(const char *name,typename PropertyFunc::Handler handle)
@@ -262,6 +261,7 @@ class PropertyMapper
     }
 
     /** Gets the value of a property.
+     *  @param[in] obj  The object handling access to the property.
      *  @param[in] name The name of the property.
      *  @returns A variant representing the properties value or an
      *  invalid variant if it was not found.
@@ -617,7 +617,7 @@ class TranslateContext::Private
     TemplateVariant classes() const
     {
       return theTranslator->trClasses();
-      // TODO: VHDL: trVhdlType(VhdlDocGen::ENTITY,FALSE)
+      // TODO: VHDL: theTranslator->trVhdlType(VhdlDocGen::ENTITY,FALSE)
       // TODO: Fortran: trDataTypes()
     }
     TemplateVariant classList() const
@@ -927,8 +927,8 @@ class TranslateContext::Private
     {
       static bool fortranOpt = Config_getBool(OPTIMIZE_FOR_FORTRAN);
       static bool vhdlOpt    = Config_getBool(OPTIMIZE_OUTPUT_VHDL);
-      return fortranOpt ? theTranslator->trSubprograms() :
-             vhdlOpt    ? VhdlDocGen::trFunctionAndProc() :
+      return fortranOpt ? theTranslator->trSubprograms()     :
+             vhdlOpt    ? theTranslator->trFunctionAndProc() :
                           theTranslator->trFunctions();
     }
     TemplateVariant variables() const
@@ -2816,7 +2816,7 @@ class NamespaceContext::Private : public DefinitionContext<NamespaceContext::Pri
       QCString title = theTranslator->trFunctions();
       SrcLangExt lang = m_namespaceDef->getLanguage();
       if (lang==SrcLangExt_Fortran) title=theTranslator->trSubprograms();
-      else if (lang==SrcLangExt_VHDL) title=VhdlDocGen::trFunctionAndProc();
+      else if (lang==SrcLangExt_VHDL) title=theTranslator->trFunctionAndProc();
       return getMemberList(getCache().functions,MemberListType_decFuncMembers,title);
     }
     TemplateVariant variables() const
@@ -3249,7 +3249,7 @@ class FileContext::Private : public DefinitionContext<FileContext::Private>
       QCString title = theTranslator->trFunctions();
       SrcLangExt lang = m_fileDef->getLanguage();
       if (lang==SrcLangExt_Fortran) title=theTranslator->trSubprograms();
-      else if (lang==SrcLangExt_VHDL) title=VhdlDocGen::trFunctionAndProc();
+      else if (lang==SrcLangExt_VHDL) title=theTranslator->trFunctionAndProc();
       return getMemberList(getCache().functions,MemberListType_decFuncMembers,title);
     }
     TemplateVariant variables() const
@@ -5489,7 +5489,7 @@ class ModuleContext::Private : public DefinitionContext<ModuleContext::Private>
       QCString title = theTranslator->trFunctions();
       SrcLangExt lang = m_groupDef->getLanguage();
       if (lang==SrcLangExt_Fortran) title=theTranslator->trSubprograms();
-      else if (lang==SrcLangExt_VHDL) title=VhdlDocGen::trFunctionAndProc();
+      else if (lang==SrcLangExt_VHDL) title=theTranslator->trFunctionAndProc();
       return getMemberList(getCache().functions,MemberListType_decFuncMembers,title);
     }
     TemplateVariant variables() const
@@ -5828,7 +5828,7 @@ class ClassIndexContext::Private
       }
       else if (vhdlOpt)
       {
-        return VhdlDocGen::trDesignUnits();
+        return theTranslator->trDesignUnits();
       }
       else
       {
@@ -6022,7 +6022,7 @@ class ClassHierarchyContext::Private
       static bool vhdlOpt    = Config_getBool(OPTIMIZE_OUTPUT_VHDL);
       if (vhdlOpt)
       {
-        return VhdlDocGen::trDesignUnitHierarchy();
+        return theTranslator->trDesignUnitHierarchy();
       }
       else
       {
@@ -6780,7 +6780,7 @@ class ClassTreeContext::Private
       }
       else if (vhdlOpt)
       {
-        return VhdlDocGen::trDesignUnitList();
+        return theTranslator->trDesignUnitList();
       }
       else
       {

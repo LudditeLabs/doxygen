@@ -240,7 +240,7 @@ static QCString isBlockCommand(const char *data,int offset,int size)
     {
       return "f]";
     }
-    else if (data[end]=='}')
+    else if (data[end]=='{')
     {
       return "f}";
     }
@@ -483,6 +483,8 @@ static int processNmdash(GrowBuf &out,const char *data,int off,int size)
   {
     count++;
   }
+  if (count==2 && off>=2 && qstrncmp(data-2,"<!",2)==0) return 0; // start HTML comment
+  if (count==2 && (data[2]=='>')) return 0; // end HTML comment
   if (count==2 && (off<8 || qstrncmp(data-8,"operator",8)!=0)) // -- => ndash
   {
     out.addStr("&ndash;");
@@ -842,7 +844,7 @@ static int processLink(GrowBuf &out,const char *data,int,int size)
   }
   if (isToc) // special case for [TOC]
   {
-    if (g_current) g_current->stat=TRUE;
+    out.addStr("@tableofcontents");
   }
   else if (isImageLink) 
   {
@@ -1588,15 +1590,15 @@ static int writeTableBlock(GrowBuf &out,const char *data,int size)
   int columns,start,end,cc;
 
   i = findTableColumns(data,size,start,end,columns);
-  
+
+  int headerStart = start;
+  int headerEnd = end;
+
 #ifdef USE_ORIGINAL_TABLES
   out.addStr("<table>");
 
   // write table header, in range [start..end]
   out.addStr("<tr>");
-
-  int headerStart = start;
-  int headerEnd = end;
 #endif
     
   // read cell alignments
@@ -1709,9 +1711,6 @@ static int writeTableBlock(GrowBuf &out,const char *data,int size)
   // allows us to handle row spanning.
   QVector<QVector<TableCell> > tableContents;
   tableContents.setAutoDelete(TRUE);
-
-  int headerStart = start;
-  int headerEnd = end;
 
   int m=headerStart;
   QVector<TableCell> *headerContents = new QVector<TableCell>(columns);
@@ -2061,7 +2060,7 @@ static int writeCodeBlock(GrowBuf &out,const char *data,int size,int refIndent)
 }
 
 // start searching for the end of the line start at offset \a i
-// keeping track of possible blocks that need to to skipped.
+// keeping track of possible blocks that need to be skipped.
 static void findEndOfLine(GrowBuf &out,const char *data,int size,
                           int &pi,int&i,int &end)
 {
@@ -2548,7 +2547,7 @@ QCString processMarkdown(const QCString &fileName,const int lineNr,Entry *e,cons
   // finally process the inline markup (links, emphasis and code spans)
   processInline(out,s,s.length());
   out.addChar(0);
-  Debug::print(Debug::Markdown,0,"======== Markdown =========\n---- input ------- \n%s\n---- output -----\n%s\n---------\n",qPrint(input),qPrint(out.get()));
+  Debug::print(Debug::Markdown,0,"======== Markdown =========\n---- input ------- \n%s\n---- output -----\n%s\n=========\n",qPrint(input),qPrint(out.get()));
   return out.get();
 }
 

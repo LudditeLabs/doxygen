@@ -288,6 +288,7 @@ class Entry
     bool        artificial;   //!< Artificially introduced item
     GroupDocType groupDocType;
     QCString    id;           //!< libclang id
+    LocalToc    localToc;
 
     int docBlockCol;
     int docBlockColEnd;

@@ -109,7 +109,7 @@ static QCString         g_packageName;
 
 //static bool             g_hideClassDocs;
 
-static QCString         g_defVal;
+static QGString         g_defVal;
 static int              g_braceCount;
 
 static bool             g_lexInit = FALSE;
@@ -487,7 +487,6 @@ SHORTSTRINGITEM   ({SHORTSTRINGCHAR}|{ESCAPESEQ})
 SHORTSTRINGCHAR   [^\\\n"]
 STRINGLITERAL     {STRINGPREFIX}?( {SHORTSTRING} | {LONGSTRING})  
 STRINGPREFIX      ("r"|"u"|"ur"|"R"|"U"|"UR"|"Ur"|"uR")
-KEYWORD           ("lambda"|"import"|"class"|"assert"|"as"|"from"|"global"|"def"|"True"|"False")
 FLOWKW            ("or"|"and"|"is"|"not"|"print"|"for"|"in"|"if"|"try"|"except"|"yield"|"raise"|"break"|"continue"|"pass"|"if"|"return"|"while"|"elif"|"else"|"finally")
 POUNDCOMMENT      "#"[^#\n][^\n]* 
 SCRIPTCOMMENT      "#!".* 
@@ -993,34 +992,48 @@ STARTDOCSYMS      "##"
 }
 
 <FunctionParamDefVal>{
-     "("		{ // internal opening brace
+     "["		| 
+     "("		{ // internal opening brace, assumption is that we have correct code so braces do match
        			  g_braceCount++;
 			  g_defVal+=*yytext;
        			}
      ","		| 
+     "]"		| 
      ")"		{
        			  if (g_braceCount==0)  // end of default argument
 			  {
 			    if (current->argList->getLast())
 			    {
-			      current->argList->getLast()->defval=g_defVal.stripWhiteSpace();
+			      current->argList->getLast()->defval=QCString(g_defVal.data()).stripWhiteSpace();
 			    }
-			    if (*yytext == ')')
+			    if (*yytext != ',')
 			      current->args = argListToString(current->argList);
 			    BEGIN(FunctionParams);
 			  }
 			  else // continue
 			  {
-			    if (*yytext == ')')g_braceCount--;
+			    if (*yytext != ',')g_braceCount--;
 			    g_defVal+=*yytext;
 			  }
        			}
-     .			{
-			    g_defVal+=*yytext;
-       			}
+     "'"                {
+                          g_defVal+=*yytext;
+                          g_copyString=&g_defVal;
+                          g_stringContext=FunctionParamDefVal;
+                          BEGIN( SingleQuoteString );
+                        }
+     "\""               {
+                          g_defVal+=*yytext;
+                          g_copyString=&g_defVal;
+                          g_stringContext=FunctionParamDefVal;
+                          BEGIN( DoubleQuoteString );
+                        }
      \n                 {
        			    g_defVal+=*yytext;
 			    incLineNr();
+       			}
+     .			{
+			    g_defVal+=*yytext;
        			}
 }
 
@@ -1168,13 +1181,17 @@ STARTDOCSYMS      "##"
       				 current->program+=yytext;
 			 	 BEGIN(TripleComment);
                       	       }
-
     {TRISINGLEQUOTE}           { // start of a comment block
 			         initTriSingleQuoteBlock();
       				 current->program+=yytext;
 			         BEGIN(TripleComment);
                                }
-
+    {STARTDOCSYMS}[#]*         {  // start of a special comment
+                                 initSpecialBlock();
+                                 BEGIN(SpecialComment);
+                               }
+    {POUNDCOMMENT}             { // ignore comment with just one #
+                               }
     ^{BB} 		       {
       				 current->program+=yytext;
 			         //current->startLine = yyLineNr;
@@ -1187,7 +1204,6 @@ STARTDOCSYMS      "##"
                                }
 
     ""/({NONEMPTY}|{EXPCHAR})  {
-				 
 				 // Just pushback an empty class, and
 				 // resume parsing the body.
                                  newEntry();
