@@ -641,6 +641,7 @@ static void buildGroupListFiltered(EntryNav *rootNav,bool additional, bool inclu
         }
         gd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
         gd->setDocumentation( root->doc, root->docFile, root->docLine );
+        gd->addDocumentationBlock(root);
         gd->setInbodyDocumentation( root->inbodyDocs, root->inbodyFile, root->inbodyLine );
         gd->addSectionsToDefinition(root->anchors);
         gd->setRefItems(root->sli);
@@ -798,6 +799,7 @@ static void buildFileList(EntryNav *rootNav)
         // is documented even if a \file command is used without further
         // documentation
         fd->setDocumentation(root->doc,root->docFile,root->docLine,FALSE);
+        fd->addDocumentationBlock(root);
         fd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
         fd->addSectionsToDefinition(root->anchors);
         fd->setRefItems(root->sli);
@@ -1278,6 +1280,8 @@ static void addClassToContext(EntryNav *rootNav)
     //}
 
     cd->setDocumentation(root->doc,root->docFile,root->docLine);
+
+    cd->addDocumentationBlock(root);
     cd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
 
     if (root->bodyLine!=-1 && cd->getStartBodyLine()==-1)
@@ -1343,6 +1347,7 @@ static void addClassToContext(EntryNav *rootNav)
     Debug::print(Debug::Classes,0,"  New class `%s' (sec=0x%08x)! #tArgLists=%d tagInfo=%p\n",
         qPrint(fullName),sec,root->tArgLists ? (int)root->tArgLists->count() : -1, tagInfo);
     cd->setDocumentation(root->doc,root->docFile,root->docLine); // copy docs to definition
+    cd->addDocumentationBlock(root);
     cd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
     cd->setLanguage(root->lang);
     cd->setId(root->id);
@@ -1739,6 +1744,7 @@ static void buildNamespaceList(EntryNav *rootNav)
       if ((nd=Doxygen::namespaceSDict->find(fullName))) // existing namespace
       {
         nd->setDocumentation(root->doc,root->docFile,root->docLine);
+        nd->addDocumentationBlock(root);
         nd->setName(fullName); // change name to match docs
         nd->addSectionsToDefinition(root->anchors);
         nd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
@@ -1776,6 +1782,7 @@ static void buildNamespaceList(EntryNav *rootNav)
                              root->startColumn,fullName,tagName,tagFileName,
                              root->type,root->spec&Entry::Published);
         nd->setDocumentation(root->doc,root->docFile,root->docLine); // copy docs to definition
+        nd->addDocumentationBlock(root);
         nd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
         nd->addSectionsToDefinition(root->anchors);
         nd->setHidden(root->hidden);
@@ -1950,6 +1957,7 @@ static void findUsingDirectives(EntryNav *rootNav)
         //printf("++ new unknown namespace %s lang=%s\n",name.data(),langToString(root->lang).data());
         NamespaceDef *nd=new NamespaceDef(root->fileName,root->startLine,root->startColumn,name);
         nd->setDocumentation(root->doc,root->docFile,root->docLine); // copy docs to definition
+        nd->addDocumentationBlock(root);
         nd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
         nd->addSectionsToDefinition(root->anchors);
         //printf("** Adding namespace %s hidden=%d\n",name.data(),root->hidden);
@@ -2170,6 +2178,7 @@ static void findUsingDeclImports(EntryNav *rootNav)
                   if (!root->doc.isEmpty() || !root->brief.isEmpty())
                   {
                     newMd->setDocumentation(root->doc,root->docFile,root->docLine);
+                    newMd->addDocumentationBlock(root);
                     newMd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
                     newMd->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
                   }
@@ -2361,6 +2370,7 @@ static MemberDef *addVariableToClass(
   //md->setDefFile(root->fileName);
   //md->setDefLine(root->startLine);
   md->setDocumentation(root->doc,root->docFile,root->docLine);
+  md->addDocumentationBlock(root);
   md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
   md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
   md->setDefinition(def);
@@ -2464,6 +2474,7 @@ static MemberDef *addVariableToFile(
           // change the name that is displayed from cd.
           cd->setClassName(name);
           cd->setDocumentation(root->doc,root->docFile,root->docLine);
+          cd->addDocumentationBlock(root);
           cd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
           return 0;
         }
@@ -2602,6 +2613,7 @@ static MemberDef *addVariableToFile(
   md->setTagInfo(rootNav->tagInfo());
   md->setMemberSpecifiers(root->spec);
   md->setDocumentation(root->doc,root->docFile,root->docLine);
+  md->addDocumentationBlock(root);
   md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
   md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
   md->addSectionsToDefinition(root->anchors);
@@ -3113,6 +3125,7 @@ static void addInterfaceOrServiceToServiceOrSingleton(
   md->setTagInfo(rootNav->tagInfo());
   md->setMemberClass(cd);
   md->setDocumentation(root->doc,root->docFile,root->docLine);
+  md->addDocumentationBlock(root);
   md->setDocsForDefinition(false);
   md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
   md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
@@ -3300,6 +3313,7 @@ static void addMethodToClass(EntryNav *rootNav,ClassDef *cd,
   md->setTagInfo(rootNav->tagInfo());
   md->setMemberClass(cd);
   md->setDocumentation(root->doc,root->docFile,root->docLine);
+  md->addDocumentationBlock(root);
   md->setDocsForDefinition(!root->proto);
   md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
   md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
@@ -3629,6 +3643,8 @@ static void buildFunctionList(EntryNav *rootNav)
                 }
 
                 md->setDocumentation(root->doc,root->docFile,root->docLine);
+
+                md->addDocumentationBlock(root);
                 md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
                 md->setDocsForDefinition(!root->proto);
                 if (md->getStartBodyLine()==-1 && root->bodyLine!=-1)
@@ -3694,6 +3710,7 @@ static void buildFunctionList(EntryNav *rootNav)
           //md->setDefFile(root->fileName);
           //md->setDefLine(root->startLine);
           md->setDocumentation(root->doc,root->docFile,root->docLine);
+          md->addDocumentationBlock(root);
           md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
           md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
           md->setPrototype(root->proto);
@@ -5368,6 +5385,7 @@ static void addMemberDocs(EntryNav *rootNav,
   {
     //printf("overwrite!\n");
     md->setDocumentation(root->doc,root->docFile,root->docLine);
+    md->addDocumentationBlock(root);
     md->setDocsForDefinition(!root->proto);
 
     //printf("overwrite!\n");
@@ -6443,6 +6461,7 @@ static void findMember(EntryNav *rootNav,
           md->enableCallGraph(root->callGraph);
           md->enableCallerGraph(root->callerGraph);
           md->setDocumentation(root->doc,root->docFile,root->docLine);
+          md->addDocumentationBlock(root);
           md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
           md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
           md->setDocsForDefinition(!root->proto);
@@ -6712,6 +6731,7 @@ static void findMember(EntryNav *rootNav,
           md->enableCallGraph(root->callGraph);
           md->enableCallerGraph(root->callerGraph);
           md->setDocumentation(root->doc,root->docFile,root->docLine);
+          md->addDocumentationBlock(root);
           md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
           md->setDocsForDefinition(!root->proto);
           md->setPrototype(root->proto);
@@ -6784,6 +6804,7 @@ localObjCMethod:
         md->enableCallGraph(root->callGraph);
         md->enableCallerGraph(root->callerGraph);
         md->setDocumentation(root->doc,root->docFile,root->docLine);
+        md->addDocumentationBlock(root);
         md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
         md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
         md->setDocsForDefinition(!root->proto);
@@ -7182,6 +7203,7 @@ static void findEnums(EntryNav *rootNav)
         cd->insertUsedFile(fd);
       }
       md->setDocumentation(root->doc,root->docFile,root->docLine);
+      md->addDocumentationBlock(root);
       md->setDocsForDefinition(!root->proto);
       md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
       md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
@@ -7341,6 +7363,7 @@ static void addEnumValuesToEnums(EntryNav *rootNav)
                   fmd->setLanguage(root->lang);
                   fmd->setId(root->id);
                   fmd->setDocumentation(root->doc,root->docFile,root->docLine);
+                  fmd->addDocumentationBlock(root);
                   fmd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
                   fmd->addSectionsToDefinition(root->anchors);
                   fmd->setInitializer(root->initializer);
@@ -7499,6 +7522,7 @@ static void findEnumDocumentation(EntryNav *rootNav)
 #endif
               {
                 md->setDocumentation(root->doc,root->docFile,root->docLine);
+                md->addDocumentationBlock(root);
                 md->setDocsForDefinition(!root->proto);
               }
 
@@ -7552,6 +7576,7 @@ static void findEnumDocumentation(EntryNav *rootNav)
             if (md->isEnumerate())
             {
               md->setDocumentation(root->doc,root->docFile,root->docLine);
+              md->addDocumentationBlock(root);
               md->setDocsForDefinition(!root->proto);
               md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
               md->setInbodyDocumentation(root->inbodyDocs,root->inbodyFile,root->inbodyLine);
@@ -8497,6 +8522,7 @@ static void findDefineDocumentation(EntryNav *rootNav)
           if (md->memberType()==MemberType_Define)
           {
             md->setDocumentation(root->doc,root->docFile,root->docLine);
+            md->addDocumentationBlock(root);
             md->setDocsForDefinition(!root->proto);
             md->setBriefDescription(root->brief,root->briefFile,root->briefLine);
             if (md->inbodyDocumentation().isEmpty())
@@ -8535,6 +8561,7 @@ static void findDefineDocumentation(EntryNav *rootNav)
 #endif
               {
                 md->setDocumentation(root->doc,root->docFile,root->docLine);
+                md->addDocumentationBlock(root);
                 md->setDocsForDefinition(!root->proto);
               }
 #if 0
@@ -8640,6 +8667,7 @@ static void findDirDocumentation(EntryNav *rootNav)
       //printf("Match for with dir %s\n",matchingDir->name().data());
       matchingDir->setBriefDescription(root->brief,root->briefFile,root->briefLine);
       matchingDir->setDocumentation(root->doc,root->docFile,root->docLine);
+      matchingDir->addDocumentationBlock(root);
       matchingDir->setRefItems(root->sli);
       addDirToGroups(root,matchingDir);
     }
