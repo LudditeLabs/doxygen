@@ -316,6 +316,13 @@ def main():
 		tests = glob.glob('[0-9][0-9][0-9]_*')
 	os.chdir(starting_directory)
 
+	# NOTE(autodoc): disable all non c/c++ tests.
+	# Some scanners and extensions are disabled, see:
+	# * initDefaultExtensionMapping() in src/util.cpp
+	# * initDoxygen() in src/doxygen.cpp
+	allowed_ext = ('.c', '.h', '.cpp')
+	tests = [x for x in tests if os.path.splitext(x)[1] in allowed_ext]
+
 	# create test manager to run the tests
 	testManager = TestManager(args,tests)
 	sys.exit(testManager.perform_tests())
