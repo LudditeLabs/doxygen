@@ -41,6 +41,7 @@
 #include "namespacedef.h"
 #include "filedef.h"
 #include "dirdef.h"
+#include "autodoc/common/docblock.h"
 
 #define START_MARKER 0x4445465B // DEF[
 #define END_MARKER   0x4445465D // DEF]
@@ -87,13 +88,15 @@ class DefinitionImpl
     SrcLangExt lang;
 
     QCString id; // clang unique id
+
+    autodoc::DefinitionDoc *docs;
 };
 
 DefinitionImpl::DefinitionImpl()
   : sectionDict(0), sourceRefByDict(0), sourceRefsDict(0),
     xrefListItems(0), partOfGroups(0),
     details(0), inbodyDocs(0), brief(0), body(0), hidden(FALSE), isArtificial(FALSE),
-    outerScope(0), lang(SrcLangExt_Unknown)
+    outerScope(0), lang(SrcLangExt_Unknown), docs(0)
 {
 }
 
@@ -108,6 +111,7 @@ DefinitionImpl::~DefinitionImpl()
   delete details;
   delete body;
   delete inbodyDocs;
+  delete docs;
 }
 
 void DefinitionImpl::init(const char *df, const char *n)
@@ -143,6 +147,7 @@ void DefinitionImpl::init(const char *df, const char *n)
   hidden          = FALSE;
   isArtificial    = FALSE;
   lang            = SrcLangExt_Unknown;
+  docs            = 0;
 }
 
 //-----------------------------------------------------------------------------------------
@@ -280,9 +285,9 @@ void Definition::removeFromMap(Definition *d)
   }
 }
 
-Definition::Definition(const char *df,int dl,int dc,
-                       const char *name,const char *b,
-                       const char *d,bool isSymbol) : m_cookie(0)
+Definition::Definition(const char *df, int dl, int dc,
+                       const char *name, const char *b,
+                       const char *d, bool isSymbol) : m_cookie(0)
 {
   m_name = name;
   m_defLine = dl;
@@ -314,6 +319,11 @@ Definition::Definition(const Definition &d) : DefinitionIntf(), m_cookie(0)
   m_impl->details = 0;
   m_impl->body = 0;
   m_impl->inbodyDocs = 0;
+  m_impl->docs = 0;
+
+  if (d.m_impl->docs)
+    m_impl->docs = new autodoc::DefinitionDoc(*d.m_impl->docs);
+
   if (d.m_impl->sectionDict)
   {
     m_impl->sectionDict = new SectionDict(17);
@@ -563,8 +573,9 @@ bool Definition::_docsAlreadyAdded(const QCString &doc,QCString &sigList)
   }
 }
 
-void Definition::_setDocumentation(const char *d,const char *docFile,int docLine,
-                                   bool stripWhiteSpace,bool atTop)
+void Definition::_setDocumentation(const char *d, const char *docFile,
+                                   int docLine, bool stripWhiteSpace,
+                                   bool atTop)
 {
   //printf("%s::setDocumentation(%s,%s,%d,%d)\n",name().data(),d,docFile,docLine,stripWhiteSpace);
   if (d==0) return;
@@ -609,7 +620,8 @@ void Definition::_setDocumentation(const char *d,const char *docFile,int docLine
   }
 }
 
-void Definition::setDocumentation(const char *d,const char *docFile,int docLine,bool stripWhiteSpace)
+void Definition::setDocumentation(const char *d, const char *docFile,
+                                  int docLine, bool stripWhiteSpace)
 {
   if (d==0) return;
   _setDocumentation(d,docFile,docLine,stripWhiteSpace,FALSE);
@@ -1970,5 +1982,27 @@ QCString Definition::externalReference(const QCString &relPath) const
   return relPath;
 }
 
+//----------------------------------------------------------------------------
 
+// Extra documentation info.
 
+autodoc::DefinitionDoc* Definition::docs() const
+{
+    return m_impl->docs;
+}
+
+void Definition::addDocumentationBlock(const Entry *entry)
+{
+    if (!entry->doc.isNull())
+    {
+        if (!m_impl->docs)
+            m_impl->docs = new autodoc::DefinitionDoc();
+
+        m_impl->docs->add(entry->docFile,
+                          entry->doc,
+                          entry->docBlockLineStart,
+                          entry->docBlockLineEnd,
+                          entry->docBlockCol,
+                          entry->docBlockColEnd);
+    }
+}

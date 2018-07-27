@@ -35,7 +35,10 @@ struct SectionInfo;
 class Definition;
 class DefinitionImpl;
 class FTextStream;
-  
+class Entry;
+
+namespace autodoc { class DefinitionDoc; }
+
 /** Data associated with a detailed description. */
 struct DocInfo
 {
@@ -83,6 +86,7 @@ class DefinitionIntf
     /*! Use this for dynamic inspection of the type of the derived class */
     virtual DefType definitionType() const = 0;
 };
+
 
 /** The common base class of all entity definitions found in the sources. 
  *
@@ -286,7 +290,8 @@ class Definition : public DefinitionIntf
     void setId(const char *name);
 
     /*! Sets the documentation of this definition to \a d. */
-    virtual void setDocumentation(const char *d,const char *docFile,int docLine,bool stripWhiteSpace=TRUE);
+    virtual void setDocumentation(const char *d,const char *docFile,int docLine,
+                                  bool stripWhiteSpace=TRUE);
 
     /*! Sets the brief description of this definition to \a b.
      *  A dot is added to the sentence if not available.
@@ -351,6 +356,13 @@ class Definition : public DefinitionIntf
     void setCookie(Cookie *cookie) { delete m_cookie; m_cookie = cookie; }
     Cookie *cookie() const { return m_cookie; }
 
+    //-----------------------------------------------------------------------------------
+    // --- Extra documentation info ----
+    //-----------------------------------------------------------------------------------
+
+    autodoc::DefinitionDoc* docs() const;
+    void addDocumentationBlock(const Entry *entry);
+
   protected:
 
     Definition(const Definition &d);
@@ -365,7 +377,8 @@ class Definition : public DefinitionIntf
     void _writeSourceRefList(OutputList &ol,const char *scopeName,
                        const QCString &text,MemberSDict *members,bool);
     void _setBriefDescription(const char *b,const char *briefFile,int briefLine);
-    void _setDocumentation(const char *d,const char *docFile,int docLine,bool stripWhiteSpace,bool atTop);
+    void _setDocumentation(const char *d, const char *docFile, int docLine,
+                           bool stripWhiteSpace, bool atTop);
     void _setInbodyDocumentation(const char *d,const char *docFile,int docLine);
     bool _docsAlreadyAdded(const QCString &doc,QCString &sigList);
     DefinitionImpl *m_impl; // internal structure holding all private data
