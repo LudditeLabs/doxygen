@@ -10071,14 +10071,15 @@ void initDoxygen()
   Doxygen::parserManager->registerDefaultParser(         new FileParser);
   Doxygen::parserManager->registerParser("c",            new CLanguageScanner);
   Doxygen::parserManager->registerParser("python",       new PythonLanguageScanner);
-  Doxygen::parserManager->registerParser("fortran",      new FortranLanguageScanner);
-  Doxygen::parserManager->registerParser("fortranfree",  new FortranLanguageScannerFree);
-  Doxygen::parserManager->registerParser("fortranfixed", new FortranLanguageScannerFixed);
-  Doxygen::parserManager->registerParser("vhdl",         new VHDLLanguageScanner);
-  Doxygen::parserManager->registerParser("xml",          new XMLScanner);
-  Doxygen::parserManager->registerParser("sql",          new SQLScanner);
-  Doxygen::parserManager->registerParser("tcl",          new TclLanguageScanner);
-  Doxygen::parserManager->registerParser("md",           new MarkdownFileParser);
+  // Not supported by autodoc.
+  // Doxygen::parserManager->registerParser("fortran",      new FortranLanguageScanner);
+  // Doxygen::parserManager->registerParser("fortranfree",  new FortranLanguageScannerFree);
+  // Doxygen::parserManager->registerParser("fortranfixed", new FortranLanguageScannerFixed);
+  // Doxygen::parserManager->registerParser("vhdl",         new VHDLLanguageScanner);
+  // Doxygen::parserManager->registerParser("xml",          new XMLScanner);
+  // Doxygen::parserManager->registerParser("sql",          new SQLScanner);
+  // Doxygen::parserManager->registerParser("tcl",          new TclLanguageScanner);
+  // Doxygen::parserManager->registerParser("md",           new MarkdownFileParser);
 
   // register any additional parsers here...
 

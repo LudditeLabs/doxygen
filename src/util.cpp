@@ -7225,10 +7225,11 @@ void initDefaultExtensionMapping()
 {
   // NOTE: when adding an extension, also add the extension in config.xml
   g_extLookup.setAutoDelete(TRUE);
+  // NOTE(autodoc): commented mappings are not supported by autodoc yet.
   //                  extension      parser id
-  updateLanguageMapping(".dox",      "c");
-  updateLanguageMapping(".txt",      "c"); // see bug 760836
-  updateLanguageMapping(".doc",      "c");
+  // updateLanguageMapping(".dox",      "c");
+  // updateLanguageMapping(".txt",      "c"); // see bug 760836
+  // updateLanguageMapping(".doc",      "c");
   updateLanguageMapping(".c",        "c");
   updateLanguageMapping(".C",        "c");
   updateLanguageMapping(".cc",       "c");
@@ -7248,43 +7249,44 @@ void initDefaultExtensionMapping()
   updateLanguageMapping(".hxx",      "c");
   updateLanguageMapping(".hpp",      "c");
   updateLanguageMapping(".h++",      "c");
-  updateLanguageMapping(".idl",      "idl");
-  updateLanguageMapping(".ddl",      "idl");
-  updateLanguageMapping(".odl",      "idl");
-  updateLanguageMapping(".java",     "java");
+  // updateLanguageMapping(".idl",      "idl");
+  // updateLanguageMapping(".ddl",      "idl");
+  // updateLanguageMapping(".odl",      "idl");
+  // updateLanguageMapping(".java",     "java");
   //updateLanguageMapping(".as",       "javascript"); // not officially supported
   //updateLanguageMapping(".js",       "javascript"); // not officially supported
-  updateLanguageMapping(".cs",       "csharp");
-  updateLanguageMapping(".d",        "d");
-  updateLanguageMapping(".php",      "php");
-  updateLanguageMapping(".php4",     "php");
-  updateLanguageMapping(".php5",     "php");
-  updateLanguageMapping(".inc",      "php");
-  updateLanguageMapping(".phtml",    "php");
-  updateLanguageMapping(".m",        "objective-c");
-  updateLanguageMapping(".M",        "objective-c");
-  updateLanguageMapping(".mm",       "c");  // see bug746361
+  // updateLanguageMapping(".cs",       "csharp");
+  // updateLanguageMapping(".d",        "d");
+  // updateLanguageMapping(".php",      "php");
+  // updateLanguageMapping(".php4",     "php");
+  // updateLanguageMapping(".php5",     "php");
+  // updateLanguageMapping(".inc",      "php");
+  // updateLanguageMapping(".phtml",    "php");
+  // updateLanguageMapping(".m",        "objective-c");
+  // updateLanguageMapping(".M",        "objective-c");
+  // updateLanguageMapping(".mm",       "c");  // see bug746361
   updateLanguageMapping(".py",       "python");
   updateLanguageMapping(".pyw",      "python");
-  updateLanguageMapping(".f",        "fortran");
-  updateLanguageMapping(".for",      "fortran");
-  updateLanguageMapping(".f90",      "fortran");
-  updateLanguageMapping(".f95",      "fortran");
-  updateLanguageMapping(".f03",      "fortran");
-  updateLanguageMapping(".f08",      "fortran");
-  updateLanguageMapping(".vhd",      "vhdl");
-  updateLanguageMapping(".vhdl",     "vhdl");
-  updateLanguageMapping(".tcl",      "tcl");
-  updateLanguageMapping(".ucf",      "vhdl");
-  updateLanguageMapping(".qsf",      "vhdl");
-  updateLanguageMapping(".md",       "md");
-  updateLanguageMapping(".markdown", "md");
+  // updateLanguageMapping(".f",        "fortran");
+  // updateLanguageMapping(".for",      "fortran");
+  // updateLanguageMapping(".f90",      "fortran");
+  // updateLanguageMapping(".f95",      "fortran");
+  // updateLanguageMapping(".f03",      "fortran");
+  // updateLanguageMapping(".f08",      "fortran");
+  // updateLanguageMapping(".vhd",      "vhdl");
+  // updateLanguageMapping(".vhdl",     "vhdl");
+  // updateLanguageMapping(".tcl",      "tcl");
+  // updateLanguageMapping(".ucf",      "vhdl");
+  // updateLanguageMapping(".qsf",      "vhdl");
+  // updateLanguageMapping(".md",       "md");
+  // updateLanguageMapping(".markdown", "md");
 }
 
 void addCodeOnlyMappings()
 {
-  updateLanguageMapping(".xml",   "xml");
-  updateLanguageMapping(".sql",   "sql");
+  // NOTE(autodoc): not supported by autodoc.
+  // updateLanguageMapping(".xml",   "xml");
+  // updateLanguageMapping(".sql",   "sql");
 }
 
 SrcLangExt getLanguageFromFileName(const QCString& fileName)
