@@ -215,6 +215,7 @@ add_library(_doxygen STATIC
     mandocvisitor.cpp
     mangen.cpp
     sqlite3gen.cpp
+    sqlite3utils.cpp
     markdown.cpp
     marshal.cpp
     memberdef.cpp

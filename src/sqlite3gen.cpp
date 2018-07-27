@@ -22,6 +22,7 @@
 
 #include "qtbc.h"
 #include "sqlite3gen.h"
+#include "sqlite3utils.h"
 #include "doxygen.h"
 #include "config.h"
 #include "util.h"
@@ -219,12 +220,6 @@ const char * schema_queries[][2] = {
   }
 };
 
-//////////////////////////////////////////////////////
-struct SqlStmt {
-  const char   *query;
-  sqlite3_stmt *stmt;
-  sqlite3 *db;
-};
 //////////////////////////////////////////////////////
 SqlStmt incl_insert = { "INSERT INTO includes "
   "( local, id_src, id_dst ) "
@@ -475,71 +470,6 @@ class TextGeneratorSqlite3Impl : public TextGeneratorIntf
     // the list is filled by linkifyText and consumed by the caller
 };
 
-
-static bool bindTextParameter(SqlStmt &s,const char *name,const char *value, bool _static=TRUE)
-{
-  int idx = sqlite3_bind_parameter_index(s.stmt, name);
-  if (idx==0) {
-    msg("sqlite3_bind_parameter_index(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
-    return false;
-  }
-  int rv = sqlite3_bind_text(s.stmt, idx, value, -1, _static==TRUE?SQLITE_STATIC:SQLITE_TRANSIENT);
-  if (rv!=SQLITE_OK) {
-    msg("sqlite3_bind_text(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
-    return false;
-  }
-  return true;
-}
-
-static bool bindBlobParameter(SqlStmt &s,const char *name,const void *value, size_t size, bool _static=TRUE)
-{
-  int idx = sqlite3_bind_parameter_index(s.stmt, name);
-  if (idx==0) {
-    msg("sqlite3_bind_parameter_index(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
-    return false;
-  }
-  int rv = sqlite3_bind_blob64(s.stmt, idx, value, size, _static==TRUE?SQLITE_STATIC:SQLITE_TRANSIENT);
-  if (rv!=SQLITE_OK) {
-    msg("sqlite3_bind_blob64(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
-    return false;
-  }
-  return true;
-}
-
-
-static bool bindIntParameter(SqlStmt &s,const char *name,int value)
-{
-  int idx = sqlite3_bind_parameter_index(s.stmt, name);
-  if (idx==0) {
-    msg("sqlite3_bind_parameter_index(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
-    return false;
-  }
-  int rv = sqlite3_bind_int(s.stmt, idx, value);
-  if (rv!=SQLITE_OK) {
-    msg("sqlite3_bind_int(%s)[%s] failed: %s\n", name, s.query, sqlite3_errmsg(s.db));
-    return false;
-  }
-  return true;
-}
-
-static int step(SqlStmt &s,bool getRowId=FALSE, bool select=FALSE)
-{
-  int rowid=-1;
-  int rc = sqlite3_step(s.stmt);
-  if (rc!=SQLITE_DONE && rc!=SQLITE_ROW)
-  {
-    msg("sqlite3_step: %s\n", sqlite3_errmsg(s.db));
-    sqlite3_reset(s.stmt);
-    sqlite3_clear_bindings(s.stmt);
-    return -1;
-  }
-  if (getRowId && select) rowid = sqlite3_column_int(s.stmt, 0); // works on selects, doesn't on inserts
-  if (getRowId && !select) rowid = sqlite3_last_insert_rowid(s.db); //works on inserts, doesn't on selects
-  sqlite3_reset(s.stmt);
-  sqlite3_clear_bindings(s.stmt); // XXX When should this really be called
-  return rowid;
-}
-
 static int insertFile(const char* name)
 {
   int rowid=-1;
@@ -723,19 +653,6 @@ static void stripQualifiers(QCString &typeStr)
   }
 }
 
-static int prepareStatement(sqlite3 *db, SqlStmt &s)
-{
-  int rc;
-  rc = sqlite3_prepare_v2(db,s.query,-1,&s.stmt,0);
-  if (rc!=SQLITE_OK)
-  {
-    msg("prepare failed for %s\n%s\n", s.query, sqlite3_errmsg(db));
-    s.db = NULL;
-    return -1;
-  }
-  s.db = db;
-  return rc;
-}
 
 static int prepareStatements(sqlite3 *db)
 {
@@ -763,17 +680,6 @@ static int prepareStatements(sqlite3 *db)
   return 0;
 }
 
-static void beginTransaction(sqlite3 *db)
-{
-  char * sErrMsg = 0;
-  sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &sErrMsg);
-}
-
-static void endTransaction(sqlite3 *db)
-{
-  char * sErrMsg = 0;
-  sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
-}
 
 static void pragmaTuning(sqlite3 *db)
 {
