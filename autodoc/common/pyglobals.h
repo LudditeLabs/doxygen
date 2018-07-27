@@ -6,6 +6,7 @@
 #include <deque>
 #include "autodoc/common/utils.h"
 
+namespace autodoc {
 
 /**
  * This class provides access to some python functions and modules.
@@ -44,5 +45,6 @@ private:
     bool setupPickle();
 };
 
+} // namespace autodoc
 
 #endif // AUTODOC_COMMON_PYGLOBALS_H

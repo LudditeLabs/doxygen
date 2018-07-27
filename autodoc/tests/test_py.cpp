@@ -6,6 +6,7 @@
 #include "autodoc/tests/utils.h"
 
 using namespace testutils;
+using namespace autodoc;
 
 
 static ::testing::AssertionResult do_chdir(const char *path)

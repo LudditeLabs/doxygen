@@ -5,6 +5,7 @@
 #include "autodoc/common/docutilstree.h"
 #include <memory>
 
+namespace autodoc {
 
 void DocutilsVisitor::visit(DocWord *node)
 {
@@ -304,3 +305,5 @@ void DocutilsVisitor::visit(DocCite *node)
         return;
 }
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

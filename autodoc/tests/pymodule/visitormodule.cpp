@@ -14,6 +14,7 @@
 #include "autodoc/common/docutilstree.h"
 #include "autodoc/common/visitor.h"
 
+using namespace autodoc;
 
 class Init
 {

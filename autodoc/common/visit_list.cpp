@@ -7,6 +7,8 @@
 
 // http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists
 
+namespace autodoc {
+
 void DocutilsVisitor::visitPre(DocAutoList *node)
 {
     TRACE_VISIT("visitPre(DocAutoList)\n");
@@ -220,3 +222,5 @@ void DocutilsVisitor::visitPost(DocHtmlDescData *node)
         return;
 }
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

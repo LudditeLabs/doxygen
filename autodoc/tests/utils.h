@@ -10,7 +10,7 @@ struct _object;
 typedef _object PyObject;
 #endif
 
-class PyInitHelper;
+namespace autodoc { class PyInitHelper; }
 
 namespace testutils {
     /**
@@ -37,7 +37,7 @@ namespace testutils {
         }
 
     private:
-        std::unique_ptr<PyInitHelper> m_pyInit;
+        std::unique_ptr<autodoc::PyInitHelper> m_pyInit;
         std::string m_pytestExpression;
     };
 }

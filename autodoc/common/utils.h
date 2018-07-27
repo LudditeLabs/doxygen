@@ -8,6 +8,8 @@ struct _object;
 typedef _object PyObject;
 #endif
 
+namespace autodoc {
+
 void getTraceback(PyObject *type, PyObject *value, PyObject *traceback,
                   QCString *out);
 QCString getPyError(bool clearError = true);
@@ -190,5 +192,6 @@ protected:
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
+} // namespace autodoc
 
 #endif // AUTODOC_COMMON_UTILS_H

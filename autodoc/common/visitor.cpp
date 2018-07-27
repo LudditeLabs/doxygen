@@ -4,6 +4,7 @@
 #include "docparser.h"
 #include "config.h"
 
+namespace autodoc {
 
 PyObject* pickleDocTree(const QCString &fileName,
                         int lineNr,
@@ -68,7 +69,7 @@ bool DocutilsVisitor::maybeCreateTextNode(bool stripTrailing)
         stripTrailing = true;
 
     if (stripTrailing)
-        ::stripTrailing(&m_textBuf);
+        autodoc::stripTrailing(&m_textBuf);
 
     if (m_tree->currentType() == "paragraph")
     {
@@ -667,3 +668,5 @@ void DocutilsVisitor::visitPost(DocVhdlFlow *node)
         return;
 }
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

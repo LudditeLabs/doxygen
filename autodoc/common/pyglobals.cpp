@@ -1,5 +1,6 @@
 #include "autodoc/common/pyglobals.h"
 
+namespace autodoc {
 
 PyGlobals *PyGlobals::m_instance = nullptr;
 
@@ -71,3 +72,5 @@ PyObject* PyGlobals::pickleToString(PyObject *object)
     return res;
 }
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

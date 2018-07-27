@@ -4,6 +4,7 @@
 #include "docparser.h"
 #include "autodoc/common/docutilstree.h"
 
+namespace autodoc {
 
 void DocutilsVisitor::visitPre(DocParamSect *node)
 {
@@ -208,3 +209,5 @@ void DocutilsVisitor::visitPost(DocParamList *node)
     m_tree->pop();
 }
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

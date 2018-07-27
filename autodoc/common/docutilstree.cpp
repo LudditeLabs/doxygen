@@ -1,5 +1,6 @@
 #include "autodoc/common/docutilstree.h"
 
+namespace autodoc {
 
 DocutilsTree::DocutilsTree()
 : m_globals(PyGlobals::instance()),
@@ -123,3 +124,5 @@ bool DocutilsTree::removeChild(PyObject *node, Py_ssize_t index)
     return true;
 }
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

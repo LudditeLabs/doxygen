@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "autodoc/common/utils.h"
 
+using namespace autodoc;
+
 
 TEST(TestUtilsStrip, nospaces)
 {

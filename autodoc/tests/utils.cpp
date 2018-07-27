@@ -28,7 +28,7 @@
 
 ::testing::AssertionResult testutils::assertPyError(const char *prefix)
 {
-    QCString err = getPyError();
+    QCString err = autodoc::getPyError();
     ::testing::AssertionResult ex = ::testing::AssertionFailure();
     if (prefix)
         ex << prefix << ": ";
@@ -55,7 +55,7 @@ testutils::TestingEnv* testutils::TestingEnv::instance()
 
 void testutils::TestingEnv::SetUp()
 {
-    m_pyInit.reset(new PyInitHelper);
+    m_pyInit.reset(new autodoc::PyInitHelper);
 
     std::stringstream code;
     code << "import sys\n"

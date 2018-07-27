@@ -9,6 +9,8 @@
 //    std::cerr << txt << " " << m_p->ob_type->tp_name << " " << m_p << std::endl
 
 
+namespace autodoc {
+
 // Partially based on:
 // https://stackoverflow.com/questions/1796510/accessing-a-python-traceback-from-the-c-api
 void getTraceback(PyObject *type, PyObject *value, PyObject *traceback, QCString *out)
@@ -264,3 +266,5 @@ void PyDict::setField(const QCString &field, const PyObjectPtr &ptr)
 }
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

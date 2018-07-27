@@ -8,8 +8,10 @@
 #include "docvisitor.h"
 #include "autodoc/common/utils.h"
 
+#define NOTRACE_VISIT 1
+
 #if defined(NOTRACE_VISIT)
-# define TRACE_VISIT(text) (void)0
+# define TRACE_VISIT(text) ((void)0)
 #else
 # define TRACE_VISIT(text) printf(text)
 #endif
@@ -17,6 +19,9 @@
 class Definition;
 class MemberDef;
 class DocNode;
+
+namespace autodoc {
+
 class DocutilsTree;
 
 
@@ -171,5 +176,6 @@ private:
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
+} // namespace autodoc
 
 #endif // AUTODOC_COMMON_VISITOR_H

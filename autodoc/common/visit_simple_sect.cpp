@@ -5,6 +5,8 @@
 #include "autodoc/common/docutilstree.h"
 
 
+namespace autodoc {
+
 static QCString get_simple_sect_field_name(DocSimpleSect *node)
 {
     switch (node->type())
@@ -275,7 +277,7 @@ void DocutilsVisitor::visitPost(DocTitle *node)
     else if (m_titleParent == DocSimpleSect::User)
     {
         // NOTE: m_textBuf non empty for this node type (paragraph with title).
-        ::stripTrailing(&m_textBuf);
+        autodoc::stripTrailing(&m_textBuf);
 
         PyObjectPtr str = PyUnicode_DecodeUTF8(m_textBuf.data(),
                                                m_textBuf.size(), "replace");
@@ -303,3 +305,5 @@ void DocutilsVisitor::visit(DocSimpleSectSep *node)
         return;
 }
 //-----------------------------------------------------------------------------
+
+} // namespace autodoc

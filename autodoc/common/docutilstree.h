@@ -7,6 +7,7 @@
 #include "autodoc/common/utils.h"
 #include "autodoc/common/pyglobals.h"
 
+namespace autodoc {
 
 // TODO: do nothing if isValid() = false.
 class DocutilsTree
@@ -91,5 +92,7 @@ private:
     QCString m_empty;
     bool m_valid;
 };
+
+} // namespace autodoc
 
 #endif // AUTODOC_COMMON_DOCUTILSTREE_H
