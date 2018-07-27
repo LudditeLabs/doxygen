@@ -592,6 +592,29 @@ static int yyread(char *buf,int max_size)
     return c;
 }
 
+
+static int yycol = 1;
+static int yycol_end = 1;
+
+// Based on lineCount()
+static void trackPosition()
+{
+  static int tabSize = Config_getInt(TAB_SIZE);
+
+  yycol = yycol_end;
+  for (const char *p = yytext ; *p ; ++p )
+  {
+    if (*p == '\n') 
+      yycol_end=1;
+    else if (*p == '\t') 
+      yycol_end+=tabSize - (yycol_end % tabSize);
+    else 
+      yycol_end++;
+  }
+}
+
+#define YY_USER_ACTION trackPosition();
+
 %}
 
        /* start command character */
@@ -825,15 +848,18 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
 <NextSemi>[;,]				{ 
   					  unput(*yytext);
+					  yycol_end -= yyleng;
   					  BEGIN( FindMembers ); 
 					}
 <BitFields>[;,]				{
   					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  BEGIN( FindMembers );
   					}
 <EnumBaseType>[{;,]                     {
                                           current->args = current->args.simplifyWhiteSpace();
   					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  BEGIN( ClassVar );
                                         }
 <FindMembers>"<?php"			{ // PHP code with unsupported extension?
@@ -1024,6 +1050,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
 <CliPropertyType>";"			{
   					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  BEGIN( FindMembers );
   					}
 <CliPropertyType>\n			{
@@ -1202,6 +1229,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  current->args = argListToString(current->argList);
 					  //printf("argList=%s\n",current->args.data());
   					  unput(';');
+					  yycol_end -= 1;
   					  BEGIN( Function );
                                         }
 <ObjCMethod,ObjCParams>(";"{BN}+)?"{"	{ // start of a method body
@@ -1215,6 +1243,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  }
   					  current->args = argListToString(current->argList);
                                           unput('{');
+                                          yycol_end -= 1;
   					  BEGIN( Function );
   					}
 <FindMembers>{BN}{1,80}		        {
@@ -1234,6 +1263,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    current->spec|=Entry::Readable | Entry::Writable | Entry::Assign;
 					    current->protection = Public ;
 					    unput('(');
+					    yycol_end -= 1;
 					    BEGIN( ObjCPropAttr );
 					  }
 					  else
@@ -1640,7 +1670,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    insideObjC = TRUE;
 					  }
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  if (insidePHP && current->spec&Entry::Abstract)
 					  {
 					    // convert Abstract to AbstractClass
@@ -1660,7 +1690,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
   					}
 <FindMembers>{B}*"ref class{" |          // C++/CLI extension
@@ -1675,7 +1705,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
   					}
 <FindMembers>{B}*"interface class{" |     // C++/CLI extension
@@ -1690,7 +1720,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
   					}
 <FindMembers>{B}*"coclass"{BN}+		{
@@ -1742,7 +1772,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
 					}
 <FindMembers>{B}*"value struct{" |      // C++/CLI extension
@@ -1757,7 +1787,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
   					}
 <FindMembers>{B}*"ref struct{" |       // C++/CLI extension
@@ -1772,7 +1802,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
   					}
 <FindMembers>{B}*"interface struct{" |     // C++/CLI extension
@@ -1787,7 +1817,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
   					}
 <FindMembers>{B}*{TYPEDEFPREFIX}"union{" |
@@ -1815,7 +1845,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
 					}
 <FindMembers>{B}*{TYPEDEFPREFIX}{IDLATTR}?"enum"({BN}+("class"|"struct"))?"{" |
@@ -1843,7 +1873,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current->startColumn = yyColNr;
 					  current->bodyLine  = yyLineNr;
 					  lineCount() ;
-					  if (yytext[yyleng-1]=='{') unput('{');
+					  if (yytext[yyleng-1]=='{') { unput('{'); yycol_end -= 1; }
 					  BEGIN( CompoundName ) ;
 					}
 <Operator>"("{BN}*")"({BN}*"<"[^>]*">"){BN}*/"("  {  // A::operator()<int>(int arg)
@@ -1859,6 +1889,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
 <Operator>";"				{ // can occur when importing members
   					  unput(';');
+					  yycol_end -= 1;
 					  BEGIN( FindMembers ) ;
   					}
 <Operator>[^(]				{ 
@@ -1869,6 +1900,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <Operator>"("				{
 					  current->name = current->name.simplifyWhiteSpace();
 					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  BEGIN( FindMembers ) ;
 					}
 <FindMembers>("template"|"generic")({BN}*)"<"/[>]?	{  // generic is a C++/CLI extension
@@ -2031,6 +2063,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                           BEGIN(FindMembers); 
                                         }
 <UsingAlias>";"{BN}*("/**"|"//!"|"/*!"|"///")"<" {
+              				  // msg("================================= 1 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
 					  docBlockContext   = UsingAliasEnd;
 					  docBlockInBody    = FALSE;
 					  docBlockAutoBrief = ( yytext[yyleng-2]=='*' && Config_getBool(JAVADOC_AUTOBRIEF) ) ||
@@ -2068,6 +2101,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                           current->doc.resize(0);
                                           current->brief.resize(0);
                                           unput(';');
+                                          yycol_end -= 1;
                                           BEGIN(UsingAlias);
                                         }
 <UsingDirective>{SCOPENAME}		{ current->name=removeRedundantWhiteSpace(yytext);
@@ -2139,6 +2173,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    unput('>');
 					    unput(' ');
 					    unput('>');
+					    yycol_end -= 3;
 					  }
 					  else
 					  {
@@ -2256,6 +2291,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
 <QtPropAttr>")"				{ // end of property arguments
   					  unput(';');
+					  yycol_end -= 1;
 					  BEGIN(FindMembers);
   					}
 <QtPropType>"const"|"volatile"|"unsigned"|"signed"|"long"|"short" {
@@ -2453,6 +2489,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <StaticAssert>{BN}+                     { lineCount(); }
 <StaticAssert>.                         { // variable with static_assert as name?
                                           unput(*yytext);
+                                          yycol_end -= yyleng;
                                           BEGIN(FindMembers);
                                         }
 <DeclType>"("                           {
@@ -2465,6 +2502,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <DeclType>{BN}+                         { lineCount(); }
 <DeclType>.                             {
                                           unput(*yytext);
+                                          yycol_end -= yyleng;
                                           BEGIN(FindMembers);
                                         }
 <CSIndexer>"["[^\n\]]*"]"		{
@@ -2500,9 +2538,11 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <TryFunctionBlockEnd>{BN}*"catch"	{ lineCount(); BEGIN(TryFunctionBlock); // {BN}* added to fix bug 611193
 					}
 <TryFunctionBlockEnd>\n			{ unput(*yytext); // rule added to fix bug id 601138
+					  yycol_end -= yyleng;
   					  BEGIN( FindMembers );
 					}
 <TryFunctionBlockEnd>.			{ unput(*yytext);
+					  yycol_end -= yyleng;
   					  BEGIN( FindMembers );
 					}
 <EndCppQuote>")"			{
@@ -2672,10 +2712,12 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  addType( current );
 					}
 <FindMembers,MemberSpec,Function,NextSemi,EnumBaseType,BitFields,ReadInitializer,OldStyleArgs>";"{BN}*("/**"|"//!"|"/*!"|"///")"<" {
+					  // msg("================================= 2 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
 					  if (current->bodyLine==-1)
 					  {
 					    current->bodyLine=yyLineNr;
 					  }
+
 					  docBlockContext   = YY_START;
 					  docBlockInBody    = FALSE;
 					  docBlockAutoBrief = ( yytext[yyleng-2]=='*' && Config_getBool(JAVADOC_AUTOBRIEF) ) ||
@@ -2706,6 +2748,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  }
   					}
 <MemberSpec,FindFields,FindMembers,NextSemi,EnumBaseType,BitFields,ReadInitializer,OldStyleArgs>","{BN}*("/**"|"//!"|"/*!"|"///")"<" {
+					  // msg("================================= 3 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
 					  docBlockContext   = YY_START;
 					  docBlockInBody    = FALSE;
 					  docBlockAutoBrief = ( yytext[yyleng-2]=='*' && Config_getBool(JAVADOC_AUTOBRIEF) ) ||
@@ -2735,6 +2778,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  }
   					}
 <DefineEnd,FindFields,FindFieldArg,ReadInitializer,OldStyleArgs>{BN}*("/**"|"//!"|"/*!"|"///")"<" {
+					  // msg("================================= 4 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
 					  if (current->bodyLine==-1)
 					  {
 					    current->bodyLine=yyLineNr;
@@ -2866,11 +2910,13 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  else if (*yytext==';' || (lastInitializerContext==FindFields && initBracketCount==0)) // initBracketCount==0 was added for bug 665778
 					  {
   					    unput(*yytext);
+					    yycol_end -= yyleng;
   					    BEGIN(lastInitializerContext);
 					  }
 					  else if (*yytext==',' && initBracketCount==0) // for "int a=0,b=0"
 					  {
   					    unput(*yytext);
+					    yycol_end -= yyleng;
   					    BEGIN(lastInitializerContext);
 					  }
 					  else
@@ -3619,6 +3665,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <FindFields>"("				{
   					  // Java enum initializer
   					  unput('(');
+					  yycol_end -= 1;
   					  lastInitializerContext = YY_START;
 					  initBracketCount=0;
                                           current->initializer = "=";
@@ -3700,7 +3747,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  BEGIN(SkipSquare);
   					}
   /*
-<FindFieldArg>","			{ unput(*yytext); BEGIN(FindFields); }
+<FindFieldArg>","			{ unput(*yytext); yycol_end -= yyleng; BEGIN(FindFields); }
   */
 <ReadBody,ReadNSBody,ReadBodyIntf>[^\r\n\#{}"@'/<]*	{ current->program += yytext ; }
 <ReadBody,ReadNSBody,ReadBodyIntf>"//".*		{ current->program += yytext ; }
@@ -3899,6 +3946,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  current = new Entry(*current);
 					  initEntry();
 					  unput(';');
+					  yycol_end -= 1;
 					  BEGIN( MemberSpec ) ;
   					}
 <MemberSpec>([*&]*{BN}*)*{ID}{BN}*("["[^\]\n]*"]")* { // the [] part could be improved.
@@ -3940,6 +3988,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  current->name = msName;
 					  current->spec = 0;
   					  unput('(');
+					  yycol_end -= 1;
 					  BEGIN(FindMembers);
   					}
 <MemberSpec>[,;]			{
@@ -4092,7 +4141,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
   */
 <MemberSpecSkip>","			{ BEGIN(MemberSpec); }
-<MemberSpecSkip>";"		        { unput(';'); BEGIN(MemberSpec); }
+<MemberSpecSkip>";"		        { unput(';'); yycol_end -= 1; BEGIN(MemberSpec); }
 <ReadBody,ReadNSBody,ReadBodyIntf>{BN}{1,80} { current->program += yytext ;
 					  lineCount() ;
 					}
@@ -4155,6 +4204,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
 <FuncPtrOperator>"("			{
   					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  BEGIN( EndFuncPtr );
                                         }
 <FuncPtrOperator>.			{
@@ -4355,6 +4405,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    int i;for (i=(int)yyleng-1;i>=0;i--)
 					    {
 					      unput(yytext[i]);
+					      yycol_end -= 1;
 					    }
 					    stringToArgumentList(fullArgString,current->argList);
                                             handleParametersCommentBlocks(current->argList);
@@ -4406,6 +4457,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    int i;for (i=(int)yyleng-1;i>0;i--)
 					    {
 					      unput(yytext[i]);
+					      yycol_end -= 1;
 					    }
 					    *copyArgString+=*yytext;
 					    fullArgString+=*yytext;
@@ -4432,13 +4484,19 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <CopyArgComment>[^\n\\\@\*]+		{ fullArgString+=yytext; }
 <CopyArgComment>"*/"			{ fullArgString+=yytext; 
   					  if (lastCopyArgChar!=0)
+					  {
 					    unput(lastCopyArgChar); 
+					    yycol_end -= 1;
+					  }
                                           BEGIN( lastCommentInArgContext ); 
 					}
 <CopyArgCommentLine>\n			{ fullArgString+=yytext;
                                           lineCount();
   					  if (lastCopyArgChar!=0)
+					  {
 					    unput(lastCopyArgChar);
+					    yycol_end -= 1;
+					  }
 					  BEGIN( lastCommentInArgContext );
   					}
 <CopyArgCommentLine>{CMD}("verbatim"|"latexonly"|"htmlonly"|"xmlonly"|"manonly"|"dot"|"code")/[^a-z_A-Z0-9]	{ // verbatim command (which could contain nested comments!)
@@ -4609,7 +4667,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                           }
                                           else
                                           {
-                                            unput(*yytext); BEGIN( Function );
+                                            unput(*yytext); yycol_end -= yyleng; BEGIN( Function );
                                           }
                                         }
 <FuncQual>{BN}*"abstract"{BN}*          { // pure virtual member function
@@ -4700,6 +4758,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                         }
 <TrailingReturn>[{;]                    {
                                           unput(*yytext);
+                                          yycol_end -= yyleng;
                                           BEGIN(FuncQual);
                                         }
 <TrailingReturn>.                       {
@@ -4744,6 +4803,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
 <CliOverride>"{"			{ 
   					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  BEGIN(FuncQual);
   					}
 <CliOverride>\n				{
@@ -4753,6 +4813,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					}
 <FuncPtrInit>[{;]			{
   					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  BEGIN(FuncQual);
   					}
 <FuncPtrInit>\"				{
@@ -4835,6 +4896,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <OldStyleArgs>"{"			{
   					  current->args = argListToString(current->argList);
   					  unput('{');
+					  yycol_end -= 1;
 					  BEGIN(FuncQual);
   					}
 <OldStyleArgs>.	 			{ current->args += *yytext; }
@@ -4846,6 +4908,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  if (yytext[yyleng-1]==':')
 					  {
 					    unput(':');
+					    yycol_end -= 1;
 					    BEGIN( Function );
 					  }
 					}
@@ -4879,10 +4942,10 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  current->exception += *yytext;
   					}
 <ExcpList>"{"				{
-  					  unput('{'); BEGIN( FuncQual );
+  					  unput('{'); yycol_end -= 1; BEGIN( FuncQual );
   					}
 <ExcpList>";"				{
-  					  unput(';'); BEGIN( FuncQual );
+  					  unput(';'); yycol_end -= 1; BEGIN( FuncQual );
   					}
 <ExcpList>"\n"				{
   					  current->exception += ' ';
@@ -5053,6 +5116,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                         }
 <SkipInits>"{"				{ // C++11 style initializer
   					  unput('{');
+					  yycol_end -= 1;
 					  BEGIN( Function );
 					}
 <SkipCurly>"{"				{ 
@@ -5061,7 +5125,8 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					}
 <SkipCurly>"}"/{BN}*("/*!"|"/**"|"//!"|"///")"<!--" | /* see bug710917 */
 <SkipCurly>"}"				{ 
-  				          //addToBody(yytext);
+					  // msg("================================= 5 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
+					  //addToBody(yytext);
   					  if( curlyCount )
 					  {
 					    --curlyCount ;
@@ -5084,6 +5149,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  }
 					}
 <SkipCurly>"}"{BN}*("/*!"|"/**"|"//!"|"///")"<" { 
+					  // msg("================================= 6 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
 					  lineCount();
   					  if ( curlyCount )
 					  {
@@ -5117,6 +5183,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  }
 					}
 <SkipCurlyEndDoc>"}"{BN}*("/*!"|"/**"|"//!"|"///")"<" { // desc is followed by another one
+					  // msg("================================= 7 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
 					  docBlockContext   = SkipCurlyEndDoc;
 					  docBlockInBody    = FALSE;
 					  docBlockAutoBrief = ( yytext[yyleng-2]=='*' && Config_getBool(JAVADOC_AUTOBRIEF) ) ||
@@ -5248,6 +5315,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <SkipString,SkipPHPString>.		{ }
 <CompoundName>":"			{ // for "class : public base {} var;" construct, see bug 608359
   					  unput(':');
+					  yycol_end -= 1;
 					  BEGIN(ClassVar);
   					}
 <CompoundName>";"			{
@@ -5345,6 +5413,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    if (current->spec & Entry::Protocol)
 					    { // Objective-C protocol
 					      unput('{'); // fake start of body
+					      yycol_end -= 1;
 					      BEGIN( ClassVar );
 					    }
 					    else
@@ -5402,6 +5471,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  }
 
     					  unput(';');
+					  yycol_end -= 1;
 					  current->reset();
 					  initEntry();
                                           if (insideObjC) // see bug746361
@@ -5465,6 +5535,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					      current->section == Entry::OBJCIMPL_SEC)
 					  {
 					    unput('{'); // fake start of body
+					    yycol_end -= 1;
 					  }
 					  BEGIN( ClassVar );
 					}
@@ -5494,6 +5565,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  {
 					    // multiple types in one typedef
 					    unput(',');
+					    yycol_end -= 1;
 					    current->type.prepend("typedef ");
 					    BEGIN(FindMembers);
 					  }
@@ -5585,6 +5657,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  {
                                             // probably a function anyway
                                             unput(*yytext);
+                                            yycol_end -= yyleng;
 					    BEGIN( FindMembers );
 					  }
 					}
@@ -5605,11 +5678,13 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                           // parse documentation of the constraints
                                           handleParametersCommentBlocks(current->typeConstr);
 					  unput('{');
+					  yycol_end -= 1;
 					  BEGIN( lastCSConstraint );
 					}
 <CSConstraintType,CSConstraintName>";"  {
                                           handleParametersCommentBlocks(current->typeConstr);
 					  unput(';');
+					  yycol_end -= 1;
 					  BEGIN( lastCSConstraint );
   					}
 <CSConstraintName>":"                   {
@@ -5659,11 +5734,13 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					      current->section == Entry::OBJCIMPL_SEC)
 					  {
 					    unput('{'); // fake start of body
+					  yycol_end -= 1;
 					  }
 					  else // category has no variables so push back an empty body
 					  {
 					    unput('}');
 					    unput('{');
+					    yycol_end -= 2;
 					  }
 					  BEGIN( ClassVar );
 					}
@@ -5699,6 +5776,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					}
 <ClassVar>[;=*&]			{
     					  unput(*yytext);
+					  yycol_end -= yyleng;
 					  if (isTypedef) // typedef of a class, put typedef keyword back
 					  {
 					    current->type.prepend("typedef");
@@ -5730,6 +5808,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <Bases,ClassVar>("//"{B}*)?"/*!"        |
 <Bases,ClassVar>"//!"                   |
 <Bases,ClassVar>[\-+]{BN}*		{
+					  // msg("================================= 8 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
   					  if (!insideObjC)
 					  {
 					    REJECT;
@@ -5794,7 +5873,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <BasesProt>"internal"{BN}+              { if (!insideCli) REJECT ; lineCount(); baseProt = Package; }
 <BasesProt>"private"{BN}+               { lineCount(); baseProt = Private; }
 <BasesProt>{BN}				{ lineCount(); }
-<BasesProt>.				{ unput(*yytext); BEGIN(Bases); }
+<BasesProt>.				{ unput(*yytext); yycol_end -= yyleng; BEGIN(Bases); }
 <Bases>("\\")?({ID}"\\")*{ID}		{ // PHP namespace token, not sure if interspacing is allowed but it gives problems (see bug 640847)
                                           if (!insidePHP)
 					  {
@@ -5844,6 +5923,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  {
                                             lineCount();
 					    unput('{');
+					    yycol_end -= 1;
 					  }
 					}
 <ClassVar,Bases>"@end"			{ // empty ObjC interface
@@ -5853,6 +5933,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  unput('@'); 
   					  unput('}'); 
   					  unput('{');
+					  yycol_end -= 6;
 					}
 <ClassVar>"<"   	                { current->name += *yytext;
   					  sharpCount=1; 
@@ -5869,6 +5950,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  if (insideObjC) // start of protocol list
 					  {
 					    unput(',');
+					    yycol_end -= 1;
 					  }
 					  else // template specialization
 					  {
@@ -5898,6 +5980,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  unput('>');
   					  unput(' ');
   					  unput('>');
+					  yycol_end -= 3;
                                         }
 <Specialization>">>"			{
                                           if (insideCS) // for C# >> ends a nested template
@@ -5919,6 +6002,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					      unput('>');
   					      unput(' ');
   					      unput('>');
+					      yycol_end -= 3;
 					    }
 					  }
                                         }
@@ -5970,10 +6054,12 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    if (yyleng==1)
 					    {
 					      unput('{'); // dummy start body
+					      yycol_end -= 1;
 					    }
 					    else
 					    {
 					      yyless(1);
+					      yycol_end -= 1;
 					    }
 					  }
 					  else
@@ -6069,6 +6155,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  BEGIN( DocBlock );
 					}
 <FindMembers,FindFields,MemberSpec,FuncQual,SkipCurly,Operator,ClassVar,SkipInits,Bases,OldStyleArgs>("//"{B}*)?"/**"/[^/*] {
+					  // msg("================================= 9 yyLineNr:%d, yycol:%d, yycol_end:%d\n", yyLineNr, yycol, yycol_end);
   					  removeSlashes=(yytext[1]=='/');
 					  lastDocContext = YY_START;
 
@@ -6180,6 +6267,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 						current->name="[instance initializer]";
 					      }
                                               unput(*yytext); 
+                                              yycol_end -= yyleng;
 					      BEGIN( Function );
 					    }
 					    else
@@ -6223,6 +6311,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					    // not really important, but while we are at it
 					    current->endBodyLine=yyLineNr;
                                             unput(';');
+                                            yycol_end -= 1;
 					    BEGIN(FindMembers);
 					  }
                                         }
@@ -6270,16 +6359,19 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
  /* ---- Comments blocks ------ */
 
 <DocBlock>"*"*"*/"			{ // end of comment block
+					  // msg("=========================== DocBlock 1\n");
   				          handleCommentBlock(docBlock.data(),FALSE);
 					  BEGIN(docBlockContext);
   					}
 <DocBlock>^{B}*"*"+/[^/]		{ 
+					  // msg("=========================== DocBlock 2\n");
 
                                           QCString indent;
                                           indent.fill(' ',computeIndent(yytext,g_column));
                                           docBlock+=indent;
   					}
 <DocBlock>^{B}*("//")?{B}*"*"+/[^//a-z_A-Z0-9*]	{ // start of a comment line
+					  // msg("=========================== DocBlock 3\n");
                                           QCString indent;
                                           indent.fill(' ',computeIndent(yytext,g_column));
                                           docBlock+=indent;
@@ -6287,16 +6379,20 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 <DocBlock>^{B}*("//"){B}*		{ // strip embedded C++ comments if at the start of a line
   					}
 <DocBlock>"//"				{ // slashes in the middle of a comment block
+					  // msg("=========================== DocBlock 4\n");
   					  docBlock+=yytext;
   					}
 <DocBlock>"/*"				{ // start of a new comment in the 
                                           // middle of a comment block
+					  // msg("=========================== DocBlock 5\n");
   					  docBlock+=yytext;
   					}
 <DocBlock>("@@"|"\\\\"){ID}/[^a-z_A-Z0-9] { // escaped command
+					  // msg("=========================== DocBlock 6\n");
   					  docBlock+=yytext;
   					}
 <DocBlock>{CMD}("f$"|"f["|"f{")	        {
+					  // msg("=========================== DocBlock 7\n");
                                           docBlock+=yytext;
 				          docBlockName=&yytext[1];
 					  if (docBlockName.at(1)=='{')
@@ -6308,6 +6404,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  BEGIN(DocCopyBlock);
                                         }
 <DocBlock>{B}*"<"{PRE}">"		{
+					  // msg("=========================== DocBlock 8\n");
                                           docBlock+=yytext;
 				          docBlockName="<pre>";
                                           g_fencedSize=0;
@@ -6315,6 +6412,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  BEGIN(DocCopyBlock);
   					}
 <DocBlock>{CMD}("verbatim"|"latexonly"|"htmlonly"|"xmlonly"|"manonly"|"dot"|"code")/[^a-z_A-Z0-9]	{ // verbatim command (which could contain nested comments!)
+					  // msg("=========================== DocBlock 9\n");
                                           docBlock+=yytext;
 				          docBlockName=&yytext[1];
                                           g_fencedSize=0;
@@ -6322,6 +6420,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
   					  BEGIN(DocCopyBlock);
   					}
 <DocBlock>^({B}*"*"+)?{B}{0,3}"~~~"[~]*                {
+					  // msg("=========================== DocBlock 10\n");
                                           docBlock+=substitute(yytext,"*"," ");
                                           docBlockName="~~~";
                                           g_fencedSize=yyleng;
@@ -6329,6 +6428,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                           BEGIN(DocCopyBlock);
                                         }
 <DocBlock>^({B}*"*"+)?{B}{0,3}"```"[`]*                {
+					  // msg("=========================== DocBlock 11\n");
                                           docBlock+=substitute(yytext,"*"," ");
                                           docBlockName="```";
                                           g_fencedSize=yyleng;
@@ -6336,6 +6436,7 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
                                           BEGIN(DocCopyBlock);
                                         }
 <DocBlock>{B}*"<code>"                  {
+					  // msg("=========================== DocBlock 12\n");
   					  if (insideCS)
 					  {
 					    docBlock+=yytext;
@@ -6349,13 +6450,16 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 					  }
   					}
 <DocBlock>[^@*~\/\\\n]+			{ // any character that isn't special
+					  // msg("=========================== DocBlock 13\n");
   					  docBlock+=yytext;
   					}
 <DocBlock>\n				{ // newline
                                           lineCount();
+					  // msg("=========================== DocBlock 14 \n");
 					  docBlock+=*yytext;
   					}
 <DocBlock>.				{ // command block
+					  // msg("=========================== DocBlock 15\n");
 					  docBlock+=*yytext;
   					}
 
@@ -6627,6 +6731,15 @@ OPERATOR  "operator"{B}*({ARITHOP}|{ASSIGNOP}|{LOGICOP}|{BITOP})
 
 static void startCommentBlock(bool brief)
 {
+  // msg("=== start comment line=%d, col=%d, col_end=%d\n",
+  //     yyLineNr, yycol, yycol_end);
+
+  // Column of the token opening comment block.
+  // Used in the handleCommentBlock().
+  // 'yycol' is calculated in YY_USER_ACTION.
+  current->docBlockLineStart = yyLineNr;
+  current->docBlockCol = yycol;
+
   if (brief)
   {
     current->briefFile = yyFileName;
@@ -6664,7 +6777,11 @@ static void handleCommentBlock(const QCString &doc,bool brief)
   if (docBlockInBody && hideInBodyDocs) return;
   //printf("parseCommentBlock [%s] brief=%d\n",doc.data(),brief);
   int lineNr = brief ? current->briefLine : current->docLine;   // line of block start
-  
+
+  // See YY_USER_ACTION and startCommentBlock().
+  current->docBlockColEnd = yycol_end;
+  current->docBlockLineEnd = yyLineNr;
+
   // fill in inbodyFile && inbodyLine the first time, see bug 633891
   Entry *docEntry = docBlockInBody && previous ? previous : current;
   if (docBlockInBody && docEntry && docEntry->inbodyLine==-1)
@@ -6672,6 +6789,14 @@ static void handleCommentBlock(const QCString &doc,bool brief)
     docEntry->inbodyFile = yyFileName;
     docEntry->inbodyLine = lineNr;
   }
+
+  // msg("=== comment block: start=(%d; %d), end=(%d; %d)\n",
+  //     current->docBlockLineStart,
+  //     docEntry->docBlockCol,
+  //     docEntry->docBlockLineEnd,
+  //     docEntry->docBlockColEnd
+  // );
+  //  msg("=== comment block: [%s]\n", doc.data());
 
   while (parseCommentBlock(
 	g_thisParser,
@@ -6706,6 +6831,7 @@ static void handleCommentBlock(const QCString &doc,bool brief)
   {
     unput(docBlockTerm);
     docBlockTerm=0;
+    yycol =-1;
   }
 }
 
