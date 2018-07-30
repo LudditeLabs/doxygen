@@ -283,8 +283,40 @@ static QCString stripQuotes(const char *s)
 //-----------------------------------------------------------------
 
 //-----------------------------------------------------------------
+
+static int yycol = 1;
+static int yycol_end = 1;
+
+// Based on lineCount()
+static void trackPosition()
+{
+  static int tabSize = Config_getInt(TAB_SIZE);
+
+  yycol = yycol_end;
+  for (const char *p = yytext ; *p ; ++p )
+  {
+    if (*p == '\n')
+      yycol_end=1;
+    else if (*p == '\t')
+      yycol_end+=tabSize - (yycol_end % tabSize);
+    else
+      yycol_end++;
+  }
+}
+
+#define YY_USER_ACTION trackPosition();
+
 static void startCommentBlock(bool brief)
 {
+  // msg("=== start comment line=%d, col=%d, col_end=%d\n",
+  //     yyLineNr, yycol, yycol_end);
+
+  // Column of the token opening comment block.
+  // Used in the handleCommentBlock().
+  // 'yycol' is calculated in YY_USER_ACTION.
+  current->docBlockLineStart = yyLineNr;
+  current->docBlockCol = yycol;
+  
   if (brief)
   {
     current->briefFile = yyFileName;
@@ -311,6 +343,10 @@ static void handleCommentBlock(const QCString &doc,bool brief)
   //printf("handleCommentBlock(doc=[%s] brief=%d docBlockInBody=%d docBlockJavaStyle=%d\n",
   //    doc.data(),brief,docBlockInBody,docBlockJavaStyle);
 
+  // See YY_USER_ACTION and startCommentBlock().
+  current->docBlockColEnd = yycol_end;
+  current->docBlockLineEnd = yyLineNr;
+
   // TODO: Fix me
   docBlockInBody=FALSE;
   
@@ -318,6 +354,14 @@ static void handleCommentBlock(const QCString &doc,bool brief)
   {
     previous->doc=previous->doc.stripWhiteSpace()+"\n\n";
   }
+
+  // msg("=== comment block: start=(%d; %d), end=(%d; %d)\n",
+  //     current->docBlockLineStart,
+  //     current->docBlockCol,
+  //     current->docBlockLineEnd,
+  //     current->docBlockColEnd
+  // );
+  // msg("=== comment block: [%s]\n", doc.data());
 
   int position = 0;
   bool needsEntry;
@@ -370,7 +414,7 @@ static void initTriDoubleQuoteBlock()
   docBlockContext   = YY_START;
   docBlockInBody    = FALSE;
   docBlockJavaStyle = TRUE;
-  docBlockSpecial   = yytext[strlen(yytext) - 1]=='!';
+  docBlockSpecial   = TRUE;
   docBlock.resize(0);
   g_doubleQuote = TRUE;
   startCommentBlock(FALSE);
@@ -381,7 +425,7 @@ static void initTriSingleQuoteBlock()
   docBlockContext   = YY_START;
   docBlockInBody    = FALSE;
   docBlockJavaStyle = TRUE;
-  docBlockSpecial   = yytext[strlen(yytext) - 1]=='!';
+  docBlockSpecial   = TRUE;
   docBlock.resize(0);
   g_doubleQuote = FALSE;
   startCommentBlock(FALSE);
@@ -736,6 +780,7 @@ STARTDOCSYMS      "##"
   		}
   .             {
                   unput(*yytext);
+                  yycol_end -= yyleng;
                   BEGIN(Search);
                 }
 }
@@ -759,6 +804,7 @@ STARTDOCSYMS      "##"
 		}
   .             {
                   unput(*yytext);
+                  yycol_end -= yyleng;
                   BEGIN(Search);
                 }
 }
@@ -833,6 +879,7 @@ STARTDOCSYMS      "##"
 			  for (i=(int)yyleng-1;i>=0;i--)
 			  {
 			    unput(yytext[i]);
+			    yycol_end -= 1;
 			  }
 			  endOfDef();
 			  //YY_CURRENT_BUFFER->yy_at_bol=TRUE;
@@ -851,6 +898,7 @@ STARTDOCSYMS      "##"
 			  for (i=(int)yyleng-1;i>=0;i--)
 			  {
 			    unput(yytext[i]);
+			    yycol_end -= 1;
 			  }
 			  endOfDef();
 			  //YY_CURRENT_BUFFER->yy_at_bol=TRUE;
@@ -1322,6 +1370,7 @@ STARTDOCSYMS      "##"
                       }
    \n		      {
      		        unput('\n');
+     		        yycol_end -= 1;
      			BEGIN( VariableEnd );
      		      }
 }
@@ -1392,6 +1441,7 @@ STARTDOCSYMS      "##"
                       }
     .		      { 
                         unput(*yytext);
+                        yycol_end -= yyleng;
 			newVariable();
                         BEGIN(Search);
       		      }
