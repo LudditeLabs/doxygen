@@ -32,6 +32,6 @@ private:
     int save(int id, int kind, DocBlock *block, const char *bytes, size_t size);
 };
 
-};
+} // namespace autodoc
 
 #endif // AUTODOC_COMMON_DB_H
