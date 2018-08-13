@@ -125,6 +125,8 @@ void print_usage(const char *prog)
     msg("  --exclude,-e <path>  Files and/or dirs to excude from processing.\n");
     msg("                       Relative paths are relative to current working\n");
     msg("                       directory.\n");
+    msg("  --exclude-pattern,-x <path>\n");
+    msg("                       Exclude patten.\n");
     msg("  --out,-o             Output content DB filename.\n");
 }
 //-----------------------------------------------------------------------------
@@ -134,10 +136,11 @@ int parse_cli(autodoc::Context *context, char **argv)
     int option;
     struct optparse options;
     struct optparse_long longopts[] = {
-        {"help",        'h', OPTPARSE_NONE},
-        {"tmp",         'T', OPTPARSE_REQUIRED},
-        {"exclude",     'e', OPTPARSE_REQUIRED},
-        {"out",         'o', OPTPARSE_REQUIRED},
+        {"help",            'h', OPTPARSE_NONE},
+        {"tmp",             'T', OPTPARSE_REQUIRED},
+        {"exclude",         'e', OPTPARSE_REQUIRED},
+        {"exclude-pattern", 'x', OPTPARSE_REQUIRED},
+        {"out",             'o', OPTPARSE_REQUIRED},
         {0}
     };
 
@@ -155,6 +158,9 @@ int parse_cli(autodoc::Context *context, char **argv)
         case 'e':
             // Note: relative paths are relative to the directory from which doxygen is run.
             ConfigImpl_getList("EXCLUDE").append(options.optarg);
+            break;
+        case 'x':
+            ConfigImpl_getList("EXCLUDE_PATTERNS").append(options.optarg);
             break;
         case 'o':
             context->setContentDbFilename(options.optarg);
