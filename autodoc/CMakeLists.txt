@@ -17,7 +17,7 @@ include_directories(
 
 LINK_DIRECTORIES(${PYTHON_LIBRARIES})
 
-add_executable(autodocdb autodocdb.cpp)
+add_executable(autodocdb optparse/optparse.h autodocdb.cpp)
 
 target_link_libraries(autodocdb
     _doxygen

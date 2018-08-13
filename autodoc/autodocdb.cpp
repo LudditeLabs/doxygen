@@ -12,21 +12,18 @@
 #include "configimpl.h"
 #include "searchindex.h"
 #include "store.h"
+#include "message.h"
+#include "autodoc/common/context.h"
 #include "autodoc/common/utils.h"
 
+#define OPTPARSE_IMPLEMENTATION
+#define OPTPARSE_API static
+#include "autodoc/optparse/optparse.h"
 
-int main(int argc, char **argv)
+
+/** Init configuration. */
+void init_config()
 {
-    if (argc<2)
-    {
-        printf("Usage: %s [source_file | source_dir]\n", argv[0]);
-        exit(1);
-    }
-
-    autodoc::PyInitHelper pyinit;
-
-    initDoxygen();
-
     Config::init();
 
     // disable html output
@@ -101,14 +98,103 @@ int main(int argc, char **argv)
     // to make doxygen gather the cross reference info
     ConfigImpl_getBool("SOURCE_BROWSER") = TRUE;
 
-    // set the input
-    ConfigImpl_getList("INPUT").append(argv[1]);
+    // TODO: create temp dir in platform-independent way.
+    ConfigImpl_getString("OUTPUT_DIRECTORY") = QCString("/tmp/contentdb");
+}
+//-----------------------------------------------------------------------------
 
-    printf("set OUTPUT_DIRECTORY\n");
-    ConfigImpl_getString("OUTPUT_DIRECTORY") = QCString("/tmp/autodocdb");
 
-    QDir dir("/tmp/autodocdb");
-    dir.remove("doxygen_sqlite3.db");
+void print_short_usage(const char *prog)
+{
+    QFileInfo info(prog);
+    msg("USAGE: %s [OPTIONS] PATH...\n", info.fileName().data());
+}
+//-----------------------------------------------------------------------------
+
+
+void print_usage(const char *prog)
+{
+    QFileInfo info(prog);
+
+    msg("Tool to generate content database from program sources.\n\n");
+    msg("USAGE: %s [OPTIONS] PATH...\n", info.fileName().data());
+    msg("\n");
+    msg("OPTIONS:\n");
+    msg("  --help,-h            Print this help message.\n");
+    msg("  --tmp,-T <path>      Temporary directory.\n");
+    msg("  --exclude,-e <path>  Files and/or dirs to excude from processing.\n");
+    msg("                       Relative paths are relative to current working\n");
+    msg("                       directory.\n");
+    msg("  --out,-o             Output content DB filename.\n");
+}
+//-----------------------------------------------------------------------------
+
+int parse_cli(autodoc::Context *context, char **argv)
+{
+    int option;
+    struct optparse options;
+    struct optparse_long longopts[] = {
+        {"help",        'h', OPTPARSE_NONE},
+        {"tmp",         'T', OPTPARSE_REQUIRED},
+        {"exclude",     'e', OPTPARSE_REQUIRED},
+        {"out",         'o', OPTPARSE_REQUIRED},
+        {0}
+    };
+
+    // Parse command line args.
+
+    optparse_init(&options, argv);
+    while ((option = optparse_long(&options, longopts, NULL)) != -1) {
+        switch (option) {
+        case 'h':
+            print_usage(argv[0]);
+            return EXIT_SUCCESS;
+        case 'T':
+            ConfigImpl_getString("OUTPUT_DIRECTORY") = options.optarg;
+            break;
+        case 'e':
+            // Note: relative paths are relative to the directory from which doxygen is run.
+            ConfigImpl_getList("EXCLUDE").append(options.optarg);
+            break;
+        case 'o':
+            context->setContentDbFilename(options.optarg);
+            break;
+        case '?':
+            fprintf(stderr, "%s: %s\n", argv[0], options.errmsg);
+            return EXIT_FAILURE;
+        }
+    }
+
+    // Remaining args.
+    char *arg;
+    QStrList &inputs = ConfigImpl_getList("INPUT");
+    while ((arg = optparse_arg(&options)))
+        inputs.append(arg);
+
+    return -1;
+}
+//-----------------------------------------------------------------------------
+
+int main(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        print_short_usage(argv[0]);
+        exit(1);
+    }
+
+    autodoc::Context *context = autodoc::Context::instance();
+    autodoc::PyInitHelper pyinit;
+
+    initDoxygen();
+    init_config();
+
+    int res = parse_cli(context, argv);
+    if (res != -1)
+        exit(res);
+
+    // TODO: don't remove in update mode!
+    context->removeDbFile();
 
     checkConfiguration();
     adjustConfiguration();
