@@ -1,5 +1,5 @@
-#ifndef AUTODOC_COMMON_DB_H
-#define AUTODOC_COMMON_DB_H
+#ifndef AUTODOC_COMMON_CONTENTDB_H
+#define AUTODOC_COMMON_CONTENTDB_H
 
 #include "sqlite3utils.h"
 
@@ -12,11 +12,11 @@ namespace autodoc {
 
 struct DocBlock;
 
-class AutodocDb
+class ContentDb
 {
 public:
-    AutodocDb(sqlite3 *db, InsertFileFunc insertFileFunc);
-    ~AutodocDb();
+    ContentDb(sqlite3 *db, InsertFileFunc insertFileFunc);
+    ~ContentDb();
 
     bool initializeSchema();
     bool prepareStatements();
@@ -34,4 +34,4 @@ private:
 
 } // namespace autodoc
 
-#endif // AUTODOC_COMMON_DB_H
+#endif // AUTODOC_COMMON_CONTENTDB_H

@@ -1,5 +1,5 @@
 #include "Python.h"
-#include "autodoc/common/db.h"
+#include "autodoc/common/contentdb.h"
 #include "autodoc/common/docblock.h"
 #include "autodoc/common/docutilstree.h"
 #include "autodoc/common/visitor.h"
@@ -28,7 +28,7 @@ static const char* schema[][2] = {
 namespace autodoc
 {
 
-AutodocDb::AutodocDb(sqlite3 *db, InsertFileFunc insertFileFunc)
+ContentDb::ContentDb(sqlite3 *db, InsertFileFunc insertFileFunc)
 : m_db(db), m_insertFile(insertFileFunc)
 {
     m_docblocksInsertStmt.query =
@@ -41,14 +41,14 @@ AutodocDb::AutodocDb(sqlite3 *db, InsertFileFunc insertFileFunc)
 }
 //-----------------------------------------------------------------------------
 
-AutodocDb::~AutodocDb()
+ContentDb::~ContentDb()
 {
 
 }
 //-----------------------------------------------------------------------------
 
 // copy-paste from sqlite3gen.cpp
-bool AutodocDb::initializeSchema()
+bool ContentDb::initializeSchema()
 {
     int rc;
 
@@ -68,13 +68,13 @@ bool AutodocDb::initializeSchema()
 }
 //-----------------------------------------------------------------------------
 
-bool AutodocDb::prepareStatements()
+bool ContentDb::prepareStatements()
 {
     return prepareStatement(m_db, m_docblocksInsertStmt) != -1;
 }
 //-----------------------------------------------------------------------------
 
-void AutodocDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
+void ContentDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
                                   const MemberDef *member)
 {
     const Definition *def = member ? member : ctx;
@@ -121,7 +121,7 @@ void AutodocDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
 }
 //-----------------------------------------------------------------------------
 
-int AutodocDb::save(int id, int kind, DocBlock *block, const char *bytes,
+int ContentDb::save(int id, int kind, DocBlock *block, const char *bytes,
                      size_t size)
 {
     int id_file = (*m_insertFile)(block->filename);

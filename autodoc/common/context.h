@@ -12,7 +12,7 @@ struct sqlite3;
 namespace autodoc
 {
 
-class AutodocDb;
+class ContentDb;
 
 class Context
 {
@@ -35,13 +35,13 @@ public:
 
     void removeDbFile();
     bool initDb(sqlite3 *db, InsertFileFunc insertFileFunc);
-    AutodocDb* contentDb() const { return m_contentDb.get(); }
+    ContentDb* contentDb() const { return m_contentDb.get(); }
 
 private:
     static Context *m_instance;
 
     QCString m_contentDbFilename;
-    std::unique_ptr<AutodocDb> m_contentDb;
+    std::unique_ptr<ContentDb> m_contentDb;
 };
 
 } // namespace autodoc

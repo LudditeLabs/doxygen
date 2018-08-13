@@ -42,7 +42,7 @@
 #include "autodoc/common/visitor.h"
 #include "autodoc/common/docblock.h"
 #include "autodoc/common/context.h"
-#include "autodoc/common/db.h"
+#include "autodoc/common/contentdb.h"
 
 #include <qdir.h>
 #include <string.h>

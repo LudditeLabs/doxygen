@@ -1,5 +1,5 @@
 #include "autodoc/common/context.h"
-#include "autodoc/common/db.h"
+#include "autodoc/common/contentdb.h"
 #include "message.h"
 #include "qfileinfo.h"
 #include "qdir.h"
@@ -31,7 +31,7 @@ void autodoc::Context::removeDbFile()
 
 bool autodoc::Context::initDb(sqlite3 *db, InsertFileFunc insertFileFunc)
 {
-    m_contentDb.reset(new AutodocDb(db, insertFileFunc));
+    m_contentDb.reset(new ContentDb(db, insertFileFunc));
 
     if (!m_contentDb->initializeSchema())
         return false;
