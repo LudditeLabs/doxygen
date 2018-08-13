@@ -1572,20 +1572,20 @@ void Config::checkAndCorrect()
   }
 
   // if no output format is enabled, warn the user
-  if (!ConfigImpl_getBool("GENERATE_HTML")    &&
-      !ConfigImpl_getBool("GENERATE_LATEX")   &&
-      !ConfigImpl_getBool("GENERATE_MAN")     &&
-      !ConfigImpl_getBool("GENERATE_RTF")     &&
-      !ConfigImpl_getBool("GENERATE_XML")     &&
-      !ConfigImpl_getBool("GENERATE_PERLMOD") &&
-      !ConfigImpl_getBool("GENERATE_RTF")     &&
-      !ConfigImpl_getBool("GENERATE_DOCBOOK") &&
-      !ConfigImpl_getBool("GENERATE_AUTOGEN_DEF") &&
-      ConfigImpl_getString("GENERATE_TAGFILE").isEmpty()
-     )
-  {
-    warn_uncond("No output formats selected! Set at least one of the main GENERATE_* options to YES.\n");
-  }
+//  if (!ConfigImpl_getBool("GENERATE_HTML")    &&
+//      !ConfigImpl_getBool("GENERATE_LATEX")   &&
+//      !ConfigImpl_getBool("GENERATE_MAN")     &&
+//      !ConfigImpl_getBool("GENERATE_RTF")     &&
+//      !ConfigImpl_getBool("GENERATE_XML")     &&
+//      !ConfigImpl_getBool("GENERATE_PERLMOD") &&
+//      !ConfigImpl_getBool("GENERATE_RTF")     &&
+//      !ConfigImpl_getBool("GENERATE_DOCBOOK") &&
+//      !ConfigImpl_getBool("GENERATE_AUTOGEN_DEF") &&
+//      ConfigImpl_getString("GENERATE_TAGFILE").isEmpty()
+//     )
+//  {
+//    warn_uncond("No output formats selected! Set at least one of the main GENERATE_* options to YES.\n");
+//  }
 
   // check HTMLHELP creation requirements
   if (!ConfigImpl_getBool("GENERATE_HTML") &&
