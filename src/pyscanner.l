@@ -363,33 +363,34 @@ static void handleCommentBlock(const QCString &doc,bool brief)
   // );
   // msg("=== comment block: [%s]\n", doc.data());
 
-  int position = 0;
-  bool needsEntry;
-  int lineNr = brief ? current->briefLine : current->docLine;
-  while (parseCommentBlock(
-	g_thisParser,
-	(docBlockInBody && previous) ? previous : current,
-	doc,     // text
-	yyFileName, // file
-	lineNr,
-	docBlockInBody ? FALSE : brief, 
-    docBlockJavaStyle, // javadoc style // or FALSE,
-	docBlockInBody,
-	protection,
-        position,
-        needsEntry)
-     ) // need to start a new entry
-  {
-    if (needsEntry)
-    {
-      newEntry();
-    }
-  }
-  if (needsEntry)
-  {
-    newEntry();
-  }
+  current->doc = doc;
 
+//  int position = 0;
+//  bool needsEntry;
+//  int lineNr = brief ? current->briefLine : current->docLine;
+//  while (parseCommentBlock(
+//	g_thisParser,
+//	(docBlockInBody && previous) ? previous : current,
+//	doc,     // text
+//	yyFileName, // file
+//	lineNr,
+//	docBlockInBody ? FALSE : brief,
+//    docBlockJavaStyle, // javadoc style // or FALSE,
+//	docBlockInBody,
+//	protection,
+//        position,
+//        needsEntry)
+//     ) // need to start a new entry
+//  {
+//    if (needsEntry)
+//    {
+//      newEntry();
+//    }
+//  }
+//  if (needsEntry)
+//  {
+//    newEntry();
+//  }
 }
 
 static void endOfDef(int correction=0)
