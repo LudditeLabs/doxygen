@@ -19,6 +19,7 @@ static const char* schema[][2] = {
       "start_col    INTEGER,\n\t"
       "end_line     INTEGER,\n\t"
       "end_col      INTEGER,\n\t"
+      "docstring    TEXT,\n\t"
       "doc          BLOB\n"
       ");"
     }
@@ -33,9 +34,9 @@ ContentDb::ContentDb(sqlite3 *db, InsertFileFunc insertFileFunc)
 {
     m_docblocksInsertStmt.query =
         "INSERT INTO docblocks "
-        "(id,kind,id_file,start_line,start_col,end_line,end_col,doc) "
+        "(id,kind,id_file,start_line,start_col,end_line,end_col,docstring,doc) "
         "VALUES "
-        "(:id,:kind,:id_file,:start_line,:start_col,:end_line,:end_col,:doc)";
+        "(:id,:kind,:id_file,:start_line,:start_col,:end_line,:end_col,:docstring,:doc)";
     m_docblocksInsertStmt.db = NULL;
     m_docblocksInsertStmt.stmt = NULL;
 }
@@ -96,6 +97,15 @@ void ContentDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
         msg("===== (%d; %d), (%d; %d)\n", block->startLine, block->startCol,
             block->endLine, block->endCol);
 
+        // Postpone docstrings parsing for python files.
+        // This will be done on python side.
+        if (block->filename.right(3) == ".py")
+        {
+            msg("===== Skip pickle.\n");
+            save(memberId, kind, block, nullptr, 0);
+            continue;
+        }
+
         // Python: pickled docutils document.
         // TODO: is const cast valid here?
         PyObjectPtr res = pickleDocTree(
@@ -133,7 +143,9 @@ int ContentDb::save(int id, int kind, DocBlock *block, const char *bytes,
     bindIntParameter(m_docblocksInsertStmt,":start_col", block->startCol);
     bindIntParameter(m_docblocksInsertStmt,":end_line", block->endLine);
     bindIntParameter(m_docblocksInsertStmt,":end_col", block->endCol);
-    bindBlobParameter(m_docblocksInsertStmt,":doc", bytes, size);
+    bindTextParameter(m_docblocksInsertStmt,":docstring", block->doc.data());
+    if (bytes != nullptr)
+        bindBlobParameter(m_docblocksInsertStmt,":doc", bytes, size);
     return step(m_docblocksInsertStmt,TRUE);
 }
 
