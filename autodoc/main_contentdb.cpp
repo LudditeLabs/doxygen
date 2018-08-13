@@ -122,11 +122,11 @@ void print_usage(const char *prog)
     msg("OPTIONS:\n");
     msg("  --help,-h            Print this help message.\n");
     msg("  --tmp,-T <path>      Temporary directory.\n");
-    msg("  --exclude,-e <path>  Files and/or dirs to excude from processing.\n");
+    msg("  --exclude,-e <path>  Files and/or dirs to exclude from processing.\n");
     msg("                       Relative paths are relative to current working\n");
     msg("                       directory.\n");
     msg("  --exclude-pattern,-x <path>\n");
-    msg("                       Exclude patten.\n");
+    msg("                       Exclude pattern.\n");
     msg("  --out,-o             Output content DB filename.\n");
 }
 //-----------------------------------------------------------------------------
