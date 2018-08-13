@@ -17,9 +17,9 @@ include_directories(
 
 LINK_DIRECTORIES(${PYTHON_LIBRARIES})
 
-add_executable(autodocdb optparse/optparse.h autodocdb.cpp)
+add_executable(contentdb optparse/optparse.h main_contentdb.cpp)
 
-target_link_libraries(autodocdb
+target_link_libraries(contentdb
     _doxygen
     qtools
     md5
@@ -33,7 +33,7 @@ target_link_libraries(autodocdb
     ${PYTHON_LIBRARY}
 )
 
-install(TARGETS autodocdb DESTINATION bin)
+install(TARGETS contentdb DESTINATION bin)
 
 if (build_tests)
     add_subdirectory(tests)
