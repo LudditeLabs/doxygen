@@ -38,8 +38,10 @@
 #include "groupdef.h"
 #include "pagedef.h"
 #include "dirdef.h"
+
 #include "autodoc/common/visitor.h"
 #include "autodoc/common/docblock.h"
+#include "autodoc/common/context.h"
 #include "autodoc/common/db.h"
 
 #include <qdir.h>
@@ -443,9 +445,6 @@ SqlStmt innernamespace_insert={"INSERT INTO  innernamespaces "
     NULL
 };
 
-std::unique_ptr<autodoc::AutodocDb> autodocDb;
-
-
 class TextGeneratorSqlite3Impl : public TextGeneratorIntf
 {
   public:
@@ -682,7 +681,7 @@ static int prepareStatements(sqlite3 *db)
   {
     return -1;
   }
-  return autodocDb->prepareStatements() ? 0 : -1;
+  return 0;
 }
 
 
@@ -711,8 +710,7 @@ static int initializeSchema(sqlite3* db)
       return -1;
     }
   }
-
-  return autodocDb->initializeSchema() ? 0 : -1;
+  return 0;
 }
 
 ////////////////////////////////////////////
@@ -1076,7 +1074,7 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
     }
   }
 
-  autodocDb->generateDocBlocks(id_memberdef, 0, def, md);
+  autodocCtx()->contentDb()->generateDocBlocks(id_memberdef, 0, def, md);
 }
 
 
@@ -1150,7 +1148,7 @@ static void generateSqlite3ForClass(const ClassDef *cd)
 
   int id_compounddef = step(compounddef_insert, TRUE);
 
-  autodocDb->generateDocBlocks(id_compounddef, 1, cd, 0);
+  autodocCtx()->contentDb()->generateDocBlocks(id_compounddef, 1, cd, 0);
 
   // + list of direct super classes
   if (cd->baseClasses())
@@ -1411,9 +1409,6 @@ static void generateSqlite3ForPage(const PageDef *pd,bool isExample)
 
 static sqlite3* openDbConnection()
 {
-
-  QCString outputDirectory = Config_getString(OUTPUT_DIRECTORY);
-  QDir sqlite3Dir(outputDirectory);
   sqlite3 *db;
   int rc;
 
@@ -1423,11 +1418,12 @@ static sqlite3* openDbConnection()
     msg("sqlite3_initialize failed\n");
     return NULL;
   }
-  rc = sqlite3_open_v2(outputDirectory+"/doxygen_sqlite3.db", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0);
+  QCString filename = autodocCtx()->contentDbFilename();
+  rc = sqlite3_open_v2(filename.data(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0);
   if (rc != SQLITE_OK)
   {
     sqlite3_close(db);
-    msg("database open failed: %s\n", "doxygen_sqlite3.db");
+    msg("database open failed: %s\n", filename.data());
     return NULL;
   }
   return db;
@@ -1453,8 +1449,6 @@ void generateSqlite3()
   beginTransaction(db);
   pragmaTuning(db);
 
-  autodocDb.reset(new autodoc::AutodocDb(db, &insertFile));
-
   if (-1==initializeSchema(db))
     return;
 
@@ -1463,6 +1457,9 @@ void generateSqlite3()
     err("sqlite generator: prepareStatements failed!");
     return;
   }
+
+  if (!autodocCtx()->initDb(db, &insertFile))
+      return;
 
   // + classes
   ClassSDict::Iterator cli(*Doxygen::classSDict);
