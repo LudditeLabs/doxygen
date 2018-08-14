@@ -12,7 +12,7 @@ static const char* schema[][2] = {
     { "docblocks",
       "CREATE TABLE IF NOT EXISTS docblocks (\n\t"
       "rowid        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n\t"
-      "id           INTEGER NOT NULL,  -- item's rowid\n\t"
+      "id_member    INTEGER NOT NULL,\n\t"
       "kind         INTEGER NOT NULL,  -- 0:member 1:compound\n\t"
       "id_file      INTEGER NOT NULL,\n\t"
       "start_line   INTEGER,\n\t"
@@ -21,7 +21,9 @@ static const char* schema[][2] = {
       "end_col      INTEGER,\n\t"
       "docstring    TEXT,\n\t"
       "doc          BLOB\n"
-      ");"
+      ");\n"
+      "CREATE UNIQUE INDEX idx_docblocks ON docblocks\n"
+      "\t(id_member);"
     }
 };
 
@@ -34,9 +36,9 @@ ContentDb::ContentDb(sqlite3 *db, InsertFileFunc insertFileFunc)
 {
     m_docblocksInsertStmt.query =
         "INSERT INTO docblocks "
-        "(id,kind,id_file,start_line,start_col,end_line,end_col,docstring,doc) "
+        "(id_member,kind,id_file,start_line,start_col,end_line,end_col,docstring,doc) "
         "VALUES "
-        "(:id,:kind,:id_file,:start_line,:start_col,:end_line,:end_col,:docstring,:doc)";
+        "(:id_member,:kind,:id_file,:start_line,:start_col,:end_line,:end_col,:docstring,:doc)";
     m_docblocksInsertStmt.db = NULL;
     m_docblocksInsertStmt.stmt = NULL;
 }
@@ -131,12 +133,12 @@ void ContentDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
 }
 //-----------------------------------------------------------------------------
 
-int ContentDb::save(int id, int kind, DocBlock *block, const char *bytes,
-                     size_t size)
+int ContentDb::save(int memberId, int kind, DocBlock *block, const char *bytes,
+                    size_t size)
 {
     int id_file = (*m_insertFile)(block->filename);
 
-    bindIntParameter(m_docblocksInsertStmt,":id", id);
+    bindIntParameter(m_docblocksInsertStmt,":id_member", memberId);
     bindIntParameter(m_docblocksInsertStmt,":kind", kind);
     bindIntParameter(m_docblocksInsertStmt,":id_file", id_file);
     bindIntParameter(m_docblocksInsertStmt,":start_line", block->startLine);

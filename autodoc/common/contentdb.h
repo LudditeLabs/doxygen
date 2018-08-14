@@ -29,7 +29,8 @@ private:
     InsertFileFunc m_insertFile;
     SqlStmt m_docblocksInsertStmt;
 
-    int save(int id, int kind, DocBlock *block, const char *bytes, size_t size);
+    int save(int memberId, int kind, DocBlock *block, const char *bytes,
+             size_t size);
 };
 
 } // namespace autodoc
