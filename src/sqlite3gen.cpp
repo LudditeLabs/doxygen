@@ -75,8 +75,10 @@ const char * schema_queries[][2] = {
   { "files",
     "CREATE TABLE IF NOT EXISTS files (\n"
       "\t-- Names of source files and includes.\n"
-      "\tname         TEXT PRIMARY KEY NOT NULL\n"
+      "\tname         TEXT PRIMARY KEY NOT NULL,\n"
+      "\tlanguage     TEXT\n"
       ");"
+    "CREATE INDEX idx_files ON files(language);"
   },
   { "refids",
     "CREATE TABLE IF NOT EXISTS refids (\n"
@@ -248,9 +250,9 @@ SqlStmt files_select = {"SELECT rowid FROM files WHERE name=:name"
   ,NULL
 };
 SqlStmt files_insert = {"INSERT INTO files "
-  "( name )"
+  "( name, language )"
     "VALUES "
-    "(:name )"
+    "(:name,:language)"
     ,NULL
 };
 //////////////////////////////////////////////////////
@@ -483,7 +485,10 @@ static int insertFile(const char* name)
   rowid=step(files_select,TRUE,TRUE);
   if (rowid==0)
   {
+
+    QCString lang = langToString(getLanguageFromFileName(name));
     bindTextParameter(files_insert,":name",name);
+    bindTextParameter(files_insert,":language",lang.lower());
     rowid=step(files_insert,TRUE);
   }
   return rowid;
