@@ -76,6 +76,8 @@ class TestInline:
         (nodes.inline, r'<center>words</center>', dict(centered='1')),
         (nodes.inline, r'<small>words</small>', dict(small='1')),
         (nodes.inline, r'<span>words</span>', dict(span='1')),
+        (nodes.inline, r'<strike>words</strike>', dict(strike='1')),
+        (nodes.inline, r'<u>words</u>', dict(underline='1')),
     ])
     def test_attrs(self, cls, docstring, attrs):
         doc = visitor.parse(docstring)

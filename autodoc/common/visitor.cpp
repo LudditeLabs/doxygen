@@ -248,6 +248,16 @@ void DocutilsVisitor::visit(DocStyleChange *node)
             tag = "inline";
             kw.setField("span", "1");
             break;
+        case DocStyleChange::Strike:
+            // NOTE: not supported by docutils, so we wrap with <inline>.
+            tag = "inline";
+            kw.setField("strike", "1");
+            break;
+        case DocStyleChange::Underline:
+            // NOTE: not supported by docutils, so we wrap with <inline>.
+            tag = "inline";
+            kw.setField("underline", "1");
+            break;
         }
 
         m_tree->push(tag, args.get(), kw.get());
