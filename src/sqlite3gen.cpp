@@ -217,6 +217,8 @@ const char * schema_queries[][2] = {
       "\tid_memberdef INTEGER NOT NULL,\n"
       "\tid_param     INTEGER NOT NULL\n"
       ");"
+    "CREATE INDEX idx_memberdef_params ON memberdef_params\n"
+      "\t(id_memberdef);"
   },
   { "innernamespaces",
     "CREATE TABLE IF NOT EXISTS innernamespaces (\n"
