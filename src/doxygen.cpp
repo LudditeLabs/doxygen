@@ -10564,6 +10564,7 @@ void readConfiguration(int argc, char **argv)
 /** check and resolve config options */
 void checkConfiguration()
 {
+
   Config::postProcess(FALSE);
   Config::checkAndCorrect();
   initWarningFormat();

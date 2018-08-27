@@ -293,8 +293,7 @@ class Definition : public DefinitionIntf
     void setId(const char *name);
 
     /*! Sets the documentation of this definition to \a d. */
-    virtual void setDocumentation(const char *d,const char *docFile,int docLine,
-                                  bool stripWhiteSpace=TRUE);
+    virtual void setDocumentation(const char *d,const char *docFile,int docLine,bool stripWhiteSpace=TRUE);
 
     /*! Sets the brief description of this definition to \a b.
      *  A dot is added to the sentence if not available.
@@ -380,8 +379,7 @@ class Definition : public DefinitionIntf
     void _writeSourceRefList(OutputList &ol,const char *scopeName,
                        const QCString &text,MemberSDict *members,bool);
     void _setBriefDescription(const char *b,const char *briefFile,int briefLine);
-    void _setDocumentation(const char *d, const char *docFile, int docLine,
-                           bool stripWhiteSpace, bool atTop);
+    void _setDocumentation(const char *d, const char *docFile, int docLine,bool stripWhiteSpace, bool atTop);
     void _setInbodyDocumentation(const char *d,const char *docFile,int docLine);
     bool _docsAlreadyAdded(const QCString &doc,QCString &sigList);
     DefinitionImpl *m_impl; // internal structure holding all private data

@@ -286,9 +286,9 @@ void Definition::removeFromMap(Definition *d)
   }
 }
 
-Definition::Definition(const char *df, int dl, int dc,
-                       const char *name, const char *b,
-                       const char *d, bool isSymbol) : m_cookie(0)
+Definition::Definition(const char *df,int dl,int dc,
+                       const char *name,const char *b,
+                       const char *d,bool isSymbol) : m_cookie(0)
 {
   m_name = name;
   m_defLine = dl;
@@ -574,9 +574,8 @@ bool Definition::_docsAlreadyAdded(const QCString &doc,QCString &sigList)
   }
 }
 
-void Definition::_setDocumentation(const char *d, const char *docFile,
-                                   int docLine, bool stripWhiteSpace,
-                                   bool atTop)
+void Definition::_setDocumentation(const char *d, const char *docFile,int docLine,
+                                   bool stripWhiteSpace,bool atTop)
 {
   //printf("%s::setDocumentation(%s,%s,%d,%d)\n",name().data(),d,docFile,docLine,stripWhiteSpace);
   if (d==0) return;
@@ -621,8 +620,7 @@ void Definition::_setDocumentation(const char *d, const char *docFile,
   }
 }
 
-void Definition::setDocumentation(const char *d, const char *docFile,
-                                  int docLine, bool stripWhiteSpace)
+void Definition::setDocumentation(const char *d, const char *docFile,int docLine,bool stripWhiteSpace)
 {
   if (d==0) return;
   _setDocumentation(d,docFile,docLine,stripWhiteSpace,FALSE);
