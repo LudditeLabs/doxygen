@@ -17,6 +17,7 @@
  */
 
 #include "doxygen.h"
+#include "autodoc/common/utils.h"
 
 /*! \file
  *  \brief main entry point for doxygen
@@ -30,6 +31,8 @@
  */
 int main(int argc,char **argv)
 {
+  autodoc::PyInitHelper pyinit;  // To correctly run doxygen in tests.
+
   initDoxygen();
   readConfiguration(argc,argv);
   checkConfiguration();
