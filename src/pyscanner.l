@@ -446,6 +446,7 @@ static void searchFoundDef()
 {
   current->fileName  = yyFileName;
   current->startLine = yyLineNr;
+  current->startColumn = yycol_end - 4;  // len('def ') = 4
   current->bodyLine  = yyLineNr;
   current->section = Entry::FUNCTION_SEC;
   current->lang = SrcLangExt_Python;
@@ -469,6 +470,7 @@ static void searchFoundClass()
   current->fileName  = yyFileName;
   current->startLine  = yyLineNr;
   current->bodyLine  = yyLineNr;
+  current->startColumn = yycol_end - 4;
   g_packageCommentAllowed = FALSE;
 }
 
