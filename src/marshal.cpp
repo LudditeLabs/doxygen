@@ -402,6 +402,7 @@ void marshalEntry(StorageIntf *s,Entry *e)
   marshalSectionInfoList(s,e->anchors);
   marshalQCString(s,e->fileName);
   marshalInt(s,e->startLine);
+  marshalInt(s,e->startColumn);
   marshalItemInfoList(s,e->sli);
   marshalInt(s,(int)e->lang);
   marshalBool(s,e->hidden);
@@ -815,6 +816,7 @@ Entry * unmarshalEntry(StorageIntf *s)
   e->anchors          = unmarshalSectionInfoList(s);
   e->fileName         = unmarshalQCString(s);
   e->startLine        = unmarshalInt(s);
+  e->startColumn      = unmarshalInt(s);
   e->sli              = unmarshalItemInfoList(s);
   e->lang             = (SrcLangExt)unmarshalInt(s);
   e->hidden           = unmarshalBool(s);
