@@ -829,7 +829,7 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
 
   // enum values are written as part of the enum
   if (md->memberType()==MemberType_EnumValue) return;
-  if (md->isHidden()) return;
+  // if (md->isHidden()) return;
   //if (md->name().at(0)=='@') return; // anonymous member
 
   // group members are only visible in their group
@@ -1136,7 +1136,7 @@ static void generateSqlite3ForClass(const ClassDef *cd)
   // - examples using the class
 
   if (cd->isReference())        return; // skip external references.
-  if (cd->isHidden())           return; // skip hidden classes.
+  // if (cd->isHidden())           return; // skip hidden classes.
   if (cd->name().find('@')!=-1) return; // skip anonymous compounds.
   if (cd->templateMaster()!=0)  return; // skip generated template instances.
 
