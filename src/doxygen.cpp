@@ -8954,7 +8954,7 @@ static void generatePageDocs()
 
 static void buildExampleList(EntryNav *rootNav)
 {
-  if (rootNav->section()==Entry::EXAMPLE_SEC && !rootNav->name().isEmpty())
+  if ((rootNav->section()==Entry::EXAMPLE_SEC || rootNav->section()==Entry::EXAMPLE_LINENO_SEC) && !rootNav->name().isEmpty())
   {
     rootNav->loadEntry(g_storage);
     Entry *root = rootNav->entry();
@@ -8975,7 +8975,7 @@ static void buildExampleList(EntryNav *rootNav)
       pd->setFileName(convertNameToFile(pd->name()+"-example",FALSE,TRUE));
       pd->addSectionsToDefinition(root->anchors);
       pd->setLanguage(root->lang);
-      //pi->addSections(root->anchors);
+      pd->setShowLineNo(rootNav->section()==Entry::EXAMPLE_LINENO_SEC);
 
       Doxygen::exampleSDict->inSort(root->name,pd);
       //we don't add example to groups
@@ -9024,11 +9024,16 @@ static void generateExampleDocs()
     g_outputList->docify(pd->name());
     endTitle(*g_outputList,n,0);
     g_outputList->startContents();
+    QCString lineNoOptStr;
+    if (pd->showLineNo())
+    {
+      lineNoOptStr="{lineno}";
+    }
     g_outputList->generateDoc(pd->docFile(),                            // file
                          pd->docLine(),                            // startLine
                          pd,                                       // context
                          0,                                        // memberDef
-                         pd->documentation()+"\n\n\\include "+pd->name(),          // docs
+                         pd->documentation()+"\n\n\\include"+lineNoOptStr+" "+pd->name(), // docs
                          TRUE,                                     // index words
                          TRUE,                                     // is example
                          pd->name()
@@ -10236,7 +10241,6 @@ void readConfiguration(int argc, char **argv)
   bool genConfig=FALSE;
   bool shortList=FALSE;
   bool updateConfig=FALSE;
-  bool genLayout=FALSE;
   int retVal;
   while (optind<argc && argv[optind][0]=='-' &&
                (isalpha(argv[optind][1]) || argv[optind][1]=='?' ||
@@ -10249,10 +10253,12 @@ void readConfiguration(int argc, char **argv)
         genConfig=TRUE;
         break;
       case 'l':
-        genLayout=TRUE;
         layoutName=getArg(argc,argv,optind);
         if (!layoutName)
         { layoutName="DoxygenLayout.xml"; }
+        writeDefaultLayoutFile(layoutName);
+        cleanUpDoxygen();
+        exit(0);
         break;
       case 'd':
         debugLabel=getArg(argc,argv,optind);
@@ -10531,12 +10537,6 @@ void readConfiguration(int argc, char **argv)
   if (genConfig)
   {
     generateConfigFile(configName,shortList);
-    cleanUpDoxygen();
-    exit(0);
-  }
-  if (genLayout)
-  {
-    writeDefaultLayoutFile(layoutName);
     cleanUpDoxygen();
     exit(0);
   }

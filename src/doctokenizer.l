@@ -394,8 +394,8 @@ WORD1NQ   {ESCWORD}|{CHARWORDQ}+|"{"|"}"
 WORD2NQ   "."|","|"("|")"|"["|"]"|":"|";"|"\?"|"="|"'"
 CAPTION   [cC][aA][pP][tT][iI][oO][nN]
 HTMLTAG   "<"(("/")?){ID}({WS}+{ATTRIB})*{WS}*(("/")?)">" 
-HTMLKEYL  "strong"|"center"|"table"|"caption"|"small"|"code"|"dfn"|"var"|"img"|"pre"|"sub"|"sup"|"tr"|"td"|"th"|"ol"|"ul"|"li"|"tt"|"kbd"|"em"|"hr"|"dl"|"dt"|"dd"|"br"|"i"|"a"|"b"|"p"
-HTMLKEYU  "STRONG"|"CENTER"|"TABLE"|"CAPTION"|"SMALL"|"CODE"|"DFN"|"VAR"|"IMG"|"PRE"|"SUB"|"SUP"|"TR"|"TD"|"TH"|"OL"|"UL"|"LI"|"TT"|"KBD"|"EM"|"HR"|"DL"|"DT"|"DD"|"BR"|"I"|"A"|"B"|"P"
+HTMLKEYL  "strong"|"center"|"table"|"caption"|"small"|"code"|"dfn"|"var"|"img"|"pre"|"sub"|"sup"|"tr"|"td"|"th"|"ol"|"ul"|"li"|"tt"|"kbd"|"em"|"hr"|"dl"|"dt"|"dd"|"br"|"i"|"a"|"b"|"p"|"strike"|"u"
+HTMLKEYU  "STRONG"|"CENTER"|"TABLE"|"CAPTION"|"SMALL"|"CODE"|"DFN"|"VAR"|"IMG"|"PRE"|"SUB"|"SUP"|"TR"|"TD"|"TH"|"OL"|"UL"|"LI"|"TT"|"KBD"|"EM"|"HR"|"DL"|"DT"|"DD"|"BR"|"I"|"A"|"B"|"P"|"STRIKE"|"U"
 HTMLKEYW  {HTMLKEYL}|{HTMLKEYU}
 REFWORD2_PRE   ("#"|"::")?((({ID}{TEMPLPART}?)|{ANONNS})("."|"#"|"::"|"-"|"/"))*({ID}{TEMPLPART}?(":")?)
 REFWORD2       {REFWORD2_PRE}{FUNCARG2}?
@@ -447,6 +447,7 @@ REFWORD_NOCV   {LABELID}|{REFWORD2_NOCV}|{REFWORD3}|{REFWORD4_NOCV}
 %x St_Snippet
 %x St_SetScope
 %x St_SetScopeEnd
+%x St_Options
 
 %x St_Sections
 %s St_SecLabel1
@@ -1147,6 +1148,16 @@ REFWORD_NOCV   {LABELID}|{REFWORD2_NOCV}|{REFWORD3}|{REFWORD4_NOCV}
                          g_token->chars=yytext;
                          return TK_WHITESPACE;
                        }
+<St_Options>{ID}       {
+                         g_token->name+=yytext;
+                       }
+<St_Options>{WS}*","{WS}*
+<St_Options>{WS}       { /* option separator */
+                         g_token->name+=",";
+                       }
+<St_Options>"}"        {
+                         return TK_WORD;
+                       }
 <St_File>{FILEMASK}    {
   			 g_token->name = yytext;
 			 return TK_WORD;  
@@ -1507,6 +1518,12 @@ void doctokenizerYYsetStateSnippet()
 void doctokenizerYYsetStateSetScope()
 {
   BEGIN(St_SetScope);
+}
+
+void doctokenizerYYsetStateOptions()
+{
+  g_token->name="";
+  BEGIN(St_Options);
 }
 
 void doctokenizerYYcleanup()
