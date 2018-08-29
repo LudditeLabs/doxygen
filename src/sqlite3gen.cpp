@@ -159,7 +159,8 @@ const char * schema_queries[][2] = {
       "\tdetaileddescription  TEXT,\n"
       "\tbriefdescription     TEXT,\n"
       "\tinbodydescription    TEXT,\n"
-      "\tinherited_from       INTEGER\n"
+      "\tinherited_from       INTEGER,\n"
+      "\tid_compound          INTEGER\n"  //   parent compound
       ");"
   },
   { "compounddef",
@@ -333,7 +334,8 @@ SqlStmt memberdef_insert={"INSERT INTO memberdef "
       "detaileddescription,"
       "briefdescription,"
       "inbodydescription,"
-      "inherited_from"
+      "inherited_from,"
+      "id_compound"
     ")"
     "VALUES "
     "("
@@ -392,7 +394,8 @@ SqlStmt memberdef_insert={"INSERT INTO memberdef "
       ":detaileddescription,"
       ":briefdescription,"
       ":inbodydescription,"
-      ":inherited_from"
+      ":inherited_from,"
+      ":id_compound"
     ")"
     ,NULL
 };
@@ -1044,6 +1047,10 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
     }
   }
 
+  int id_compound = autodocCtx()->contentDb()->currentCompoundId();
+  if (id_compound != -1)
+    bindIntParameter(memberdef_insert,":id_compound",id_compound);
+
   int id_memberdef=step(memberdef_insert,TRUE);
 
   if (isFunc)
@@ -1156,6 +1163,7 @@ static void generateSqlite3ForClass(const ClassDef *cd)
   int id_compounddef = step(compounddef_insert, TRUE);
 
   autodocCtx()->contentDb()->generateDocBlocks(id_compounddef, 1, cd, 0);
+  autodocCtx()->contentDb()->setCurrentCompoundId(id_compounddef);
 
   // + list of direct super classes
   if (cd->baseClasses())
@@ -1258,6 +1266,8 @@ static void generateSqlite3ForClass(const ClassDef *cd)
       generateSqlite3Section(cd,ml,"user-defined");//g_xmlSectionMapper.find(ml->listType()));
     }
   }
+
+  autodocCtx()->contentDb()->setCurrentCompoundId(-1); // reset id
 }
 
 static void generateSqlite3ForNamespace(const NamespaceDef *nd)
