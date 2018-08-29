@@ -24,10 +24,14 @@ public:
     void generateDocBlocks(int memberId, int kind, const Definition *ctx,
                            const MemberDef *member);
 
+    int currentCompoundId() const { return m_currentCompoundId; }
+    void setCurrentCompoundId(int id) { m_currentCompoundId = id; }
+
 private:
     sqlite3 *m_db;
     InsertFileFunc m_insertFile;
     SqlStmt m_docblocksInsertStmt;
+    int m_currentCompoundId;
 
     int save(int memberId, int kind, DocBlock *block, const char *bytes,
              size_t size);

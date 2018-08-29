@@ -32,7 +32,7 @@ namespace autodoc
 {
 
 ContentDb::ContentDb(sqlite3 *db, InsertFileFunc insertFileFunc)
-: m_db(db), m_insertFile(insertFileFunc)
+: m_db(db), m_insertFile(insertFileFunc), m_currentCompoundId(-1)
 {
     m_docblocksInsertStmt.query =
         "INSERT INTO docblocks "
