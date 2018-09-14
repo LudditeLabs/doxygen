@@ -6,6 +6,7 @@
 #include "qdir.h"
 #include "qfileinfo.h"
 #include "qtextcodec.h"
+#include "qcstringlist.h"
 #include "doxygen.h"
 #include "sqlite3gen.h"
 #include "config.h"
@@ -125,8 +126,10 @@ void print_usage(const char *prog)
     msg("  --exclude,-e <path>  Files and/or dirs to exclude from processing.\n");
     msg("                       Relative paths are relative to current working\n");
     msg("                       directory.\n");
-    msg("  --exclude-pattern,-x <path>\n");
-    msg("                       Exclude pattern.\n");
+    msg("  --exclude-pattern,-x <pattern>\n");
+    msg("                       Exclude wildcard pattern.\n");
+    msg("  --file-patterns,-p <pattern>\n");
+    msg("                       File wildcard patterns separated with semicolon.\n");
     msg("  --out,-o             Output content DB filename.\n");
 }
 //-----------------------------------------------------------------------------
@@ -140,6 +143,7 @@ int parse_cli(autodoc::Context *context, char **argv)
         {"tmp",             'T', OPTPARSE_REQUIRED},
         {"exclude",         'e', OPTPARSE_REQUIRED},
         {"exclude-pattern", 'x', OPTPARSE_REQUIRED},
+        {"file-patterns",   'p', OPTPARSE_REQUIRED},
         {"out",             'o', OPTPARSE_REQUIRED},
         {0}
     };
@@ -162,6 +166,15 @@ int parse_cli(autodoc::Context *context, char **argv)
         case 'x':
             ConfigImpl_getList("EXCLUDE_PATTERNS").append(options.optarg);
             break;
+        case 'p':
+        {
+            QCStringList lst = QCStringList::split(';', options.optarg);
+            auto &file_patterns = ConfigImpl_getList("FILE_PATTERNS");
+            file_patterns.clear();
+            for (auto &v: lst)
+                file_patterns.append(v.data());
+            break;
+        }
         case 'o':
             context->setContentDbFilename(options.optarg);
             break;
