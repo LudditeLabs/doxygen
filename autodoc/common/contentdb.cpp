@@ -145,7 +145,8 @@ int ContentDb::save(int memberId, int kind, DocBlock *block, const char *bytes,
     bindIntParameter(m_docblocksInsertStmt,":start_col", block->startCol);
     bindIntParameter(m_docblocksInsertStmt,":end_line", block->endLine);
     bindIntParameter(m_docblocksInsertStmt,":end_col", block->endCol);
-    bindTextParameter(m_docblocksInsertStmt,":docstring", block->doc.data());
+    bindTextParameter(m_docblocksInsertStmt,":docstring",
+                      block->doc.isEmpty() ? "" : block->doc.data());
     if (bytes != nullptr)
         bindBlobParameter(m_docblocksInsertStmt,":doc", bytes, size);
     return step(m_docblocksInsertStmt,TRUE);

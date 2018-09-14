@@ -2012,7 +2012,8 @@ autodoc::DefinitionDoc* Definition::docs() const
 
 void Definition::addDocumentationBlock(const Entry *entry)
 {
-    if (!entry->doc.isNull())
+    if (entry->docBlockLineStart != 0 && entry->docBlockLineEnd != 0
+        && entry->docBlockCol != 0 && entry->docBlockColEnd != 0)
     {
         if (!m_impl->docs)
             m_impl->docs = new autodoc::DefinitionDoc();
