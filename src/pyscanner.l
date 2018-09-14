@@ -1457,6 +1457,22 @@ STARTDOCSYMS      "##"
     {ENDTRIDOUBLEQUOTE}   | 
     {ENDTRISINGLEQUOTE}   {
 			  // printf("Expected module block %d special=%d\n",g_expectModuleDocs,g_specialBlock);
+
+    			  // NOTE(autodoc):
+    			  // Fix for cases when docstring is empty and closing
+    			  // triple quote is placed on new line:
+    			  // 
+    			  // def foo():
+    			  //     """
+    			  //     """
+    			  // 
+    			  // Otherwise col:end_col will be 1:4
+    			  if (yycol < g_curIndent)
+    			  {
+    			    yycol += g_curIndent;
+	    		    yycol_end += g_curIndent;
+    			  }
+
 			  if (g_doubleQuote==(yytext[0]=='"')) 
 			  {
 			    if (g_specialBlock) // expecting a docstring
