@@ -56,6 +56,15 @@ if (CMAKE_SYSTEM MATCHES "Darwin")
     set(CMAKE_C_FLAGS "-Wno-deprecated-register -mmacosx-version-min=${MACOS_VERSION_MIN} ${CMAKE_C_FLAGS}")
     find_library(CORESERVICES_LIB CoreServices)
     set(EXTRA_LIBS ${CORESERVICES_LIB})
+    set(CMAKE_INSTALL_RPATH "@executable_path")
+endif()
+
+if (CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
+    # Make sure executables will search extra libs in the <exe_dir> directory.
+    # See also:
+    # https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
+    # http://man7.org/linux/man-pages/man8/ld.so.8.html
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
 if (WIN32)
