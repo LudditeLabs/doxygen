@@ -12,7 +12,7 @@
 # input used in their production; they are not affected by this license.
 # -DCMAKE_BUILD_TYPE=Debug -Dbuild_tests=ON -DPYTHON_INCLUDE_DIR=/usr/include/python3.5 -DPYTHON_LIBRARY=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5m.so
 # -DCMAKE_BUILD_TYPE=Debug -Dbuild_tests=ON -DPYTHON_INCLUDE_DIR=/usr/include/python3.5dm -DPYTHON_LIBRARY=/usr/lib/python3.5/config-3.5dm-x86_64-linux-gnu/libpython3.5dm.so
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.1)
 project(doxygen)
 
 option(build_wizard    "Build the GUI frontend for doxygen." OFF)
