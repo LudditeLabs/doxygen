@@ -30,6 +30,7 @@ option(english_only    "Only compile in support for the English language" ON)
 option(force_qt4       "Forces doxywizard to build using Qt4 even if Qt5 is installed" OFF)
 
 set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(TOP "${CMAKE_SOURCE_DIR}")
