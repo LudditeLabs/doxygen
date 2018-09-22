@@ -9179,7 +9179,24 @@ static void generateConfigFile(const char *configFile,bool shortList,
     exit(1);
   }
 }
-
+static void compareDoxyfile()
+{
+  QFile f;
+  char configFile[2];
+  configFile[0] = '-';
+  configFile[1] = '\0';
+  bool fileOpened=openOutputFile(configFile,f);
+  if (fileOpened)
+  {
+    FTextStream t(&f);
+    Config::compareDoxyfile(t);
+  }
+  else
+  {
+    err("Cannot open file %s for writing\n",configFile);
+    exit(1);
+  }
+}
 //----------------------------------------------------------------------------
 // read and parse a tag file
 
@@ -10037,6 +10054,8 @@ static void usage(const char *name)
   msg("    LaTeX:      %s -w latex headerFile footerFile styleSheetFile [configFile]\n\n",name);
   msg("6) Use doxygen to generate a rtf extensions file\n");
   msg("    RTF:   %s -e rtf extensionsFile\n\n",name);
+  msg("7) Use doxygen to compare the used configuration file with the template configuration file\n");
+  msg("    %s -x [configFile]\n\n",name);
   msg("If -s is specified the comments of the configuration items in the config file will be omitted.\n");
   msg("If configName is omitted `Doxyfile' will be used as a default.\n\n");
   msg("-v print version string\n");
@@ -10240,6 +10259,7 @@ void readConfiguration(int argc, char **argv)
   const char *formatName;
   bool genConfig=FALSE;
   bool shortList=FALSE;
+  bool diffList=FALSE;
   bool updateConfig=FALSE;
   int retVal;
   while (optind<argc && argv[optind][0]=='-' &&
@@ -10276,6 +10296,9 @@ void readConfiguration(int argc, char **argv)
           cleanUpDoxygen();
           exit(1);
         }
+        break;
+      case 'x':
+        diffList=TRUE;
         break;
       case 's':
         shortList=TRUE;
@@ -10527,6 +10550,7 @@ void readConfiguration(int argc, char **argv)
       exit(1);
     }
   }
+
   if (genConfig && g_useOutputTemplate)
   {
     generateTemplateFiles("templates");
@@ -10546,6 +10570,13 @@ void readConfiguration(int argc, char **argv)
     err("could not open or read configuration file %s!\n",configName);
     cleanUpDoxygen();
     exit(1);
+  }
+
+  if (diffList)
+  {
+    compareDoxyfile();
+    cleanUpDoxygen();
+    exit(0);
   }
 
   if (updateConfig)
@@ -11129,14 +11160,20 @@ void parseInput()
 
   // Notice: the order of the function calls below is very important!
 
-  if (Config_getBool(GENERATE_HTML))
+  if (Config_getBool(GENERATE_HTML) && !Config_getBool(USE_MATHJAX))
   {
     readFormulaRepository(Config_getString(HTML_OUTPUT));
   }
   if (Config_getBool(GENERATE_RTF))
   {
     // in case GENERRATE_HTML is set we just have to compare, both repositories should be identical
-    readFormulaRepository(Config_getString(RTF_OUTPUT),Config_getBool(GENERATE_HTML));
+    readFormulaRepository(Config_getString(RTF_OUTPUT),Config_getBool(GENERATE_HTML) && !Config_getBool(USE_MATHJAX));
+  }
+  if (Config_getBool(GENERATE_DOCBOOK))
+  {
+    // in case GENERRATE_HTML is set we just have to compare, both repositories should be identical
+    readFormulaRepository(Config_getString(DOCBOOK_OUTPUT),
+                         (Config_getBool(GENERATE_HTML) && !Config_getBool(USE_MATHJAX)) || Config_getBool(GENERATE_RTF));
   }
 
   /**************************************************************************
@@ -11485,6 +11522,7 @@ void generateOutput()
   bool generateLatex = Config_getBool(GENERATE_LATEX);
   bool generateMan   = Config_getBool(GENERATE_MAN);
   bool generateRtf   = Config_getBool(GENERATE_RTF);
+  bool generateDocbook = Config_getBool(GENERATE_DOCBOOK);
 
 
   g_outputList = new OutputList(TRUE);
@@ -11512,6 +11550,13 @@ void generateOutput()
     g_outputList->add(new LatexGenerator);
     LatexGenerator::init();
   }
+#if 1
+  if (generateDocbook)
+  {
+    g_outputList->add(new DocbookGenerator);
+    DocbookGenerator::init();
+  }
+#endif
   if (generateMan)
   {
     g_outputList->add(new ManGenerator);
@@ -11538,6 +11583,7 @@ void generateOutput()
 
   if (generateHtml)  writeDoxFont(Config_getString(HTML_OUTPUT));
   if (generateLatex) writeDoxFont(Config_getString(LATEX_OUTPUT));
+  if (generateDocbook) writeDoxFont(Config_getString(DOCBOOK_OUTPUT));
   if (generateRtf)   writeDoxFont(Config_getString(RTF_OUTPUT));
 
   g_s.begin("Generating style sheet...\n");
@@ -11631,6 +11677,13 @@ void generateOutput()
     g_s.end();
   }
 
+  if (Doxygen::formulaList->count()>0 && generateDocbook)
+  {
+    g_s.begin("Generating bitmaps for formulas in Docbook...\n");
+    Doxygen::formulaList->generateBitmaps(Config_getString(DOCBOOK_OUTPUT));
+    g_s.end();
+  }
+
   if (Config_getBool(SORT_GROUP_NAMES))
   {
     Doxygen::groupSDict->sort();
@@ -11663,6 +11716,8 @@ void generateOutput()
       removeDoxFont(Config_getString(RTF_OUTPUT));
     if (generateLatex)
       removeDoxFont(Config_getString(LATEX_OUTPUT));
+    if (generateDocbook)
+      removeDoxFont(Config_getString(DOCBOOK_OUTPUT));
   }
 
   if (Config_getBool(GENERATE_XML))
@@ -11680,12 +11735,14 @@ void generateOutput()
     g_s.end();
   }
 
-  if (Config_getBool(GENERATE_DOCBOOK))
+#if 0
+  if (generateDocbook)
   {
     g_s.begin("Generating Docbook output...\n");
-    generateDocbook();
+    generateDocbook_v1();
     g_s.end();
   }
+#endif
 
   if (Config_getBool(GENERATE_AUTOGEN_DEF))
   {
@@ -11756,6 +11813,10 @@ void generateOutput()
     copyLatexStyleSheet();
     copyLogo(Config_getString(LATEX_OUTPUT));
     copyExtraFiles(Config_getList(LATEX_EXTRA_FILES),"LATEX_EXTRA_FILES",Config_getString(LATEX_OUTPUT));
+  }
+  if (generateDocbook)
+  {
+    copyLogo(Config_getString(DOCBOOK_OUTPUT));
   }
   if (generateRtf)
   {

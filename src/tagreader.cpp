@@ -18,6 +18,7 @@
 
 #include "tagreader.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -95,8 +96,8 @@ class TagMemberInfo
 class TagClassInfo
 {
   public:
-    enum Kind { Class, Struct, Union, Interface, Exception, Protocol, Category, Enum, Service, Singleton };
-    TagClassInfo() { bases=0, templateArguments=0; members.setAutoDelete(TRUE); isObjC=FALSE; }
+    enum Kind { None=-1, Class, Struct, Union, Interface, Exception, Protocol, Category, Enum, Service, Singleton };
+    TagClassInfo() { bases=0, templateArguments=0; members.setAutoDelete(TRUE); isObjC=FALSE; kind = None; }
    ~TagClassInfo() { delete bases; delete templateArguments; }
     QCString name;
     QCString filename;
@@ -1322,6 +1323,9 @@ void TagFileParser::buildLists(Entry *root)
       case TagClassInfo::Category:  ce->spec = Entry::Category;  break;
       case TagClassInfo::Service:   ce->spec = Entry::Service;   break;
       case TagClassInfo::Singleton: ce->spec = Entry::Singleton; break;
+      case TagClassInfo::None:      // should never happen, means not properly initialized
+        assert(tci->kind != TagClassInfo::None);
+        break;
     }
     ce->name     = tci->name;
     if (tci->kind==TagClassInfo::Protocol)

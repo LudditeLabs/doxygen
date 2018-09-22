@@ -1110,7 +1110,15 @@ void ClassDef::showUsedFiles(OutputList &ol)
 
 
   ol.writeRuler();
-  ol.parseText(generatedFromFiles());
+  ol.pushGeneratorState();
+    ol.disableAllBut(OutputGenerator::Docbook);
+    ol.startParagraph();
+    ol.parseText(generatedFromFiles());
+    ol.endParagraph();
+  ol.popGeneratorState();
+  ol.disable(OutputGenerator::Docbook);
+    ol.parseText(generatedFromFiles());
+  ol.enable(OutputGenerator::Docbook);
 
   bool first=TRUE;
   QListIterator<FileDef> li(m_impl->files);
@@ -1223,7 +1231,7 @@ void ClassDef::writeInheritanceGraph(OutputList &ol)
     }
   }
   else if (Config_getBool(CLASS_DIAGRAMS) && count>0)
-    // write class diagram using build-in generator
+    // write class diagram using built-in generator
   {
     ClassDiagram diagram(this); // create a diagram of this class.
     ol.startClassDiagram();
@@ -1839,6 +1847,7 @@ void ClassDef::writeMoreLink(OutputList &ol,const QCString &anchor)
     // LaTeX + RTF
     ol.disable(OutputGenerator::Html);
     ol.disable(OutputGenerator::Man);
+    ol.disable(OutputGenerator::Docbook);
     if (!(usePDFLatex && pdfHyperlinks))
     {
       ol.disable(OutputGenerator::Latex);

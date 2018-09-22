@@ -2159,7 +2159,7 @@ void LatexGenerator::endParameterName(bool last,bool /*emptyList*/,bool closeBra
 void LatexGenerator::exceptionEntry(const char* prefix,bool closeBracket)
 {
   if (prefix)
-      t << " " << prefix;
+      t << " " << prefix << "(";
   else if (closeBracket)
       t << ")";
   t << " ";
@@ -2222,11 +2222,9 @@ void LatexGenerator::startCodeFragment()
 
 void LatexGenerator::endCodeFragment()
 {
-  //if (DoxyCodeOpen)
-  //{
-  //  t << "}\n";
-  //  DoxyCodeOpen = FALSE;
-  //}
+  //endCodeLine checks is there is still an open code line, if so closes it.
+  endCodeLine();
+
   t << "\\end{DoxyCode}\n";
   DoxyCodeOpen = FALSE;
 }

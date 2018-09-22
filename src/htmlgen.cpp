@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 
+#include <assert.h>
 #include <qdir.h>
 #include <qregexp.h>
 #include "message.h"
@@ -690,6 +691,7 @@ HtmlGenerator::HtmlGenerator() : OutputGenerator()
 {
   dir=Config_getString(HTML_OUTPUT);
   m_emptySection=FALSE;
+  m_sectionCount=0;
 }
 
 HtmlGenerator::~HtmlGenerator()
@@ -2055,6 +2057,9 @@ static bool quickLinkVisible(LayoutNavEntry::Kind kind)
     case LayoutNavEntry::FileGlobals:      return documentedFileMembers[FMHL_All]>0;
     //case LayoutNavEntry::Dirs:             return documentedDirs>0;
     case LayoutNavEntry::Examples:         return Doxygen::exampleSDict->count()>0;
+    case LayoutNavEntry::None:             // should never happen, means not properly initialized
+      assert(kind != LayoutNavEntry::None);
+      return FALSE;
   }
   return FALSE;
 }

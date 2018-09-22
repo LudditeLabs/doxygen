@@ -110,7 +110,7 @@ SEARCHENGINE     = NO
 \endverbatim
 
 To generate the documentation for the 
-<a href="http://www.stack.nl/~dimitri/qdbttabular/index.html">QdbtTabular</a> package
+<a href="https://sourceforge.net/projects/qdbttabular/">QdbtTabular</a> package
 I have used the following configuration file:
 \verbatim
 PROJECT_NAME     = QdbtTabular
@@ -549,6 +549,30 @@ Go to the <a href="commands.html">next</a> section or return to the
  (in the resulting output).
  You can put `^^` in the value part of an alias to insert a newline as if 
  a physical newline was in the original file.
+]]>
+      </docs>
+      <docs doxyfile='0' documentation='0'>
+<![CDATA[
+ When you need a literal `{` or `}` or `,` in the value part of an alias you have to
+ escape them by means of a backslash, this can lead to conflicts with the
+ commands \c \\{ and \c \\} for these it is advised to use the version \c @{ and \c @} or
+ use a double escape (\c \\\\{ and \c \\\\})
+]]>
+      </docs>
+      <docs doxywizard='0' documentation='0'>
+<![CDATA[
+ When you need a literal `{` or `}` or `,` in the value part of an alias you have to
+ escape them by means of a backslash (\c \\), this can lead to conflicts with the
+ commands \c \\{ and \c \\} for these it is advised to use the version \c @{ and \c @} or
+ use a double escape (\c \\\\{ and \c \\\\})
+]]>
+      </docs>
+      <docs doxyfile='0' doxywizard='0'>
+<![CDATA[
+ When you need a literal `{` or `}` or `,` in the value part of an alias you have to
+ escape them by means of a backslash (`\`), this can lead to conflicts with the
+ commands \c \\{ and \c \\} for these it is advised to use the version \c @@{ and \c @@} or
+ use a double escape (\c \\\\{ and \c \\\\})
 ]]>
       </docs>
     </option>
