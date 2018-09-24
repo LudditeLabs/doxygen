@@ -3,16 +3,6 @@
 
 namespace autodoc {
 
-void DocBlock::copyPositionFrom(Entry *entry)
-{
-    startLine = entry->docBlockLineStart;
-    endLine = entry->docBlockLineEnd;
-    startCol = entry->docBlockCol;
-    endCol = entry->docBlockColEnd;
-}
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
 
 DefinitionDoc::DefinitionDoc()
 : m_blocks(0)

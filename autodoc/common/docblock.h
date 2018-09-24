@@ -26,8 +26,6 @@ struct DocBlock
         : filename(other.filename), doc(other.doc), startLine(other.startLine),
           endLine(other.endLine), startCol(other.startCol),
           endCol(other.endCol) {}
-
-    void copyPositionFrom(Entry *entry);
 };
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
