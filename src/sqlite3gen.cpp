@@ -1147,8 +1147,6 @@ static void generateSqlite3ForClass(const ClassDef *cd)
   if (cd->name().find('@')!=-1) return; // skip anonymous compounds.
   if (cd->templateMaster()!=0)  return; // skip generated template instances.
 
-  msg("Generating Sqlite3 output for class %s\n",cd->name().data());
-
   bindTextParameter(compounddef_insert,":name",cd->name());
   bindTextParameter(compounddef_insert,":kind",cd->compoundTypeString(),FALSE);
   bindIntParameter(compounddef_insert,":prot",cd->protection());
