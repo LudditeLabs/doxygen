@@ -88,6 +88,8 @@ static bool             docBlockInBody;
 static bool             docBlockJavaStyle;
 static bool             docBrief;
 static bool             docBlockSpecial;
+static int              docBlockLineStart = 0;
+static int              docBlockCol = 0;
 
 static bool             g_doubleQuote;
 static bool             g_specialBlock;
@@ -144,6 +146,9 @@ static void initEntry()
   current->setParent(current_root);
   initGroupInfo(current);
   gstat = FALSE;
+  docBlockLineStart = 0;
+  docBlockCol = 0;
+
 }
 
 static void newEntry()
@@ -315,9 +320,9 @@ static void startCommentBlock(bool brief)
   // Column of the token opening comment block.
   // Used in the handleCommentBlock().
   // 'yycol' is calculated in YY_USER_ACTION.
-  current->docBlockLineStart = yyLineNr;
-  current->docBlockCol = yycol;
-  
+  docBlockLineStart = yyLineNr;
+  docBlockCol = yycol;
+
   if (brief)
   {
     current->briefFile = yyFileName;
@@ -345,6 +350,8 @@ static void handleCommentBlock(const QCString &doc,bool brief)
   //    doc.data(),brief,docBlockInBody,docBlockJavaStyle);
 
   // See YY_USER_ACTION and startCommentBlock().
+  current->docBlockLineStart = docBlockLineStart;
+  current->docBlockCol = docBlockCol;
   current->docBlockColEnd = yycol_end;
   current->docBlockLineEnd = yyLineNr;
 
