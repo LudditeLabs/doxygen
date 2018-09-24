@@ -208,7 +208,7 @@ const char * schema_queries[][2] = {
       "\tdefval       TEXT,\n"
       "\tbriefdescription TEXT\n"
       ");"
-    "CREATE UNIQUE INDEX idx_params ON params\n"
+    "CREATE INDEX idx_params ON params\n"
       "\t(type, defname);"
   },
   { "memberdef_params",
