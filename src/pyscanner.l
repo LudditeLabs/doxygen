@@ -91,6 +91,10 @@ static bool             docBlockSpecial;
 static int              docBlockLineStart = 0;
 static int              docBlockCol = 0;
 
+// NOTE(autodoc): this flag is used to skip indentation processing
+// in docstrings in parseCompounds().
+// Indentation is already processed by parseMain().
+static bool             g_inCompound = FALSE;
 static bool             g_doubleQuote;
 static bool             g_specialBlock;
 static int              g_stringContext;
@@ -1531,7 +1535,8 @@ STARTDOCSYMS      "##"
 
     ^{BB}		{ // leading whitespace
       			  int indent = computeIndent(yytext);
-			  if (indent>=g_curIndent)
+      			  
+			  if (!g_inCompound && indent>=g_curIndent)
 			  { // strip g_curIndent amount of whitespace
 			    int i;
 			    for (i=0;i<indent-g_curIndent;i++) docBlock+=' ';
@@ -1741,6 +1746,7 @@ static void parseMain(const char *fileName,const char *fileBuf,Entry *rt)
   virt          = Normal;
   current_root  = rt;
   g_specialBlock = FALSE;
+  g_inCompound  = FALSE;
 
 
   inputFile.setName(fileName);
@@ -1792,7 +1798,9 @@ static void parseMain(const char *fileName,const char *fileBuf,Entry *rt)
     current_root->program.resize(0);
     delete current; current=0;
 
+    g_inCompound = TRUE;
     parseCompounds(current_root);
+    g_inCompound = FALSE;
 
     inputFile.close();
   }
