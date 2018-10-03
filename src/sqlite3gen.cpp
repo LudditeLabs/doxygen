@@ -169,6 +169,7 @@ const char * schema_queries[][2] = {
       "\trowid        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n"
       "\tname         TEXT NOT NULL,\n"
       "\tkind         TEXT NOT NULL,\n"
+      "\tkind_id      INTEGER NOT NULL,\n"
       "\trefid        INTEGER NOT NULL,\n"
       "\tprot         INTEGER NOT NULL,\n"
       "\tid_file      INTEGER NOT NULL,\n"
@@ -401,9 +402,9 @@ SqlStmt memberdef_insert={"INSERT INTO memberdef "
 };
 //////////////////////////////////////////////////////
 SqlStmt compounddef_insert={"INSERT INTO compounddef "
-    "( name, kind, prot, refid, id_file, line, column ) "
+    "( name, kind, kind_id, prot, refid, id_file, line, column ) "
     "VALUES "
-    "(:name,:kind,:prot,:refid,:id_file,:line,:column )"
+    "(:name,:kind,:kind_id,:prot,:refid,:id_file,:line,:column )"
     ,NULL
 };
 //////////////////////////////////////////////////////
@@ -1149,6 +1150,7 @@ static void generateSqlite3ForClass(const ClassDef *cd)
 
   bindTextParameter(compounddef_insert,":name",cd->name());
   bindTextParameter(compounddef_insert,":kind",cd->compoundTypeString(),FALSE);
+  bindIntParameter(compounddef_insert,":kind_id",cd->compoundType());
   bindIntParameter(compounddef_insert,":prot",cd->protection());
   int refid = insertRefid(cd->getOutputFileBase());
   bindIntParameter(compounddef_insert,":refid", refid);
