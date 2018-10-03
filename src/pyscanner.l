@@ -482,7 +482,7 @@ static void searchFoundClass()
   current->fileName  = yyFileName;
   current->startLine  = yyLineNr;
   current->bodyLine  = yyLineNr;
-  current->startColumn = yycol_end - 4;
+  current->startColumn = yycol_end - 6;  // len('class ') = 6
   g_packageCommentAllowed = FALSE;
 }
 
@@ -617,7 +617,7 @@ STARTDOCSYMS      "##"
      ^{B}"class"{BB}	{ // start of a class definition with indent
        			  DBG_CTX((stderr,"Found class at %d\n",yyLineNr));
       			  g_indent=computeIndent(yytext);
-			  searchFoundClass();
+              searchFoundClass();
 			  BEGIN( ClassDec ) ;
        			}
      "class"{BB}        {  // start of a class definition
