@@ -21,7 +21,7 @@ public:
     bool initializeSchema();
     bool prepareStatements();
 
-    void generateDocBlocks(int memberId, int kind, const Definition *ctx,
+    void generateDocBlocks(int refid, const Definition *ctx,
                            const MemberDef *member);
 
     int currentCompoundId() const { return m_currentCompoundId; }
@@ -33,7 +33,7 @@ private:
     SqlStmt m_docblocksInsertStmt;
     int m_currentCompoundId;
 
-    int save(int memberId, int kind, DocBlock *block, const char *bytes,
+    int save(int refid, int type, DocBlock *block, const char *bytes,
              size_t size);
 };
 

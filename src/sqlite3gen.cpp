@@ -1088,7 +1088,7 @@ static void generateSqlite3ForMember(const MemberDef *md, const Definition *def)
     }
   }
 
-  autodocCtx()->contentDb()->generateDocBlocks(id_memberdef, 0, def, md);
+  autodocCtx()->contentDb()->generateDocBlocks(refid, def, md);
 }
 
 
@@ -1160,7 +1160,7 @@ static void generateSqlite3ForClass(const ClassDef *cd)
 
   int id_compounddef = step(compounddef_insert, TRUE);
 
-  autodocCtx()->contentDb()->generateDocBlocks(id_compounddef, 1, cd, 0);
+  autodocCtx()->contentDb()->generateDocBlocks(refid, cd, 0);
   autodocCtx()->contentDb()->setCurrentCompoundId(id_compounddef);
 
   // + list of direct super classes

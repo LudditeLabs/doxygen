@@ -12,8 +12,8 @@ static const char* schema[][2] = {
     { "docblocks",
       "CREATE TABLE IF NOT EXISTS docblocks (\n\t"
       "rowid        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n\t"
-      "id_member    INTEGER NOT NULL,\n\t"
-      "kind         INTEGER NOT NULL,  -- 0:member 1:compound\n\t"
+      "refid        INTEGER NOT NULL,\n\t"
+      "type         INTEGER NOT NULL,  -- definition type\n\t"
       "id_file      INTEGER NOT NULL,\n\t"
       "start_line   INTEGER,\n\t"
       "start_col    INTEGER,\n\t"
@@ -23,7 +23,7 @@ static const char* schema[][2] = {
       "doc          BLOB\n"
       ");\n"
       "CREATE UNIQUE INDEX idx_docblocks ON docblocks\n"
-      "\t(id_member);"
+      "\t(type, refid);"
     }
 };
 
@@ -36,9 +36,9 @@ ContentDb::ContentDb(sqlite3 *db, InsertFileFunc insertFileFunc)
 {
     m_docblocksInsertStmt.query =
         "INSERT INTO docblocks "
-        "(id_member,kind,id_file,start_line,start_col,end_line,end_col,docstring,doc) "
+        "(refid,type,id_file,start_line,start_col,end_line,end_col,docstring,doc) "
         "VALUES "
-        "(:id_member,:kind,:id_file,:start_line,:start_col,:end_line,:end_col,:docstring,:doc)";
+        "(:refid,:type,:id_file,:start_line,:start_col,:end_line,:end_col,:docstring,:doc)";
     m_docblocksInsertStmt.db = NULL;
     m_docblocksInsertStmt.stmt = NULL;
 }
@@ -77,7 +77,7 @@ bool ContentDb::prepareStatements()
 }
 //-----------------------------------------------------------------------------
 
-void ContentDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
+void ContentDb::generateDocBlocks(int refid, const Definition *ctx,
                                   const MemberDef *member)
 {
     const Definition *def = member ? member : ctx;
@@ -91,6 +91,7 @@ void ContentDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
         return;
 
     msg("=== MEMBER DOC: %s\n", def->name().data());
+    int definition_type = def->definitionType();
     QDictIterator<DocBlock> it(*blocks);
     DocBlock *block;
     for (it.toFirst(); (block = it.current()); ++it)
@@ -104,7 +105,7 @@ void ContentDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
         if (block->filename.right(3) == ".py")
         {
             msg("===== Skip pickle.\n");
-            save(memberId, kind, block, nullptr, 0);
+            save(refid, definition_type, block, nullptr, 0);
             continue;
         }
 
@@ -127,19 +128,20 @@ void ContentDb::generateDocBlocks(int memberId, int kind, const Definition *ctx,
                 printPyError("can't pickle object.");
                 continue;
             }
-            save(memberId, kind, block, bytes, size);
+            save(refid, definition_type, block, bytes,
+                 static_cast<size_t>(size));
         }
     }
 }
 //-----------------------------------------------------------------------------
 
-int ContentDb::save(int memberId, int kind, DocBlock *block, const char *bytes,
+int ContentDb::save(int refid, int type, DocBlock *block, const char *bytes,
                     size_t size)
 {
     int id_file = (*m_insertFile)(block->filename);
 
-    bindIntParameter(m_docblocksInsertStmt,":id_member", memberId);
-    bindIntParameter(m_docblocksInsertStmt,":kind", kind);
+    bindIntParameter(m_docblocksInsertStmt,":refid", refid);
+    bindIntParameter(m_docblocksInsertStmt,":type", type);
     bindIntParameter(m_docblocksInsertStmt,":id_file", id_file);
     bindIntParameter(m_docblocksInsertStmt,":start_line", block->startLine);
     bindIntParameter(m_docblocksInsertStmt,":start_col", block->startCol);
