@@ -748,6 +748,7 @@ STARTDOCSYMS      "##"
 		      }
   .                   {
                         unput(*yytext);
+                        yycol_end -= yyleng;
                         BEGIN(Search);
                       }
 }
