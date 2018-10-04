@@ -4882,9 +4882,12 @@ static bool findClassRelation(
             //    baseClassName.data(),baseClass,biName.data(),templSpec.data());
             if (baseClass==0)
             {
-              baseClass=new ClassDef(root->fileName,root->startLine,root->startColumn,
-                  baseClassName,
-                  ClassDef::Class);
+              // NOTE(autodoc): don't set filename and position for base class
+              // if it's not present in scanned files.
+              // baseClass=new ClassDef(root->fileName,root->startLine,root->startColumn,
+              //    baseClassName,
+              //    ClassDef::Class);
+              baseClass=new ClassDef("",0,0,baseClassName,ClassDef::Class);
               Doxygen::classSDict->append(baseClassName,baseClass);
               if (isArtificial) baseClass->setArtificial(TRUE);
               baseClass->setLanguage(root->lang);
