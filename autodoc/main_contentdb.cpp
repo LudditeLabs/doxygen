@@ -184,6 +184,14 @@ int parse_cli(autodoc::Context *context, char **argv)
         }
     }
 
+    QCString filename = autodocCtx()->contentDbFilename();
+    if (filename.isEmpty())
+    {
+        QDir dir(ConfigImpl_getString("OUTPUT_DIRECTORY"));
+        filename = dir.filePath("content.db").data();
+        autodocCtx()->setContentDbFilename(filename);
+    }
+
     // Remaining args.
     char *arg;
     QStrList &inputs = ConfigImpl_getList("INPUT");

@@ -9,7 +9,6 @@ autodoc::Context *autodoc::Context::m_instance = nullptr;
 
 
 autodoc::Context::Context()
-: m_contentDbFilename("content.db")
 {
 
 }
