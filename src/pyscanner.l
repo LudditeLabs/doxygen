@@ -1055,6 +1055,7 @@ STARTDOCSYMS      "##"
       			}
      ")"                {
 			  unput(*yytext);
+			  yycol_end -= 1;
 			  BEGIN(FunctionDec);
                         }
      ":"{B}             {
@@ -1085,6 +1086,7 @@ STARTDOCSYMS      "##"
 			  {
 			    current->type = g_defVal.data();
 			    unput(*yytext);
+			    yycol_end -= 1;
 			    BEGIN(FunctionDec);
 			  }
 			  else
@@ -1128,7 +1130,10 @@ STARTDOCSYMS      "##"
 			    if (current->argList->getLast())
 			      current->argList->getLast()->type += g_defVal.data();
 			    if (*yytext == ')')
+			    {
 			      unput(*yytext);
+			      yycol_end -= 1;
+			    }
 			    BEGIN(FunctionParams);
 			  }
 			  else
@@ -1176,7 +1181,10 @@ STARTDOCSYMS      "##"
 			    if (current->argList->getLast())
 			      current->argList->getLast()->defval=QCString(g_defVal.data()).stripWhiteSpace();
 			    if (*yytext == ')')
+			    {
 			      unput(*yytext);
+			      yycol_end -= 1;
+			    }
 			    BEGIN(FunctionParams);
 			  }
      			  else
@@ -1564,7 +1572,7 @@ STARTDOCSYMS      "##"
                       }
     .		      { 
                         unput(*yytext);
-                        yycol_end -= yyleng;
+                        yycol_end -= 1;
 			newVariable();
                         BEGIN(Search);
       		      }
