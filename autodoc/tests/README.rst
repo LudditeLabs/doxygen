@@ -13,16 +13,13 @@ Layout
 
 ::
 
+    pymodule/                   - Autodoc python module for pyhton tests.
+    pytests/                    - Python tests.
     CMakeLists-gtest.txt.in     - Template to integrate Google Mock.
     main.cpp                    - Custom Google Mock entry point.
     utils.cpp                   - Test utils.
-
-    py/                         - Python tests.
     test_py.cpp                 - Test case to run python tests.
-    visitormodule.cpp           - Python module provides access to autodoc.
-
-    test_*.cpp                  - c++ tests.
-
+    test_*.cpp                  - C++ tests.
 
 C++ tests
 ---------
@@ -33,12 +30,11 @@ by the ``CMakeLists-gtest.txt.in``.
 Doxygen part is initialized and deinitialized by ``DoxygenEnv`` implemented
 in the ``main.cpp``.
 
-
 Python tests
 ------------
 
 Python tests are implemented with ``pytest`` framework and runs autodoc parts
-via extension ``visitor`` which is implemented in the ``visitormodule.cpp``.
+via extension ``visitor`` which is implemented in the ``pymodule/``.
 
 Make sure ``pytest`` is installed for your python interpreter::
 
