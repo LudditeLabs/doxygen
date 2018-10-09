@@ -19,10 +19,10 @@ addons:
             - python3.5-dbg
             - libxml2-utils
             - libsqlite3-dev
-            - python-pip
+            - python3-pip
 
 script:
-    - python3.5dm -m pip install --user pytest
+    - sudo pip3 install pytest
     - mkdir build
     - cd build
     - cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -Dbuild_tests=ON -DPYTHON_INCLUDE_DIR=/usr/include/python3.5dm -DPYTHON_LIBRARY=/usr/lib/python3.5/config-3.5dm-x86_64-linux-gnu/libpython3.5dm.so ..
